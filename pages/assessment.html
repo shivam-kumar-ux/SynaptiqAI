@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Assessment - SYNAPTIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--void:#050B18;--navy:#0A1628;--panel:#0D2137;--neon:#00F5FF;--plasma:#7B2FFF;--laser:#FF2D78;--green:#00FF9D;--amber:#FFB300;--silver:#C8D8E8;--dim:#6B8299;--border:#1A3A55}
+body{background:var(--void);color:var(--silver);font-family:'Rajdhani',sans-serif;min-height:100vh;display:flex}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px);pointer-events:none;z-index:0}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:rgba(10,22,40,0.98);border-right:1px solid var(--border);z-index:50;padding:20px 0;display:flex;flex-direction:column}
+.sb-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;font-family:'Orbitron',monospace;font-size:.82rem;font-weight:900;color:var(--neon);letter-spacing:2px}
+.sb-logo img{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(0,245,255,0.35))}
+nav{flex:1;padding:16px 0}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;font-size:.85rem;color:var(--dim);transition:.2s;text-decoration:none;position:relative}
+.nav-item:hover{color:var(--silver);background:rgba(0,245,255,0.04)}
+.nav-item.active{color:var(--neon);background:rgba(0,245,255,0.07)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--neon)}
+.main{margin-left:240px;flex:1;padding:28px;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh}
+/* ── ENTRY SCREEN ─────────────────────────────── */
+.entry-screen{max-width:640px;width:100%;text-align:center}
+.entry-title{font-family:'Orbitron',monospace;font-size:clamp(1.2rem,3vw,2rem);font-weight:900;letter-spacing:4px;margin-bottom:8px}
+.entry-glow{color:var(--plasma);text-shadow:0 0 40px rgba(123,47,255,0.5)}
+.entry-sub{font-size:.9rem;color:var(--dim);margin-bottom:28px;line-height:1.6}
+.warning-card{background:rgba(255,45,120,0.06);border:1px solid rgba(255,45,120,0.3);border-radius:10px;padding:14px 18px;margin-bottom:24px;font-size:.85rem;color:rgba(255,45,120,0.9);text-align:left}
+.warning-card strong{display:block;margin-bottom:4px;font-family:'Orbitron',monospace;font-size:.7rem;letter-spacing:1px}
+.section-table{width:100%;border-collapse:collapse;margin-bottom:24px;background:rgba(10,22,40,0.6);border-radius:8px;overflow:hidden}
+.section-table th{background:var(--plasma);padding:10px 14px;font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:2px;color:var(--void);text-align:left}
+.section-table td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:.88rem}
+.section-table tr:last-child td{border-bottom:none}
+.section-table tr:nth-child(even) td{background:rgba(0,245,255,0.02)}
+.btn-initiate{padding:14px 40px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.8rem;font-weight:900;letter-spacing:3px;border:none;border-radius:8px;cursor:pointer;transition:.2s;width:100%}
+.btn-initiate:hover{box-shadow:0 0 32px rgba(0,245,255,0.5);transform:translateY(-2px)}
+.btn-initiate:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.est-time{font-size:.78rem;color:var(--dim);margin-top:10px;font-family:'JetBrains Mono',monospace}
+/* ── ACTIVE ASSESSMENT ────────────────────────── */
+.active-screen{display:none;width:100%;max-width:680px}
+.active-topbar{background:rgba(5,11,24,0.95);border:1px solid var(--border);border-radius:10px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;backdrop-filter:blur(12px)}
+.section-name{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:2px;color:var(--dim)}
+.q-progress{font-family:'Orbitron',monospace;font-size:.85rem;color:var(--neon)}
+.section-timer{font-family:'JetBrains Mono',monospace;font-size:1.1rem;color:var(--amber);transition:.3s}
+.section-timer.urgent{color:var(--laser);animation:flashT .4s infinite}
+@keyframes flashT{0%,100%{opacity:1}50%{opacity:.4}}
+.section-prog-bar{height:3px;background:var(--panel);border-radius:99px;margin-bottom:20px;overflow:hidden}
+.section-prog-fill{height:100%;background:linear-gradient(90deg,var(--neon),var(--plasma));transition:width .4s ease}
+/* question card */
+.q-card{background:rgba(10,22,40,0.88);border:1px solid var(--border);border-left:5px solid var(--plasma);border-radius:12px;padding:28px;margin-bottom:18px;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.q-card.shake{animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.q-num-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--dim);margin-bottom:10px}
+.q-text{font-size:1rem;color:var(--silver);line-height:1.6;margin-bottom:20px}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.option{background:var(--panel);border:1.5px solid var(--border);border-radius:8px;padding:12px 15px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:12px}
+.option:hover{border-color:rgba(0,245,255,0.4);background:rgba(0,245,255,0.04)}
+.option.selected{border-color:var(--neon);background:rgba(0,245,255,0.08)}
+.opt-letter{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.6rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.opt-text{font-size:.88rem;line-height:1.4}
+.req-tooltip{color:var(--laser);font-size:.78rem;font-family:'JetBrains Mono',monospace;margin-top:8px;display:none}
+.req-tooltip.show{display:block}
+.nav-row{display:flex;justify-content:flex-end;gap:12px}
+.btn-next-q{padding:11px 28px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;border:none;border-radius:8px;cursor:pointer;transition:.2s}
+.btn-next-q:hover{box-shadow:0 0 20px rgba(0,245,255,0.4)}
+/* ── SECTION TRANSITION ───────────────────────── */
+.transition-screen{display:none;text-align:center;width:100%;max-width:440px}
+.trans-title{font-family:'Orbitron',monospace;font-size:1.8rem;color:var(--neon);letter-spacing:4px;margin-bottom:12px}
+.trans-lock{font-size:2.5rem;margin-bottom:8px}
+.trans-label{font-size:.8rem;color:var(--dim);font-family:'JetBrains Mono',monospace;margin-bottom:20px}
+.trans-count{font-family:'Orbitron',monospace;font-size:2rem;color:var(--plasma)}
+/* ── COMPLETION SCREEN ────────────────────────── */
+.complete-screen{display:none;text-align:center;width:100%;max-width:560px}
+.complete-title{font-family:'Orbitron',monospace;font-size:1.4rem;letter-spacing:3px;color:var(--neon);margin-bottom:28px}
+.neon-ring-big{width:90px;height:90px;border:4px solid transparent;border-top-color:var(--neon);border-right-color:var(--plasma);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 28px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-status-line{display:flex;align-items:center;gap:12px;padding:12px 20px;background:rgba(10,22,40,0.6);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;font-size:.85rem;opacity:.4;transition:opacity .4s,border-color .4s}
+.ai-status-line.active{opacity:1;border-color:var(--neon)}
+.ai-status-line.done{opacity:1;border-color:var(--green);background:rgba(0,255,157,0.04)}
+.ai-dot-anim{width:8px;height:8px;border-radius:50%;background:var(--neon);animation:pulseD 1s infinite}
+@keyframes pulseD{0%,100%{opacity:1}50%{opacity:.2}}
+.ai-status-line.done .ai-dot-anim{background:var(--green);animation:none}
+.ai-tick{color:var(--green);font-size:1.1rem;margin-left:auto}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0;padding:16px}.options-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sb-logo"><img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ logo"><span>SYNAPTIQ</span></div>
+  <nav>
+    <a href="dashboard.html" class="nav-item"><span>◉</span> Dashboard</a>
+    <a href="plan-new.html" class="nav-item"><span>✦</span> New Plan</a>
+    <a href="session.html" class="nav-item"><span>⏱</span> Study Now</a>
+    <a href="progress.html" class="nav-item"><span>▣</span> Progress</a>
+    <a href="assessment.html" class="nav-item active"><span>⬡</span> Assessment</a>
+    <a href="settings.html" class="nav-item"><span>⚙</span> Settings</a>
+  </nav>
+</div>
+
+<div class="main">
+  <!-- ENTRY -->
+  <div class="entry-screen" id="entryScreen">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:4px;color:var(--plasma);margin-bottom:10px">// FINAL EXAM</div>
+    <div class="entry-title entry-glow">FINAL ASSESSMENT<br>PROTOCOL</div>
+    <div class="entry-sub" id="entrySub">Complete your syllabus to unlock the full assessment. This exam covers all topics.</div>
+    <div class="warning-card">
+      <strong>⚠ READ BEFORE STARTING</strong>
+      This assessment cannot be paused. Each section has a time limit. You must answer every question before moving forward. Results are analyzed by SYNAPTIQ using Gemini.
+    </div>
+    <table class="section-table">
+      <thead><tr><th>SECTION</th><th>TYPE</th><th>QUESTIONS</th><th>TIME</th></tr></thead>
+      <tbody>
+        <tr><td>Section I</td><td>Conceptual (Gemini)</td><td>15</td><td>20 min</td></tr>
+        <tr><td>Section II</td><td>Application</td><td>20</td><td>25 min</td></tr>
+        <tr><td>Section III</td><td>Analytical</td><td>15</td><td>20 min</td></tr>
+      </tbody>
+    </table>
+    <button class="btn-initiate" id="initiateBtn" onclick="startAssessment()">⚡ INITIATE ASSESSMENT</button>
+    <div class="est-time">Estimated time: ~65 minutes | Total: 50 questions</div>
+  </div>
+
+  <!-- ACTIVE -->
+  <div class="active-screen" id="activeScreen">
+    <div class="active-topbar">
+      <div class="section-name" id="sectionName">SECTION I — CONCEPTUAL</div>
+      <div class="q-progress" id="qProgress">Q 1 / 15</div>
+      <div class="section-timer" id="sectionTimer">20:00</div>
+    </div>
+    <div class="section-prog-bar"><div class="section-prog-fill" id="sectionProgFill" style="width:0%"></div></div>
+    <div class="q-card" id="qCard">
+      <div class="q-num-label" id="qNumLabel">QUESTION 1</div>
+      <div class="q-text" id="qText">Loading question...</div>
+      <div class="options-grid" id="qOptions"></div>
+      <div class="req-tooltip" id="reqTooltip">⚠ You must answer this question to proceed.</div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-next-q" onclick="nextQuestion()">NEXT →</button>
+    </div>
+  </div>
+
+  <!-- TRANSITION -->
+  <div class="transition-screen" id="transitionScreen">
+    <div class="trans-lock">⚿</div>
+    <div class="trans-title" id="transTitle">SECTION I COMPLETE</div>
+    <div class="trans-label">Score locked until assessment completion</div>
+    <div class="trans-count" id="transCount">3</div>
+  </div>
+
+  <!-- COMPLETE -->
+  <div class="complete-screen" id="completeScreen">
+    <div class="complete-title">ASSESSMENT COMPLETE<br>ANALYZING RESULTS...</div>
+    <div class="neon-ring-big"></div>
+    <div class="ai-status-line" id="al1">
+      <div class="ai-dot-anim"></div>
+      <span>GEMINI: ANALYZING CONCEPTUAL UNDERSTANDING...</span>
+      <span class="ai-tick" style="display:none">✓</span>
+    </div>
+    <div class="ai-status-line" id="al2">
+      <div class="ai-dot-anim"></div>
+      <span>GEMINI: EVALUATING APPLICATION SKILLS...</span>
+      <span class="ai-tick" style="display:none">✓</span>
+    </div>
+    <div class="ai-status-line" id="al3">
+      <div class="ai-dot-anim"></div>
+      <span>GEMINI: GENERATING DIAGNOSTIC REPORT...</span>
+      <span class="ai-tick" style="display:none">✓</span>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { checkAuthState } from "../js/auth.js";
+import { getUserPlans, saveAssessment } from "../js/storage.js";
+import { generateAssessment, generateDiagnosticReport } from "../js/ai.js";
+
+const SECTIONS = [
+  { name: 'SECTION I — CONCEPTUAL',   start: 0,  count: 15, time: 20 * 60 },
+  { name: 'SECTION II — APPLICATION', start: 15, count: 20, time: 25 * 60 },
+  { name: 'SECTION III — ANALYTICAL', start: 35, count: 15, time: 20 * 60 },
+];
+
+let user = null, questions = [], answers = {}, currentSection = 0, currentQ = 0;
+let sectionTimer = null, sectionTimeLeft = 0;
+let allTopics = [], planId = null, subject = 'General';
+
+checkAuthState(async (u) => {
+  user = u;
+  const plansRes = await getUserPlans(u.uid);
+  if (plansRes.success && plansRes.data.length > 0) {
+    const plan = plansRes.data[0];
+    planId = plan.id;
+    subject = plan.subject || 'General';
+    allTopics = (plan.parsedSyllabus || []).flatMap(c => [c.chapter_name, ...(c.topics || [])]).slice(0, 20);
+    document.getElementById('entrySub').textContent = `Subject: ${subject} · ${allTopics.length} topics detected. This exam covers the full syllabus.`;
+  }
+}, () => window.location.href = 'login.html');
+
+window.startAssessment = async () => {
+  const btn = document.getElementById('initiateBtn');
+  btn.disabled = true; btn.textContent = '⟳ GENERATING QUESTIONS...';
+  try {
+    const userProfile = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    questions = await generateAssessment(allTopics.length ? allTopics : [subject], userProfile.classGrade || 'Student', userProfile.examTypes?.[0] || 'General', subject);
+    if (!questions.length) throw new Error('No questions generated');
+  } catch (e) {
+    questions = getFallbackQuestions();
+  }
+  show('activeScreen');
+  hide('entryScreen');
+  loadSection(0);
+};
+
+function loadSection(si) {
+  currentSection = si;
+  currentQ = SECTIONS[si].start;
+  sectionTimeLeft = SECTIONS[si].time;
+  document.getElementById('sectionName').textContent = SECTIONS[si].name;
+  clearInterval(sectionTimer);
+  sectionTimer = setInterval(() => {
+    sectionTimeLeft--;
+    const m = String(Math.floor(sectionTimeLeft / 60)).padStart(2,'0');
+    const s = String(sectionTimeLeft % 60).padStart(2,'0');
+    const el = document.getElementById('sectionTimer');
+    el.textContent = m + ':' + s;
+    el.classList.toggle('urgent', sectionTimeLeft <= 60);
+    if (sectionTimeLeft <= 0) { clearInterval(sectionTimer); advanceSection(); }
+  }, 1000);
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  if (!q) return;
+  const sec = SECTIONS[currentSection];
+  const localIdx = currentQ - sec.start;
+  document.getElementById('qNumLabel').textContent = 'QUESTION ' + (localIdx + 1);
+  document.getElementById('qProgress').textContent = 'Q ' + (localIdx + 1) + ' / ' + sec.count;
+  document.getElementById('sectionProgFill').style.width = ((localIdx + 1) / sec.count * 100) + '%';
+  document.getElementById('qText').textContent = q.question;
+  document.getElementById('reqTooltip').classList.remove('show');
+  const wrap = document.getElementById('qOptions');
+  wrap.innerHTML = '';
+  if (q.options) {
+    Object.entries(q.options).forEach(([key, val]) => {
+      const div = document.createElement('div');
+      div.className = 'option' + (answers[currentQ] === key ? ' selected' : '');
+      div.innerHTML = `<div class="opt-letter">${key}</div><div class="opt-text">${val}</div>`;
+      div.onclick = () => { answers[currentQ] = key; document.querySelectorAll('.option').forEach(o => o.classList.remove('selected')); div.classList.add('selected'); document.getElementById('reqTooltip').classList.remove('show'); };
+      wrap.appendChild(div);
+    });
+  }
+  const nextBtn = document.querySelector('.btn-next-q');
+  const sec2 = SECTIONS[currentSection];
+  const isLastInSection = currentQ === sec2.start + sec2.count - 1;
+  const isLastSection = currentSection === SECTIONS.length - 1;
+  nextBtn.textContent = (isLastInSection && isLastSection) ? 'SUBMIT ASSESSMENT →' : 'NEXT →';
+}
+
+window.nextQuestion = () => {
+  if (answers[currentQ] === undefined) {
+    const card = document.getElementById('qCard');
+    card.classList.remove('shake');
+    void card.offsetWidth;
+    card.classList.add('shake');
+    document.getElementById('reqTooltip').classList.add('show');
+    return;
+  }
+  const sec = SECTIONS[currentSection];
+  const isLastInSection = currentQ === sec.start + sec.count - 1;
+  if (isLastInSection) {
+    if (currentSection === SECTIONS.length - 1) { finishAssessment(); return; }
+    advanceSection();
+    return;
+  }
+  currentQ++;
+  renderQuestion();
+};
+
+function advanceSection() {
+  clearInterval(sectionTimer);
+  hide('activeScreen');
+  show('transitionScreen');
+  document.getElementById('transTitle').textContent = 'SECTION ' + ['I','II','III'][currentSection] + ' COMPLETE';
+  let c = 3;
+  document.getElementById('transCount').textContent = c;
+  const countdown = setInterval(() => {
+    c--;
+    document.getElementById('transCount').textContent = c;
+    if (c <= 0) {
+      clearInterval(countdown);
+      hide('transitionScreen');
+      show('activeScreen');
+      loadSection(currentSection + 1);
+    }
+  }, 1000);
+}
+
+async function finishAssessment() {
+  clearInterval(sectionTimer);
+  hide('activeScreen');
+  show('completeScreen');
+
+  // Animate AI lines
+  const lines = ['al1','al2','al3'];
+  for (let i = 0; i < lines.length; i++) {
+    document.getElementById(lines[i]).classList.add('active');
+    await delay(2000);
+    document.getElementById(lines[i]).classList.remove('active');
+    document.getElementById(lines[i]).classList.add('done');
+    document.getElementById(lines[i]).querySelector('.ai-tick').style.display = 'inline';
+  }
+
+  // Build answer sheet
+  const answerSheet = questions.map((q, i) => ({
+    question_number: i + 1, topic: q.topic || 'General',
+    correct: answers[i] === q.correct_answer,
+    time_taken_seconds: 30, marks_earned: answers[i] === q.correct_answer ? (q.marks || 1) : 0,
+    max_marks: q.marks || 1
+  }));
+
+  // Generate report
+  let report = null;
+  try {
+    const userProfile = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const studyHistory = { totalHours: 10, quizAverage: 65, flaggedTopics: JSON.parse(localStorage.getItem('flaggedTopics') || '[]') };
+    report = await generateDiagnosticReport(answerSheet, questions, { name: userProfile.name || 'Student', classGrade: userProfile.classGrade || 'Student', examType: userProfile.examTypes?.[0] || 'General', subject }, studyHistory);
+  } catch (e) {
+    report = buildFallbackReport(answerSheet);
+  }
+
+  const correct = answerSheet.filter(a => a.correct).length;
+  await saveAssessment({ userId: user.uid, planId: planId || 'unknown', questions, answers, answerSheet, overallScore: correct, maxScore: questions.length, percentage: Math.round(correct / questions.length * 100), aiReport: report, completedAt: new Date().toISOString() });
+  localStorage.setItem('latestReport', JSON.stringify(report));
+  await delay(1000);
+  window.location.href = 'report.html';
+}
+
+function buildFallbackReport(answerSheet) {
+  const correct = answerSheet.filter(a => a.correct).length;
+  const pct = Math.round(correct / answerSheet.length * 100);
+  return { overall_score: correct, max_score: answerSheet.length, percentage: pct, readiness_score: pct - 5, readiness_label: pct >= 75 ? 'Well Prepared' : pct >= 50 ? 'Moderately Ready' : 'Needs Urgent Work', grade_prediction: pct >= 80 ? 'A' : pct >= 60 ? 'B' : 'C', topic_analysis: [], strengths: [], weaknesses: [], seven_day_revision_plan: [], motivational_message: 'Keep going! Review your weak areas and you\'ll be ready.', exam_day_tip: 'Read each question carefully before answering.' };
+}
+
+function getFallbackQuestions() {
+  const base = [
+    { question:'What does CPU stand for?', options:{A:'Central Processing Unit',B:'Computer Personal Unit',C:'Core Processing Utility',D:'Central Program Unit'}, correct_answer:'A', topic:'Computing', difficulty:'easy', marks:1 },
+    { question:'Which data structure uses LIFO order?', options:{A:'Queue',B:'Stack',C:'Array',D:'Tree'}, correct_answer:'B', topic:'Data Structures', difficulty:'easy', marks:1 },
+    { question:'What is the time complexity of binary search?', options:{A:'O(n)',B:'O(n²)',C:'O(log n)',D:'O(1)'}, correct_answer:'C', topic:'Algorithms', difficulty:'medium', marks:2 },
+  ];
+  const all = [];
+  SECTIONS.forEach((sec, si) => {
+    for (let i = 0; i < sec.count; i++) {
+      const q = base[i % base.length];
+      all.push({ ...q, question_number: all.length + 1, section: ['conceptual','application','analytical'][si], ai_source: 'gemini' });
+    }
+  });
+  return all;
+}
+
+function show(id) { document.getElementById(id).style.display = id === 'transitionScreen' || id === 'completeScreen' ? 'block' : 'flex'; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>

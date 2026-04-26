@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Daily Quiz - SYNAPTIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--void:#050B18;--navy:#0A1628;--panel:#0D2137;--neon:#00F5FF;--plasma:#7B2FFF;--laser:#FF2D78;--green:#00FF9D;--amber:#FFB300;--silver:#C8D8E8;--dim:#6B8299;--border:#1A3A55}
+body{background:var(--void);color:var(--silver);font-family:'Rajdhani',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px);pointer-events:none;z-index:0}
+/* TOP BAR */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(5,11,24,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 28px}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.quiz-title{font-family:'Orbitron',monospace;font-size:.8rem;letter-spacing:3px;color:var(--neon)}
+.timer-pill{padding:5px 14px;border-radius:99px;border:1px solid var(--amber);color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:.85rem;transition:.3s}
+.timer-pill.urgent{border-color:var(--laser);color:var(--laser);animation:flashRed .5s infinite}
+@keyframes flashRed{0%,100%{opacity:1}50%{opacity:.5}}
+.progress-bar-wrap{position:relative;height:4px;background:var(--panel);border-radius:2px}
+.progress-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--neon),var(--plasma));transition:width .4s ease}
+.qcount{font-size:.75rem;color:var(--dim);font-family:'JetBrains Mono',monospace}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;position:relative;z-index:1}
+.quiz-wrap{width:100%;max-width:660px}
+/* Question card */
+.q-card{background:rgba(10,22,40,0.88);backdrop-filter:blur(10px);border:1px solid var(--border);border-left:5px solid var(--plasma);border-radius:12px;padding:28px;margin-bottom:20px;animation:fadeSlide .3s ease}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--dim);margin-bottom:10px}
+.q-text{font-size:1.05rem;color:var(--silver);line-height:1.6;margin-bottom:20px}
+/* MCQ options */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.option{background:var(--panel);border:1.5px solid var(--border);border-radius:8px;padding:13px 16px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:12px}
+.option:hover{border-color:rgba(0,245,255,0.4);background:rgba(0,245,255,0.04)}
+.option.selected{border-color:var(--neon);background:rgba(0,245,255,0.08)}
+.option.correct{border-color:var(--green);background:rgba(0,255,157,0.1);animation:flashGreen .4s ease}
+.option.wrong{border-color:var(--laser);background:rgba(255,45,120,0.08);animation:flashRed2 .4s ease}
+@keyframes flashGreen{0%{background:rgba(0,255,157,0.3)}100%{background:rgba(0,255,157,0.1)}}
+@keyframes flashRed2{0%{background:rgba(255,45,120,0.25)}100%{background:rgba(255,45,120,0.08)}}
+.opt-label{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.65rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.option.correct .opt-label{border-color:var(--green);color:var(--green)}
+.option.wrong .opt-label{border-color:var(--laser);color:var(--laser)}
+.opt-text{font-size:.9rem;line-height:1.4}
+/* True/False */
+.tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tf-card{background:var(--panel);border:2px solid var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:.2s}
+.tf-card:hover{border-color:rgba(0,245,255,0.4)}
+.tf-card.selected{border-color:var(--neon);background:rgba(0,245,255,0.08)}
+.tf-card.correct{border-color:var(--green);background:rgba(0,255,157,0.1)}
+.tf-card.wrong{border-color:var(--laser);background:rgba(255,45,120,0.08)}
+.tf-icon{font-size:1.8rem;margin-bottom:6px}
+.tf-label{font-family:'Orbitron',monospace;font-size:.75rem;letter-spacing:2px}
+/* Fill blank */
+.fill-input{background:transparent;border:none;border-bottom:2px solid var(--neon);color:var(--silver);font-family:'Rajdhani',sans-serif;font-size:1.1rem;padding:6px 0;width:100%;outline:none;margin-top:8px}
+.fill-input::placeholder{color:var(--dim)}
+/* Explanation panel */
+.explain-panel{background:rgba(10,22,40,0.7);border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:12px;display:none;animation:fadeSlide .3s ease}
+.explain-panel.show{display:block}
+.explain-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:2px;color:var(--neon);margin-bottom:8px}
+.explain-text{font-size:.9rem;color:var(--silver);line-height:1.6}
+.correct-ans{display:inline-block;margin-top:8px;padding:3px 12px;border-radius:99px;border:1px solid var(--green);color:var(--green);font-size:.75rem;font-family:'JetBrains Mono',monospace}
+/* Nav */
+.nav-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.btn-nav{padding:11px 24px;font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:1px;border-radius:8px;cursor:pointer;transition:.2s}
+.btn-prev{background:transparent;border:1px solid var(--border);color:var(--dim)}
+.btn-prev:hover{border-color:var(--silver);color:var(--silver)}
+.btn-next{background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);border:none;font-weight:700}
+.btn-next:hover{box-shadow:0 0 24px rgba(0,245,255,0.4)}
+/* Results */
+.results-card{background:rgba(10,22,40,0.88);border:1px solid var(--border);border-radius:12px;padding:36px;text-align:center;display:none}
+.results-card.show{display:block}
+.score-circle-wrap{position:relative;width:180px;height:180px;margin:0 auto 24px}
+.score-svg{transform:rotate(-90deg)}
+.score-bg{fill:none;stroke:var(--panel);stroke-width:12}
+.score-fg{fill:none;stroke-width:12;stroke-linecap:round;stroke-dasharray:502}
+.score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-pct{font-family:'Orbitron',monospace;font-size:2rem;font-weight:900}
+.score-label{font-size:.65rem;color:var(--dim);font-family:'JetBrains Mono',monospace;letter-spacing:1px}
+.topic-pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px 0}
+.topic-pill{padding:4px 14px;border-radius:99px;font-size:.72rem;font-family:'JetBrains Mono',monospace;border:1px solid}
+.pill-good{border-color:var(--green);color:var(--green)}
+.pill-ok{border-color:var(--amber);color:var(--amber)}
+.pill-bad{border-color:var(--laser);color:var(--laser)}
+.flagged-section{background:rgba(255,179,0,0.06);border:1px solid rgba(255,179,0,0.25);border-radius:8px;padding:14px;margin:16px 0;text-align:left}
+.flagged-label{font-family:'Orbitron',monospace;font-size:.65rem;color:var(--amber);margin-bottom:10px;letter-spacing:2px}
+.btn-results{padding:11px 24px;font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:1.5px;border-radius:8px;cursor:pointer;transition:.2s;margin:6px}
+.btn-dash{background:transparent;border:1px solid var(--neon);color:var(--neon)}
+.btn-dash:hover{background:rgba(0,245,255,0.08)}
+/* loading */
+.loading-screen{display:flex;flex-direction:column;align-items:center;gap:20px;padding:40px}
+.neon-ring{width:60px;height:60px;border:3px solid transparent;border-top-color:var(--neon);border-right-color:var(--plasma);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-family:'Orbitron',monospace;font-size:.75rem;color:var(--neon);letter-spacing:2px;animation:blk 1.2s infinite}
+@keyframes blk{0%,100%{opacity:1}50%{opacity:.3}}
+@media(max-width:600px){.options-grid,.tf-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-row">
+    <div class="quiz-title">◈ DAILY KNOWLEDGE CHECK</div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="qcount" id="qCount">Q 1 OF 10</div>
+      <div class="timer-pill" id="timerPill">TIME 10:00</div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="quiz-wrap">
+    <!-- Loading -->
+    <div class="loading-screen" id="loadingScreen">
+      <div class="neon-ring"></div>
+      <div class="loading-txt">GENERATING QUIZ...</div>
+    </div>
+
+    <!-- Question container (hidden until loaded) -->
+    <div id="quizContainer" style="display:none">
+      <div class="q-card" id="qCard">
+        <div class="q-num" id="qNum">QUESTION 1</div>
+        <div class="q-text" id="qText"></div>
+        <div id="qOptions"></div>
+        <div class="explain-panel" id="explainPanel">
+          <div class="explain-label">// EXPLANATION</div>
+          <div class="explain-text" id="explainText"></div>
+          <div class="correct-ans" id="correctAns"></div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn-nav btn-prev" onclick="prevQ()" id="prevBtn" style="visibility:hidden">← PREV</button>
+        <button class="btn-nav btn-next" onclick="nextQ()" id="nextBtn">NEXT →</button>
+      </div>
+    </div>
+
+    <!-- Results (hidden until complete) -->
+    <div class="results-card" id="resultsCard">
+      <div style="font-family:'Orbitron',monospace;font-size:.85rem;color:var(--neon);letter-spacing:3px;margin-bottom:24px">QUIZ COMPLETE</div>
+      <div class="score-circle-wrap">
+        <svg class="score-svg" width="180" height="180" viewBox="0 0 180 180">
+          <circle class="score-bg" cx="90" cy="90" r="80"/>
+          <circle class="score-fg" id="scoreFg" cx="90" cy="90" r="80" stroke-dashoffset="502"/>
+        </svg>
+        <div class="score-inner">
+          <div class="score-pct" id="scorePct" style="color:var(--neon)">0%</div>
+          <div class="score-label">SCORE</div>
+        </div>
+      </div>
+      <div class="topic-pills" id="topicPills"></div>
+      <div class="flagged-section" id="flaggedSection" style="display:none">
+        <div class="flagged-label">⚠ FLAGGED FOR REVISION</div>
+        <div id="flaggedTopics"></div>
+      </div>
+      <div style="margin-top:20px">
+        <button class="btn-results btn-dash" onclick="window.location.href='dashboard.html'">◉ DASHBOARD</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { checkAuthState } from "../js/auth.js";
+import { saveQuizResult } from "../js/storage.js";
+import { generateDailyQuiz } from "../js/ai.js";
+
+let questions = [], answers = {}, currentQ = 0, timer = null, timeLeft = 600;
+let user = null;
+
+checkAuthState(async (u) => {
+  user = u;
+  const pending = JSON.parse(localStorage.getItem('pendingQuiz') || '{}');
+  const topics = pending.topics || ['Today\'s Topics'];
+  try {
+    const profile = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    questions = await generateDailyQuiz(topics, profile.classGrade || 'Student', profile.examTypes?.[0] || 'General');
+  } catch (e) {
+    // Fallback sample questions
+    questions = getSampleQuestions();
+  }
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('quizContainer').style.display = 'block';
+  startTimer();
+  renderQ();
+}, () => window.location.href = 'login.html');
+
+function startTimer() {
+  timer = setInterval(() => {
+    timeLeft--;
+    const m = String(Math.floor(timeLeft / 60)).padStart(2,'0');
+    const s = String(timeLeft % 60).padStart(2,'0');
+    const pill = document.getElementById('timerPill');
+    pill.textContent = 'TIME ' + m + ':' + s;
+    if (timeLeft <= 60) pill.classList.add('urgent');
+    if (timeLeft <= 0) { clearInterval(timer); finishQuiz(); }
+  }, 1000);
+}
+
+function renderQ() {
+  const q = questions[currentQ];
+  if (!q) return;
+  document.getElementById('qNum').textContent = 'QUESTION ' + (currentQ + 1);
+  document.getElementById('qCount').textContent = 'Q ' + (currentQ + 1) + ' OF ' + questions.length;
+  document.getElementById('progressFill').style.width = ((currentQ + 1) / questions.length * 100) + '%';
+  document.getElementById('qText').textContent = q.question;
+  document.getElementById('explainPanel').classList.remove('show');
+  const prevBtn = document.getElementById('prevBtn');
+  prevBtn.style.visibility = currentQ > 0 ? 'visible' : 'hidden';
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.textContent = currentQ === questions.length - 1 ? 'SUBMIT →' : 'NEXT →';
+  renderOptions(q);
+}
+
+function renderOptions(q) {
+  const wrap = document.getElementById('qOptions');
+  wrap.innerHTML = '';
+  if (q.type === 'fill_blank') {
+    const inp = document.createElement('input');
+    inp.className = 'fill-input';
+    inp.placeholder = 'Type your answer here...';
+    inp.value = answers[currentQ] || '';
+    inp.oninput = (e) => { answers[currentQ] = e.target.value; };
+    wrap.appendChild(inp);
+  } else if (q.options && Object.keys(q.options).length === 2 && q.options.A === 'True') {
+    // True/False
+    const grid = document.createElement('div');
+    grid.className = 'tf-grid';
+    ['A','B'].forEach(key => {
+      const card = document.createElement('div');
+      card.className = 'tf-card' + (answers[currentQ] === key ? ' selected' : '');
+      card.innerHTML = `<div class="tf-icon">${key === 'A' ? '✓' : '✗'}</div><div class="tf-label">${q.options[key].toUpperCase()}</div>`;
+      card.onclick = () => selectAnswer(key);
+      grid.appendChild(card);
+    });
+    wrap.appendChild(grid);
+  } else if (q.options) {
+    const grid = document.createElement('div');
+    grid.className = 'options-grid';
+    Object.entries(q.options).forEach(([key, val]) => {
+      const opt = document.createElement('div');
+      opt.className = 'option' + (answers[currentQ] === key ? ' selected' : '');
+      opt.innerHTML = `<div class="opt-label">${key}</div><div class="opt-text">${val}</div>`;
+      opt.onclick = () => selectAnswer(key);
+      grid.appendChild(opt);
+    });
+    wrap.appendChild(grid);
+  }
+}
+
+function selectAnswer(key) {
+  answers[currentQ] = key;
+  // Re-render options with selection
+  renderOptions(questions[currentQ]);
+}
+
+window.nextQ = () => {
+  if (answers[currentQ] === undefined && questions[currentQ].type !== 'fill_blank') {
+    // Shake the card
+    const card = document.getElementById('qCard');
+    card.style.animation = 'none';
+    setTimeout(() => { card.style.animation = ''; }, 10);
+    return;
+  }
+  if (currentQ === questions.length - 1) { finishQuiz(); return; }
+  currentQ++;
+  renderQ();
+};
+window.prevQ = () => { if (currentQ > 0) { currentQ--; renderQ(); } };
+
+async function finishQuiz() {
+  clearInterval(timer);
+  let correct = 0;
+  const topicScores = {};
+  questions.forEach((q, i) => {
+    const ans = answers[i];
+    const isCorrect = ans === q.correct_answer || (q.type === 'fill_blank' && ans?.toLowerCase().trim() === q.answer?.toLowerCase().trim());
+    if (isCorrect) correct++;
+    if (!topicScores[q.topic]) topicScores[q.topic] = { correct: 0, total: 0 };
+    topicScores[q.topic].total++;
+    if (isCorrect) topicScores[q.topic].correct++;
+  });
+  const pct = Math.round(correct / questions.length * 100);
+  const flagged = Object.entries(topicScores).filter(([,v]) => v.correct / v.total < 0.6).map(([k]) => k);
+  showResults(pct, topicScores, flagged);
+  await saveQuizResult({ userId: user.uid, planId: localStorage.getItem('currentPlanId') || 'unknown', questions, answers, score: correct, maxScore: questions.length, percentage: pct, flaggedTopics: flagged, topicScores, completedAt: new Date().toISOString() });
+  if (flagged.length) localStorage.setItem('flaggedTopics', JSON.stringify(flagged));
+  localStorage.removeItem('pendingQuiz');
+}
+
+function showResults(pct, topicScores, flagged) {
+  document.getElementById('quizContainer').style.display = 'none';
+  const rc = document.getElementById('resultsCard');
+  rc.classList.add('show');
+  const color = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--laser)';
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('scorePct').style.color = color;
+  const circ = 502;
+  document.getElementById('scoreFg').setAttribute('stroke-dashoffset', circ * (1 - pct / 100));
+  document.getElementById('scoreFg').style.stroke = color;
+
+  const pills = document.getElementById('topicPills');
+  Object.entries(topicScores).forEach(([topic, v]) => {
+    const tp = Math.round(v.correct / v.total * 100);
+    const cls = tp >= 80 ? 'pill-good' : tp >= 50 ? 'pill-ok' : 'pill-bad';
+    pills.innerHTML += `<div class="topic-pill ${cls}">${topic} ${tp}%</div>`;
+  });
+
+  if (flagged.length) {
+    document.getElementById('flaggedSection').style.display = 'block';
+    document.getElementById('flaggedTopics').innerHTML = flagged.map(t =>
+      `<div style="padding:4px 0;font-size:.85rem;color:var(--amber)">› ${t}</div>`).join('');
+  }
+}
+
+function getSampleQuestions() {
+  return [
+    { question_number:1, type:'mcq', question:'What is the SI unit of force?', options:{A:'Joule',B:'Newton',C:'Watt',D:'Pascal'}, correct_answer:'B', topic:'Mechanics', difficulty:'easy', explanation:'Force is measured in Newtons (N), named after Isaac Newton.' },
+    { question_number:2, type:'true_false', question:'The speed of light in vacuum is approximately 3×10⁸ m/s.', options:{A:'True',B:'False'}, correct_answer:'A', topic:'Modern Physics', difficulty:'easy', explanation:'Yes, c ≈ 3×10⁸ m/s is correct.' },
+    { question_number:3, type:'mcq', question:'Which law states that every action has an equal and opposite reaction?', options:{A:'First Law',B:'Second Law',C:'Third Law',D:'Law of Gravitation'}, correct_answer:'C', topic:'Mechanics', difficulty:'easy', explanation:"Newton's Third Law of Motion." },
+  ];
+}
+</script>
+</body>
+</html>

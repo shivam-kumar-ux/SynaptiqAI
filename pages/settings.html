@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Settings - SYNAPTIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--void:#050B18;--navy:#0A1628;--panel:#0D2137;--neon:#00F5FF;--plasma:#7B2FFF;--laser:#FF2D78;--green:#00FF9D;--amber:#FFB300;--silver:#C8D8E8;--dim:#6B8299;--border:#1A3A55}
+body{background:var(--void);color:var(--silver);font-family:'Rajdhani',sans-serif;min-height:100vh;display:flex}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px);pointer-events:none;z-index:0}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:rgba(10,22,40,0.98);border-right:1px solid var(--border);z-index:50;padding:20px 0;display:flex;flex-direction:column}
+.sb-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;font-family:'Orbitron',monospace;font-size:.82rem;font-weight:900;color:var(--neon);letter-spacing:2px}
+.sb-logo img{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(0,245,255,0.35))}
+nav{flex:1;padding:16px 0}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;font-size:.85rem;color:var(--dim);transition:.2s;text-decoration:none;position:relative}
+.nav-item:hover{color:var(--silver);background:rgba(0,245,255,0.04)}
+.nav-item.active{color:var(--neon);background:rgba(0,245,255,0.07)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--neon)}
+.main{margin-left:240px;flex:1;padding:28px;position:relative;z-index:1;max-width:960px}
+.page-title{font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--neon);letter-spacing:2px;margin-bottom:6px}
+.page-sub{font-size:.85rem;color:var(--dim);margin-bottom:28px}
+.section{margin-bottom:28px}
+.section-head{font-family:'Orbitron',monospace;font-size:.75rem;letter-spacing:2px;color:var(--neon);margin-bottom:14px;padding-left:10px;border-left:3px solid var(--neon)}
+.card{background:rgba(10,22,40,0.85);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:10px;padding:24px}
+.status-card{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center}
+.status-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(0,255,157,0.08);border:1px solid rgba(0,255,157,0.25);color:var(--green);font-family:'Orbitron',monospace}
+.status-title{font-family:'Orbitron',monospace;font-size:.8rem;color:var(--silver);letter-spacing:1px;margin-bottom:4px}
+.status-copy{font-size:.85rem;color:var(--dim);line-height:1.6}
+.status-pill{padding:6px 12px;border-radius:99px;border:1px solid var(--green);color:var(--green);font-family:'JetBrains Mono',monospace;font-size:.72rem}
+.btn-test{padding:10px 18px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:1px;border-radius:6px;cursor:pointer;transition:.2s}
+.btn-test:hover{background:rgba(0,245,255,0.08)}
+.key-status{font-size:.75rem;font-family:'JetBrains Mono',monospace;margin-top:12px;display:none}
+.key-status.ok{color:var(--green);display:block}
+.key-status.err{color:var(--laser);display:block}
+.key-status.testing{color:var(--amber);display:block}
+.field{margin-bottom:16px}
+label{display:block;font-size:.7rem;letter-spacing:1.5px;color:var(--dim);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+input[type=text],input[type=email],input[type=tel],select{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--silver);padding:10px 14px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;transition:.2s}
+input[type=text]:focus,input[type=email]:focus,input[type=tel]:focus,select:focus{border-color:var(--neon);box-shadow:0 0 10px rgba(0,245,255,0.15)}
+select option{background:var(--panel)}
+.btn-save-profile{padding:11px 28px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;border:none;border-radius:6px;cursor:pointer;transition:.2s;margin-top:8px}
+.btn-save-profile:hover{box-shadow:0 0 20px rgba(0,245,255,0.4)}
+.danger-card{background:rgba(255,45,120,0.04);border:1px solid rgba(255,45,120,0.2);border-radius:10px;padding:20px}
+.btn-danger{padding:10px 20px;background:transparent;border:1px solid var(--laser);color:var(--laser);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:1px;border-radius:6px;cursor:pointer;transition:.2s}
+.btn-danger:hover{background:rgba(255,45,120,0.1)}
+.toast{position:fixed;bottom:28px;right:28px;background:rgba(10,22,40,0.97);border:1px solid var(--green);border-radius:8px;padding:12px 20px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--green);z-index:1000;transform:translateY(80px);opacity:0;transition:.3s}
+.toast.show{transform:none;opacity:1}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.field-row{grid-template-columns:1fr}.status-card{grid-template-columns:1fr}.status-pill{justify-self:start}}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sb-logo"><img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ logo"><span>SYNAPTIQ</span></div>
+  <nav>
+    <a href="dashboard.html" class="nav-item"><span>O</span> Dashboard</a>
+    <a href="plan-new.html" class="nav-item"><span>*</span> New Plan</a>
+    <a href="session.html" class="nav-item"><span>T</span> Study Now</a>
+    <a href="progress.html" class="nav-item"><span>#</span> Progress</a>
+    <a href="assessment.html" class="nav-item"><span>[]</span> Assessment</a>
+    <a href="settings.html" class="nav-item active"><span>@</span> Settings</a>
+  </nav>
+</div>
+
+<div class="main">
+  <div class="page-title">SYSTEM SETTINGS</div>
+  <div class="page-sub">Manage your profile and verify the secure Gemini connection used by SYNAPTIQ.</div>
+
+  <div class="section">
+    <div class="section-head">SECURE AI BACKEND</div>
+    <div class="card">
+      <div class="status-card">
+        <div class="status-icon">AI</div>
+        <div>
+          <div class="status-title">Gemini runs only on the server</div>
+          <div class="status-copy">
+            Your Gemini API key is no longer stored in the browser, HTML, or frontend JavaScript.
+            SYNAPTIQ sends AI requests to a secure backend route that reads the key from server environment variables.
+          </div>
+        </div>
+        <div class="status-pill">SERVER-ONLY KEY</div>
+      </div>
+      <button class="btn-test" onclick="testBackend()">TEST GEMINI CONNECTION</button>
+      <div class="key-status" id="status-gemini"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">YOUR PROFILE</div>
+    <div class="card">
+      <div class="field-row">
+        <div class="field"><label>FULL NAME</label><input type="text" id="pf-name" placeholder="Your name"></div>
+        <div class="field"><label>PHONE</label><input type="tel" id="pf-phone" placeholder="+91 ..."></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>CLASS / GRADE</label>
+          <select id="pf-class">
+            <option>Class 6</option><option>Class 7</option><option>Class 8</option><option>Class 9</option><option>Class 10</option><option>Class 11</option><option>Class 12</option>
+            <option>Undergraduate</option><option>Postgraduate</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field"><label>INSTITUTION</label><input type="text" id="pf-inst" placeholder="School / College"></div>
+      </div>
+      <button class="btn-save-profile" onclick="saveProfile()">SAVE PROFILE</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">DANGER ZONE</div>
+    <div class="danger-card">
+      <div style="font-size:.9rem;color:var(--dim);margin-bottom:14px">Clearing all local data removes cached plan state and session progress from this device. Your Firebase account remains intact.</div>
+      <button class="btn-danger" onclick="clearLocalData()">CLEAR LOCAL DATA</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { checkAuthState } from "../js/auth.js";
+import { getUserProfile, updateUserProfile } from "../js/storage.js";
+import { testGeminiConnection } from "../js/ai.js";
+
+let user = null;
+
+checkAuthState(async (u) => {
+  user = u;
+  const r = await getUserProfile(u.uid);
+  if (r.success) {
+    const p = r.data;
+    if (p.name) document.getElementById("pf-name").value = p.name;
+    if (p.phone) document.getElementById("pf-phone").value = p.phone;
+    if (p.classGrade) document.getElementById("pf-class").value = p.classGrade;
+    if (p.institution) document.getElementById("pf-inst").value = p.institution;
+  }
+}, () => window.location.href = "login.html");
+
+window.testBackend = async () => {
+  showStatus("testing", "Testing secure Gemini connection...");
+  try {
+    const result = await testGeminiConnection();
+    showStatus("ok", "Connection successful: " + result);
+  } catch (error) {
+    showStatus("err", "Connection failed: " + error.message);
+  }
+};
+
+function showStatus(type, msg) {
+  const el = document.getElementById("status-gemini");
+  el.className = "key-status " + type;
+  el.textContent = msg;
+}
+
+window.saveProfile = async () => {
+  const updates = {
+    name: document.getElementById("pf-name").value.trim(),
+    phone: document.getElementById("pf-phone").value.trim(),
+    classGrade: document.getElementById("pf-class").value,
+    institution: document.getElementById("pf-inst").value.trim()
+  };
+  const r = await updateUserProfile(user.uid, updates);
+  if (r.success) showToast("Profile updated.");
+  else showToast("Error: " + r.error, true);
+};
+
+window.clearLocalData = () => {
+  if (confirm("Clear all local data? This cannot be undone.")) {
+    [
+      "timerState","currentSession","cachedPlan","pendingQuiz","currentPlanId","pendingPlan",
+      "currentTopic","flaggedTopics","latestReport"
+    ].forEach((key) => localStorage.removeItem(key));
+    showToast("Local data cleared.");
+  }
+};
+
+function showToast(msg, isErr) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.borderColor = isErr ? "var(--laser)" : "var(--green)";
+  t.style.color = isErr ? "var(--laser)" : "var(--green)";
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3000);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Setup Guide - SYNAPTIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--void:#050B18;--navy:#0A1628;--panel:#0D2137;--neon:#00F5FF;--plasma:#7B2FFF;--green:#00FF9D;--amber:#FFB300;--silver:#C8D8E8;--dim:#6B8299;--border:#1A3A55}
+body{background:var(--void);color:var(--silver);font-family:'Rajdhani',sans-serif;line-height:1.7}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,245,255,0.025) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,245,255,0.025) 40px);pointer-events:none;z-index:0}
+.wrap{max-width:900px;margin:0 auto;padding:40px 24px;position:relative;z-index:1}
+.hero{display:flex;align-items:center;gap:16px;margin-bottom:32px}
+.hero img{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 0 18px rgba(0,245,255,0.35))}
+h1{font-family:'Orbitron',monospace;font-size:clamp(1.4rem,4vw,2.2rem);color:var(--neon);letter-spacing:3px;margin-bottom:8px;text-shadow:0 0 30px rgba(0,245,255,0.3)}
+.hero-sub{color:var(--dim);font-size:.95rem;font-family:'JetBrains Mono',monospace}
+.step{background:rgba(10,22,40,0.88);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:22px;border-left:4px solid var(--neon)}
+.step-header{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.step-num{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.85rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-title{font-family:'Orbitron',monospace;font-size:.95rem;color:var(--neon);letter-spacing:2px}
+.step-sub{font-size:.8rem;color:var(--dim);margin-top:3px;font-family:'JetBrains Mono',monospace}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{font-size:.92rem;color:var(--silver);margin-bottom:7px}
+.code{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--neon);margin:12px 0;overflow-x:auto;white-space:pre-wrap}
+.info{background:rgba(0,245,255,0.04);border:1px solid rgba(0,245,255,0.15);border-left:3px solid var(--neon);border-radius:6px;padding:12px 16px;margin:12px 0;font-size:.88rem;color:var(--silver)}
+.warn{background:rgba(255,179,0,0.06);border:1px solid rgba(255,179,0,0.25);border-left:3px solid var(--amber);border-radius:6px;padding:12px 16px;margin:12px 0;font-size:.88rem;color:var(--amber)}
+.success{background:rgba(0,255,157,0.05);border:1px solid rgba(0,255,157,0.2);border-left:3px solid var(--green);border-radius:6px;padding:12px 16px;margin:12px 0;font-size:.88rem;color:var(--green)}
+a{color:var(--neon);text-decoration:none}
+a:hover{text-decoration:underline}
+.highlight{color:var(--neon);font-family:'JetBrains Mono',monospace}
+.done-btn{display:inline-block;margin-top:24px;padding:12px 28px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.7rem;font-weight:700;letter-spacing:2px;border-radius:8px;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <img src="img/synaptiq_logo_removebg.png" alt="SYNAPTIQ logo">
+    <div>
+      <h1>SYNAPTIQ SETUP GUIDE</h1>
+      <div class="hero-sub">Secure Gemini deployment with Firebase, GitHub, and Vercel</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">01</div>
+      <div><div class="step-title">CONFIGURE FIREBASE</div><div class="step-sub">Authentication and Firestore</div></div>
+    </div>
+    <ol>
+      <li>Create a Firebase project and add a web app.</li>
+      <li>Paste the generated config into <span class="highlight">js/firebase-config.js</span>.</li>
+      <li>Enable Email/Password and Google sign-in.</li>
+      <li>Create Firestore and apply rules before production use.</li>
+    </ol>
+    <div class="info">Firebase web config is safe to expose publicly. It is not the Gemini secret.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">02</div>
+      <div><div class="step-title">KEEP GEMINI SERVER-SIDE</div><div class="step-sub">No browser access to the API key</div></div>
+    </div>
+    <ol>
+      <li>Create a Gemini API key in Google AI Studio.</li>
+      <li>Never paste it into HTML, CSS, or frontend JavaScript.</li>
+      <li>Never store it in localStorage.</li>
+      <li>Set it only as a hosting environment variable named <span class="highlight">GEMINI_API_KEY</span>.</li>
+    </ol>
+    <div class="success">SYNAPTIQ now uses only Gemini through a secure backend route.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">03</div>
+      <div><div class="step-title">PUSH THE REPO TO GITHUB</div><div class="step-sub">Source control and hosting entry point</div></div>
+    </div>
+    <ol>
+      <li>Create a GitHub repository.</li>
+      <li>Push this project to that repository.</li>
+      <li>Use GitHub for version control and collaboration.</li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">04</div>
+      <div><div class="step-title">DEPLOY WITH VERCEL</div><div class="step-sub">Secure hosting for the frontend and API route</div></div>
+    </div>
+    <ol>
+      <li>Import the GitHub repo into <a href="https://vercel.com" target="_blank">Vercel</a>.</li>
+      <li>Add the environment variable <span class="highlight">GEMINI_API_KEY</span> in Vercel project settings.</li>
+      <li>Deploy the project.</li>
+      <li>Add the Vercel domain to Firebase authorized domains.</li>
+    </ol>
+    <div class="warn">GitHub Pages is static-only, so it cannot protect a server-side Gemini secret. Hosting the code on GitHub is fine, but deploy the app with Vercel to keep the key private.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">05</div>
+      <div><div class="step-title">UNDERSTAND THE SECURE FLOW</div><div class="step-sub">Frontend and backend responsibilities</div></div>
+    </div>
+    <div class="code">Browser UI -> /api/gemini -> Gemini API
+
+Frontend:
+- sends prompts
+- never stores the Gemini key
+- can be inspected safely
+
+Backend:
+- reads GEMINI_API_KEY from environment variables
+- calls Gemini
+- returns only model output</div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">06</div>
+      <div><div class="step-title">VERIFY BEFORE GOING LIVE</div><div class="step-sub">Quick checklist</div></div>
+    </div>
+    <ul>
+      <li>Firebase config added</li>
+      <li>Authentication enabled</li>
+      <li>Firestore created</li>
+      <li>Repo pushed to GitHub</li>
+      <li>Project deployed on Vercel</li>
+      <li><span class="highlight">GEMINI_API_KEY</span> added in Vercel</li>
+      <li>Vercel domain added to Firebase</li>
+      <li>Settings page Gemini connection test passes</li>
+      <li>Plan generation, quiz, assessment, and report all work</li>
+    </ul>
+  </div>
+
+  <div style="text-align:center;padding:20px 0">
+    <a href="index.html" class="done-btn">LAUNCH SYNAPTIQ</a>
+  </div>
+</div>
+</body>
+</html>

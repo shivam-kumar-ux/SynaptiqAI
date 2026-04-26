@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Focus Mode - SYNAPTIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--void:#050B18;--navy:#0A1628;--panel:#0D2137;--neon:#00F5FF;--plasma:#7B2FFF;--laser:#FF2D78;--green:#00FF9D;--amber:#FFB300;--silver:#C8D8E8;--dim:#6B8299;--border:#1A3A55}
+html,body{height:100%;overflow:hidden}
+body{background:var(--void);color:var(--silver);font-family:'Orbitron',monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+/* animated grid bg */
+body::before{content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,245,255,0.03) 40px),
+             repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,245,255,0.03) 40px);
+  animation:gridUp 20s linear infinite;z-index:0}
+@keyframes gridUp{0%{background-position:0 0,0 0}100%{background-position:0 -40px,0 0}}
+/* scanlines */
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.08) 4px);pointer-events:none;z-index:1}
+.main{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;width:100%;padding:20px}
+/* topic */
+.topic-label{font-size:.65rem;letter-spacing:4px;color:var(--dim);margin-bottom:4px}
+.topic-name{font-size:clamp(.9rem,2.5vw,1.3rem);letter-spacing:3px;color:var(--neon);text-shadow:0 0 20px rgba(0,245,255,0.4);text-align:center;max-width:600px;line-height:1.4}
+/* timer ring */
+.timer-wrap{position:relative;width:280px;height:280px}
+.timer-svg{transform:rotate(-90deg);filter:drop-shadow(0 0 18px rgba(0,245,255,0.35))}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:10}
+.ring-fg{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .5s linear,stroke .4s ease;stroke-dasharray:754}
+.ring-green{stroke:var(--neon)}
+.ring-amber{stroke:var(--amber)}
+.ring-red{stroke:var(--laser)}
+.timer-digits{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.digits{font-family:'JetBrains Mono',monospace;font-size:4.5rem;font-weight:700;letter-spacing:4px;line-height:1;transition:color .4s}
+.digits.green{color:var(--neon);text-shadow:0 0 30px rgba(0,245,255,0.5)}
+.digits.amber{color:var(--amber);text-shadow:0 0 30px rgba(255,179,0,0.5)}
+.digits.red{color:var(--laser);text-shadow:0 0 30px rgba(255,45,120,0.5)}
+/* status badge */
+.status-badge{padding:6px 20px;border-radius:99px;font-size:.6rem;letter-spacing:2px;border:1px solid;transition:.3s}
+.status-focusing{border-color:var(--neon);color:var(--neon);background:rgba(0,245,255,0.08)}
+.status-break{border-color:var(--green);color:var(--green);background:rgba(0,255,157,0.08)}
+.status-warning{border-color:var(--amber);color:var(--amber);background:rgba(255,179,0,0.08)}
+.status-enforced{border-color:var(--laser);color:var(--laser);background:rgba(255,45,120,0.08)}
+/* controls */
+.controls{display:flex;gap:16px;align-items:center}
+.ctrl-btn{background:rgba(10,22,40,0.6);border:1px solid var(--border);color:var(--dim);padding:9px 20px;border-radius:6px;cursor:pointer;font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:1px;transition:.2s}
+.ctrl-btn:hover{border-color:var(--silver);color:var(--silver)}
+.ctrl-btn.danger:hover{border-color:var(--laser);color:var(--laser)}
+/* corner stats */
+.corner-stat{position:fixed;bottom:24px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--dim);z-index:10}
+.corner-left{left:28px}
+.corner-right{right:28px}
+/* ── BREAK MODAL ───────────────────────────────── */
+.break-panel{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,rgba(123,47,255,0.15),rgba(5,11,24,0.98));border-top:1px solid var(--plasma);padding:32px;text-align:center;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);z-index:100;backdrop-filter:blur(12px)}
+.break-panel.show{transform:translateY(0)}
+.break-title{font-size:.85rem;letter-spacing:2px;color:var(--plasma);margin-bottom:10px}
+.break-tip{font-size:.85rem;color:var(--dim);max-width:500px;margin:0 auto 20px;font-family:'Rajdhani',sans-serif;line-height:1.5}
+.break-timer{font-family:'JetBrains Mono',monospace;font-size:2.5rem;color:var(--green);margin-bottom:16px}
+/* breathing circle */
+.breath-circle{width:80px;height:80px;border-radius:50%;border:2px solid var(--plasma);margin:0 auto 12px;animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1);border-color:var(--plasma);box-shadow:none}50%{transform:scale(1.35);border-color:var(--neon);box-shadow:0 0 24px rgba(0,245,255,0.3)}}
+.breath-text{font-size:.7rem;letter-spacing:2px;color:var(--dim);animation:breatheText 4s ease-in-out infinite}
+@keyframes breatheText{0%,100%{opacity:.5}50%{opacity:1}}
+.btn-skip-break{background:transparent;border:1px solid var(--border);color:var(--dim);padding:8px 20px;border-radius:6px;cursor:pointer;font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:1px;margin-top:12px;transition:.2s}
+.btn-skip-break:hover{border-color:var(--silver);color:var(--silver)}
+/* ── ENFORCED BREAK OVERLAY ─────────────────────── */
+.enforced-overlay{position:fixed;inset:0;background:rgba(255,45,120,0.12);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;backdrop-filter:blur(4px)}
+.enforced-overlay.show{display:flex}
+.enforced-bar{position:fixed;left:0;right:0;height:4px;background:var(--laser);animation:scanBar 1.5s linear infinite}
+.enforced-bar.top{top:0}
+.enforced-bar.bottom{bottom:0}
+@keyframes scanBar{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
+.enforced-title{font-size:clamp(1rem,3vw,1.6rem);letter-spacing:4px;color:var(--laser);text-shadow:0 0 40px rgba(255,45,120,0.6);text-align:center}
+.enforced-digits{font-family:'JetBrains Mono',monospace;font-size:3.5rem;color:var(--laser)}
+.enforced-sub{font-size:.7rem;color:rgba(255,45,120,0.7);letter-spacing:2px}
+/* ── SESSION END DIALOG ─────────────────────────── */
+.end-overlay{position:fixed;inset:0;background:rgba(5,11,24,0.92);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.end-overlay.show{display:flex}
+.end-card{background:rgba(10,22,40,0.98);border:1px solid var(--border);border-top:3px solid var(--neon);border-radius:12px;padding:36px;max-width:420px;width:90%;text-align:center}
+.end-title{font-size:.9rem;letter-spacing:3px;color:var(--neon);margin-bottom:8px}
+.end-sub{font-size:.85rem;color:var(--dim);font-family:'Rajdhani',sans-serif;margin-bottom:24px}
+.end-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.end-choice{background:var(--panel);border:2px solid var(--border);border-radius:8px;padding:14px 8px;cursor:pointer;transition:.2s;font-size:.65rem;letter-spacing:.5px;line-height:1.5}
+.end-choice:hover{border-color:var(--neon)}
+.end-choice.selected{border-color:var(--neon);background:rgba(0,245,255,0.08);box-shadow:0 0 14px rgba(0,245,255,0.15)}
+.end-choice .choice-icon{font-size:1.4rem;display:block;margin-bottom:6px}
+.btn-save{width:100%;padding:12px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);border:none;border-radius:8px;cursor:pointer;font-family:'Orbitron',monospace;font-size:.7rem;font-weight:700;letter-spacing:2px;transition:.2s}
+.btn-save:hover{box-shadow:0 0 24px rgba(0,245,255,0.4)}
+</style>
+</head>
+<body>
+<div class="main">
+  <div style="text-align:center">
+    <div class="topic-label">STUDYING</div>
+    <div class="topic-name" id="topicName">Loading topic...</div>
+  </div>
+
+  <!-- Timer ring -->
+  <div class="timer-wrap">
+    <svg class="timer-svg" width="280" height="280" viewBox="0 0 280 280">
+      <circle class="ring-bg" cx="140" cy="140" r="120"/>
+      <circle class="ring-fg ring-green" id="ringArc" cx="140" cy="140" r="120" stroke-dashoffset="0"/>
+    </svg>
+    <div class="timer-digits">
+      <div class="digits green" id="timerDigits">25:00</div>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-badge status-focusing" id="statusBadge">● FOCUSING</div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="ctrl-btn" id="pauseBtn" onclick="togglePause()">⏸ PAUSE</button>
+    <button class="ctrl-btn danger" onclick="showEndDialog()">✓ DONE FOR NOW</button>
+    <button class="ctrl-btn" id="skipBreakBtn" onclick="skipBreak()" style="display:none">⏭ SKIP BREAK</button>
+  </div>
+</div>
+
+<!-- Corner stats -->
+<div class="corner-stat corner-left">SESSION <span id="sessionTime">0:00</span></div>
+<div class="corner-stat corner-right">BREAKS <span id="breakCount">0</span></div>
+
+<!-- Break panel -->
+<div class="break-panel" id="breakPanel">
+  <div class="break-title" id="breakTitle">BREAK TIME — YOUR BRAIN EARNED IT</div>
+  <div class="break-timer" id="breakDigits">05:00</div>
+  <div class="breath-circle"></div>
+  <div class="breath-text" id="breathText">BREATHE IN...</div>
+  <div class="break-tip" id="breakTip"></div>
+  <button class="btn-skip-break" id="skipBtn" onclick="skipBreak()">SKIP THIS BREAK</button>
+</div>
+
+<!-- Enforced break overlay -->
+<div class="enforced-overlay" id="enforcedOverlay">
+  <div class="enforced-bar top"></div>
+  <div class="enforced-bar bottom"></div>
+  <div class="enforced-title">MANDATORY REST PROTOCOL<br>ACTIVATED</div>
+  <div class="enforced-digits" id="enforcedDigits">10:00</div>
+  <div class="enforced-sub">REST NOW — CANNOT SKIP</div>
+</div>
+
+<!-- Session end dialog -->
+<div class="end-overlay" id="endOverlay">
+  <div class="end-card">
+    <div class="end-title">SESSION COMPLETE</div>
+    <div class="end-sub">How did this topic go?</div>
+    <div class="end-choices">
+      <div class="end-choice" onclick="selectEnd(this,'completed')"><span class="choice-icon">✅</span>TOPIC<br>COMPLETED</div>
+      <div class="end-choice" onclick="selectEnd(this,'partial')"><span class="choice-icon">⚡</span>PARTIALLY<br>DONE</div>
+      <div class="end-choice" onclick="selectEnd(this,'needs_more')"><span class="choice-icon">🔄</span>NEEDS<br>MORE TIME</div>
+    </div>
+    <button class="btn-save" onclick="saveSession()">SAVE &amp; EXIT</button>
+  </div>
+</div>
+
+<script type="module">
+import { checkAuthState } from "../js/auth.js";
+import { saveSession, saveTimerState, getTimerState, clearTimerState, updateTopicStatus } from "../js/storage.js";
+
+const TIPS = [
+  "Take a real break — close your eyes and breathe for 30 seconds.",
+  "Stand up, stretch, and drink some water before the next session.",
+  "A 5-minute walk can improve focus more than caffeine.",
+  "Your brain consolidates memory during breaks. Don't skip them.",
+  "Look at something 20 feet away for 20 seconds. Good for your eyes.",
+  "Breaks are not wasted time — they are part of your study plan."
+];
+const BREATH_STATES = ["BREATHE IN...", "HOLD...", "BREATHE OUT...", "HOLD..."];
+
+// ── State ──────────────────────────────────────────────
+let state = {
+  phase: 'FOCUSING',      // FOCUSING | BREAK | ENFORCED
+  elapsed: 0,             // seconds elapsed in current phase
+  focusLength: 25 * 60,   // current focus block length
+  breakLength: 5 * 60,
+  sessionTotal: 0,        // total session seconds
+  breaksTaken: 0,
+  breaksSkipped: 0,
+  paused: false,
+  selectedEnd: null
+};
+let interval = null;
+let currentUser = null;
+let topic = null;
+let sessionStart = Date.now();
+
+checkAuthState((user) => {
+  currentUser = user;
+  // Load topic from localStorage
+  const raw = localStorage.getItem('currentTopic');
+  if (raw) { try { topic = JSON.parse(raw); } catch { topic = { topic_name: 'Study Session', minutes: 25 }; } }
+  else topic = { topic_name: 'Study Session', minutes: 25 };
+  document.getElementById('topicName').textContent = topic.topic_name || 'Study Session';
+
+  // Restore state if page reloaded mid-session
+  const saved = getTimerState();
+  if (saved && saved.sessionTotal > 0) {
+    state = { ...state, ...saved };
+    sessionStart = Date.now() - state.sessionTotal * 1000;
+  }
+  startInterval();
+}, () => window.location.href = 'login.html');
+
+// ── Interval ───────────────────────────────────────────
+function startInterval() {
+  if (interval) clearInterval(interval);
+  interval = setInterval(tick, 1000);
+}
+
+function tick() {
+  if (state.paused) return;
+  state.elapsed++;
+  state.sessionTotal++;
+  saveTimerState(state);
+  updateCornerStats();
+  renderPhase();
+}
+
+function renderPhase() {
+  if (state.phase === 'FOCUSING') renderFocus();
+  else if (state.phase === 'BREAK') renderBreak();
+  else if (state.phase === 'ENFORCED') renderEnforced();
+}
+
+function renderFocus() {
+  const remaining = Math.max(0, state.focusLength - state.elapsed);
+  setDigits(remaining, 'green');
+  setRing(remaining, state.focusLength, 'ring-green');
+  document.getElementById('statusBadge').className = 'status-badge status-focusing';
+  document.getElementById('statusBadge').textContent = '● FOCUSING';
+  document.getElementById('skipBreakBtn').style.display = 'none';
+  document.getElementById('breakPanel').classList.remove('show');
+
+  if (remaining <= 0) {
+    // Time to break
+    if (state.breaksSkipped === 0) triggerBreak(5 * 60, false);
+    else if (state.breaksSkipped === 1) triggerBreak(10 * 60, true);
+    else triggerBreak(15 * 60, true);
+  }
+}
+
+function renderBreak() {
+  const remaining = Math.max(0, state.breakLength - state.elapsed);
+  setDigits(remaining, 'green');
+  setRing(remaining, state.breakLength, 'ring-green');
+  document.getElementById('breakDigits').textContent = formatTime(remaining);
+  // Breathing text cycles every 4s
+  const breathIdx = Math.floor(state.elapsed / 2) % BREATH_STATES.length;
+  document.getElementById('breathText').textContent = BREATH_STATES[breathIdx];
+  if (remaining <= 0) endBreak();
+}
+
+function renderEnforced() {
+  const remaining = Math.max(0, state.breakLength - state.elapsed);
+  document.getElementById('enforcedDigits').textContent = formatTime(remaining);
+  if (remaining <= 0) endBreak();
+}
+
+function triggerBreak(duration, enforced) {
+  state.phase = enforced ? 'ENFORCED' : 'BREAK';
+  state.elapsed = 0;
+  state.breakLength = duration;
+  state.breaksTaken++;
+
+  if (enforced) {
+    document.getElementById('enforcedOverlay').classList.add('show');
+    document.getElementById('breakPanel').classList.remove('show');
+    document.getElementById('statusBadge').className = 'status-badge status-enforced';
+    document.getElementById('statusBadge').textContent = '⛔ ENFORCED BREAK';
+  } else {
+    document.getElementById('breakPanel').classList.add('show');
+    document.getElementById('breakTip').textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
+    const minLabel = duration === 5 * 60 ? '5-MINUTE' : (duration === 10 * 60 ? '10-MINUTE' : '15-MINUTE');
+    document.getElementById('breakTitle').textContent = minLabel + ' BREAK — YOU EARNED IT';
+    document.getElementById('skipBtn').style.display = 'inline-block';
+    document.getElementById('statusBadge').className = 'status-badge status-break';
+    document.getElementById('statusBadge').textContent = '◎ BREAK TIME';
+  }
+  saveTimerState(state);
+}
+
+function endBreak() {
+  state.phase = 'FOCUSING';
+  state.elapsed = 0;
+  state.focusLength = 25 * 60; // reset to 25 mins
+  state.breaksSkipped = 0;
+  document.getElementById('breakPanel').classList.remove('show');
+  document.getElementById('enforcedOverlay').classList.remove('show');
+  document.getElementById('statusBadge').className = 'status-badge status-focusing';
+  document.getElementById('statusBadge').textContent = '● FOCUSING';
+  saveTimerState(state);
+}
+
+window.skipBreak = () => {
+  if (state.phase === 'ENFORCED') return; // can't skip enforced
+  state.breaksSkipped++;
+  state.phase = 'FOCUSING';
+  state.elapsed = 0;
+  state.focusLength = 25 * 60;
+  document.getElementById('breakPanel').classList.remove('show');
+  document.getElementById('statusBadge').className = 'status-badge status-warning';
+  document.getElementById('statusBadge').textContent = '⚠ SKIP WARNING';
+  setTimeout(() => {
+    document.getElementById('statusBadge').className = 'status-badge status-focusing';
+    document.getElementById('statusBadge').textContent = '● FOCUSING';
+  }, 3000);
+  saveTimerState(state);
+};
+
+window.togglePause = () => {
+  state.paused = !state.paused;
+  document.getElementById('pauseBtn').textContent = state.paused ? '▶ RESUME' : '⏸ PAUSE';
+};
+
+// ── Helpers ────────────────────────────────────────────
+function formatTime(secs) {
+  const m = String(Math.floor(secs / 60)).padStart(2,'0');
+  const s = String(secs % 60).padStart(2,'0');
+  return m + ':' + s;
+}
+function setDigits(secs, color) {
+  const el = document.getElementById('timerDigits');
+  el.textContent = formatTime(secs);
+  el.className = 'digits ' + color;
+}
+function setRing(remaining, total, cls) {
+  const circ = 754; // 2π×120
+  const pct = remaining / total;
+  const arc = document.getElementById('ringArc');
+  arc.setAttribute('stroke-dashoffset', circ * (1 - pct));
+  arc.className = 'ring-fg ' + cls;
+}
+function updateCornerStats() {
+  document.getElementById('sessionTime').textContent = formatTime(state.sessionTotal);
+  document.getElementById('breakCount').textContent = state.breaksTaken;
+}
+
+// ── End session ────────────────────────────────────────
+window.showEndDialog = () => {
+  clearInterval(interval);
+  document.getElementById('endOverlay').classList.add('show');
+};
+window.selectEnd = (el, val) => {
+  document.querySelectorAll('.end-choice').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedEnd = val;
+};
+window.saveSession = async () => {
+  if (!state.selectedEnd) { alert('Please select how the session went.'); return; }
+  const planId = localStorage.getItem('currentPlanId');
+  const sessionData = {
+    userId: currentUser.uid,
+    planId: planId || 'unknown',
+    topicName: topic?.topic_name || 'Session',
+    startTime: new Date(sessionStart).toISOString(),
+    endTime: new Date().toISOString(),
+    actualMinutes: Math.round(state.sessionTotal / 60),
+    breaksTaken: state.breaksTaken,
+    breaksSkipped: state.breaksSkipped,
+    topicStatus: state.selectedEnd
+  };
+  await saveSession(sessionData);
+  // Flag quiz as available
+  localStorage.setItem('pendingQuiz', JSON.stringify({ topics: [topic?.topic_name], date: new Date().toISOString() }));
+  clearTimerState();
+  window.location.href = 'quiz.html';
+};
+</script>
+</body>
+</html>

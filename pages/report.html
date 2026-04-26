@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Report - SYNAPTIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--void:#050B18;--navy:#0A1628;--panel:#0D2137;--neon:#00F5FF;--plasma:#7B2FFF;--laser:#FF2D78;--green:#00FF9D;--amber:#FFB300;--silver:#C8D8E8;--dim:#6B8299;--border:#1A3A55}
+body{background:var(--void);color:var(--silver);font-family:'Rajdhani',sans-serif;min-height:100vh;display:flex}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px);pointer-events:none;z-index:0}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:rgba(10,22,40,0.98);border-right:1px solid var(--border);z-index:50;padding:20px 0;display:flex;flex-direction:column}
+.sb-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;font-family:'Orbitron',monospace;font-size:.82rem;font-weight:900;color:var(--neon);letter-spacing:2px}
+.sb-logo img{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(0,245,255,0.35))}
+nav{flex:1;padding:16px 0}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;font-size:.85rem;color:var(--dim);transition:.2s;text-decoration:none;position:relative}
+.nav-item:hover{color:var(--silver);background:rgba(0,245,255,0.04)}
+.nav-item.active{color:var(--neon);background:rgba(0,245,255,0.07)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--neon)}
+.main{margin-left:240px;flex:1;padding:28px;position:relative;z-index:1}
+/* HERO */
+.report-hero{text-align:center;padding:10px 0 36px;border-bottom:1px solid var(--border);margin-bottom:32px}
+.report-title{font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:900;letter-spacing:4px;color:var(--neon);margin-bottom:6px}
+.report-meta{font-size:.85rem;color:var(--dim);font-family:'JetBrains Mono',monospace;margin-bottom:28px}
+/* readiness gauge */
+.gauge-wrap{display:inline-block;position:relative;width:200px;height:200px;margin:0 auto}
+.gauge-svg{filter:drop-shadow(0 0 20px rgba(0,245,255,0.25))}
+.gauge-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.gauge-pct{font-family:'Orbitron',monospace;font-size:2.4rem;font-weight:900}
+.gauge-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:2px;color:var(--dim)}
+.gauge-readiness{font-size:.8rem;color:var(--dim);margin-top:8px;font-family:'JetBrains Mono',monospace}
+/* score summary */
+.score-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.score-card{background:rgba(10,22,40,0.85);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:center;transition:.3s}
+.score-card:hover{border-color:var(--neon);box-shadow:0 0 16px rgba(0,245,255,0.08)}
+.sc-val{font-family:'Orbitron',monospace;font-size:1.4rem;color:var(--neon)}
+.sc-label{font-size:.72rem;color:var(--dim);margin-top:5px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px}
+/* cards */
+.card{background:rgba(10,22,40,0.85);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:10px;padding:22px;margin-bottom:22px}
+.card-title{font-family:'Orbitron',monospace;font-size:.72rem;letter-spacing:2px;color:var(--dim);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.card-title::before{content:'';width:3px;height:14px;background:var(--neon);border-radius:2px}
+/* topic table */
+.topic-table{width:100%;border-collapse:collapse}
+.topic-table th{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:2px;color:var(--dim);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);cursor:pointer}
+.topic-table th:hover{color:var(--neon)}
+.topic-table td{padding:10px 12px;border-bottom:1px solid rgba(26,58,85,0.4);font-size:.88rem}
+.topic-table tr:last-child td{border-bottom:none}
+.topic-table tr:hover td{background:rgba(0,245,255,0.03)}
+.mini-bar{height:6px;border-radius:99px;background:var(--panel);overflow:hidden;min-width:80px}
+.mini-bar-fill{height:100%;border-radius:99px;transition:width 1s ease}
+.status-pill{padding:3px 10px;border-radius:99px;font-size:.65rem;font-family:'JetBrains Mono',monospace;border:1px solid;white-space:nowrap}
+.status-strong{border-color:var(--green);color:var(--green)}
+.status-moderate{border-color:var(--amber);color:var(--amber)}
+.status-weak{border-color:var(--laser);color:var(--laser)}
+/* heat map */
+.heat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.heat-tile{border-radius:8px;padding:14px;text-align:center;border:1px solid transparent;transition:.2s;cursor:default}
+.heat-tile:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.heat-name{font-size:.8rem;color:var(--silver);margin-bottom:6px;font-weight:600}
+.heat-score{font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:700}
+/* analysis 3-col */
+.analysis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px}
+.analysis-col{background:rgba(10,22,40,0.85);border:1px solid var(--border);border-radius:10px;padding:18px}
+.ac-head{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:2px;margin-bottom:14px}
+.ac-strong{color:var(--green);border-bottom:2px solid rgba(0,255,157,0.2);padding-bottom:8px}
+.ac-moderate{color:var(--amber);border-bottom:2px solid rgba(255,179,0,0.2);padding-bottom:8px}
+.ac-weak{color:var(--laser);border-bottom:2px solid rgba(255,45,120,0.2);padding-bottom:8px}
+.ac-item{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(26,58,85,0.4)}
+.ac-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.ac-topic{font-size:.85rem;color:var(--silver);font-weight:600;margin-bottom:3px}
+.ac-score{font-family:'JetBrains Mono',monospace;font-size:.8rem}
+.ac-insight{font-size:.78rem;color:var(--dim);margin-top:3px;line-height:1.4}
+/* revision plan */
+.revision-card{border-color:var(--plasma);border-left:4px solid var(--plasma)}
+.revision-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.gemini-badge{padding:3px 12px;border-radius:99px;background:rgba(0,245,255,0.1);border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:1px}
+.rev-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.rev-day{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;transition:.2s}
+.rev-day:hover{border-color:var(--plasma)}
+.rev-day-num{font-family:'Orbitron',monospace;font-size:.65rem;color:var(--plasma);margin-bottom:5px}
+.rev-topic{font-size:.72rem;color:var(--silver);line-height:1.4;margin-bottom:4px}
+.rev-time{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--amber)}
+/* motivational */
+.motive-card{background:linear-gradient(135deg,rgba(123,47,255,0.1),rgba(0,245,255,0.05));border:1px solid rgba(0,245,255,0.2);border-radius:10px;padding:22px;margin-bottom:22px;text-align:center}
+.motive-text{font-size:1.05rem;color:var(--silver);line-height:1.7;font-style:italic;margin-bottom:12px}
+.exam-tip{font-size:.85rem;color:var(--neon);font-family:'JetBrains Mono',monospace}
+/* print btn */
+.action-row{display:flex;gap:12px;margin-bottom:28px}
+.btn-print{padding:11px 24px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:1px;border-radius:8px;cursor:pointer;transition:.2s}
+.btn-print:hover{background:rgba(0,245,255,0.08)}
+.btn-dash{padding:11px 24px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:1px;border-radius:8px;cursor:pointer;border:none;transition:.2s}
+.btn-dash:hover{box-shadow:0 0 20px rgba(0,245,255,0.4)}
+/* chart canvas */
+canvas{max-height:260px}
+/* no report */
+.no-report{text-align:center;padding:80px 20px;color:var(--dim)}
+.no-report-icon{font-size:3rem;margin-bottom:16px}
+.btn-goto{display:inline-block;margin-top:16px;padding:12px 28px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;border:none;border-radius:8px;cursor:pointer;text-decoration:none}
+@media print{
+  .sidebar,.action-row{display:none!important}
+  .main{margin-left:0!important}
+  body,body::before{background:white!important;color:#111!important}
+  .card,.analysis-col,.score-card,.rev-day,.heat-tile,.report-hero{background:white!important;border-color:#ddd!important}
+  .report-title,.card-title::before,.gauge-pct,.sc-val{color:#111!important}
+  .card-title,.ac-head,.rev-day-num,.gauge-label,.sc-label{color:#555!important}
+}
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.score-row,.analysis-grid{grid-template-columns:1fr 1fr}.rev-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:600px){.score-row,.analysis-grid,.rev-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sb-logo"><img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ logo"><span>SYNAPTIQ</span></div>
+  <nav>
+    <a href="dashboard.html" class="nav-item"><span>◉</span> Dashboard</a>
+    <a href="plan-new.html" class="nav-item"><span>✦</span> New Plan</a>
+    <a href="session.html" class="nav-item"><span>⏱</span> Study Now</a>
+    <a href="progress.html" class="nav-item"><span>▣</span> Progress</a>
+    <a href="assessment.html" class="nav-item active"><span>⬡</span> Assessment</a>
+    <a href="settings.html" class="nav-item"><span>⚙</span> Settings</a>
+  </nav>
+</div>
+
+<div class="main" id="mainContent">
+  <div class="no-report" id="noReport" style="display:none">
+    <div class="no-report-icon">◈</div>
+    <div style="font-family:'Orbitron',monospace;font-size:.9rem;color:var(--neon);margin-bottom:8px">NO REPORT FOUND</div>
+    <div>Complete the final assessment to generate your diagnostic report.</div>
+    <a href="assessment.html" class="btn-goto">TAKE ASSESSMENT →</a>
+  </div>
+  <div id="reportContent" style="display:none">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<script type="module">
+import { checkAuthState } from "../js/auth.js";
+
+checkAuthState((user) => {
+  const raw = localStorage.getItem('latestReport');
+  if (!raw) { document.getElementById('noReport').style.display = 'block'; return; }
+  let report;
+  try { report = JSON.parse(raw); } catch { document.getElementById('noReport').style.display = 'block'; return; }
+  renderReport(report, user);
+}, () => window.location.href = 'login.html');
+
+function renderReport(r, user) {
+  const content = document.getElementById('reportContent');
+  content.style.display = 'block';
+
+  const pct = r.percentage || 0;
+  const gaugeColor = pct >= 75 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--laser)';
+  const circum = 502;
+  const offset = circum * (1 - pct / 100);
+
+  content.innerHTML = `
+    <!-- Hero -->
+    <div class="report-hero">
+      <div class="report-title">DIAGNOSTIC REPORT</div>
+      <div class="report-meta" id="reportMeta">Generated: ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</div>
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" width="200" height="200" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="80" fill="none" stroke="var(--panel)" stroke-width="12"/>
+          <circle cx="100" cy="100" r="80" fill="none" stroke="${gaugeColor}" stroke-width="12"
+            stroke-linecap="round" stroke-dasharray="${circum}" stroke-dashoffset="${offset}"
+            transform="rotate(-90 100 100)" style="filter:drop-shadow(0 0 10px ${gaugeColor})"/>
+        </svg>
+        <div class="gauge-inner">
+          <div class="gauge-pct" style="color:${gaugeColor}">${pct}%</div>
+          <div class="gauge-label">EXAM READINESS</div>
+        </div>
+      </div>
+      <div class="gauge-readiness">${r.readiness_label || 'Assessment Complete'}</div>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-row">
+      <button class="btn-print" onclick="window.print()">🖨 PRINT / SAVE PDF</button>
+      <button class="btn-dash" onclick="window.location.href='dashboard.html'">◉ DASHBOARD</button>
+    </div>
+
+    <!-- Score summary -->
+    <div class="score-row">
+      <div class="score-card"><div class="sc-val">${pct}%</div><div class="sc-label">OVERALL SCORE</div></div>
+      <div class="score-card"><div class="sc-val">${r.overall_score || 0}/${r.max_score || 50}</div><div class="sc-label">CORRECT</div></div>
+      <div class="score-card"><div class="sc-val" style="color:var(--amber)">${r.grade_prediction || '—'}</div><div class="sc-label">PREDICTED GRADE</div></div>
+      <div class="score-card"><div class="sc-val" style="color:var(--dim);font-size:.9rem">${r.marks_range_prediction || '—'}</div><div class="sc-label">MARKS RANGE</div></div>
+    </div>
+  `;
+
+  // Topic performance table
+  if (r.topic_analysis?.length) {
+    const rows = r.topic_analysis.map(t => {
+      const sc = t.score_percent || 0;
+      const barColor = sc >= 80 ? 'var(--green)' : sc >= 50 ? 'var(--amber)' : 'var(--laser)';
+      const statusCls = t.status === 'strong' ? 'status-strong' : t.status === 'weak' ? 'status-weak' : 'status-moderate';
+      return `<tr>
+        <td>${t.topic}</td>
+        <td><div class="mini-bar"><div class="mini-bar-fill" style="width:${sc}%;background:${barColor}"></div></div></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:${barColor}">${sc}%</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--dim)">${t.correct || 0}/${t.questions_attempted || 0}</td>
+        <td><span class="status-pill ${statusCls}">${(t.status||'').toUpperCase()}</span></td>
+      </tr>`;
+    }).join('');
+    content.innerHTML += `
+      <div class="card">
+        <div class="card-title">TOPIC PERFORMANCE</div>
+        <div style="overflow-x:auto">
+        <table class="topic-table">
+          <thead><tr><th onclick="sortTable(this,0)">TOPIC ↕</th><th>SCORE</th><th onclick="sortTable(this,2)">%</th><th>CORRECT</th><th>STATUS</th></tr></thead>
+          <tbody id="topicTableBody">${rows}</tbody>
+        </table></div>
+      </div>`;
+  }
+
+  // Heat map
+  if (r.topic_analysis?.length) {
+    const tiles = r.topic_analysis.map(t => {
+      const sc = t.score_percent || 0;
+      const r1 = sc >= 50 ? 0 : Math.round((50 - sc) / 50 * 26);
+      const g1 = Math.round(sc / 100 * 51);
+      const fill = `rgba(${r1}, ${g1}, ${Math.round(sc / 100 * 50)}, 0.3)`;
+      const border = sc >= 80 ? 'rgba(0,255,157,0.3)' : sc >= 50 ? 'rgba(255,179,0,0.3)' : 'rgba(255,45,120,0.3)';
+      const textColor = sc >= 80 ? 'var(--green)' : sc >= 50 ? 'var(--amber)' : 'var(--laser)';
+      return `<div class="heat-tile" style="background:${fill};border-color:${border}"><div class="heat-name">${t.topic}</div><div class="heat-score" style="color:${textColor}">${sc}%</div></div>`;
+    }).join('');
+    content.innerHTML += `<div class="card"><div class="card-title">TOPIC HEAT MAP</div><div class="heat-grid">${tiles}</div></div>`;
+  }
+
+  // 3-col analysis
+  const strHtml = (r.strengths || []).slice(0,3).map(s => `<div class="ac-item"><div class="ac-topic">${s.topic}</div><div class="ac-score" style="color:var(--green)">${s.score_percent}%</div><div class="ac-insight">${s.praise||''}</div></div>`).join('') || '<div style="color:var(--dim);font-size:.85rem">Complete assessment to see strengths.</div>';
+  const modHtml = (r.topic_analysis||[]).filter(t => t.status==='moderate').slice(0,3).map(t => `<div class="ac-item"><div class="ac-topic">${t.topic}</div><div class="ac-score" style="color:var(--amber)">${t.score_percent}%</div><div class="ac-insight">${t.insight||'Good but needs more practice.'}</div></div>`).join('') || '<div style="color:var(--dim);font-size:.85rem">No moderate areas found.</div>';
+  const weakHtml = (r.weaknesses||[]).slice(0,3).map(w => `<div class="ac-item"><div class="ac-topic">${w.topic}</div><div class="ac-score" style="color:var(--laser)">${w.score_percent}%</div><div class="ac-insight">${w.revision_strategy||w.common_mistakes||''}</div></div>`).join('') || '<div style="color:var(--dim);font-size:.85rem">No critical weak areas detected.</div>';
+  content.innerHTML += `
+    <div class="analysis-grid">
+      <div class="analysis-col"><div class="ac-head ac-strong">🟢 TOP STRENGTHS</div>${strHtml}</div>
+      <div class="analysis-col"><div class="ac-head ac-moderate">🟡 MODERATE AREAS</div>${modHtml}</div>
+      <div class="analysis-col"><div class="ac-head ac-weak">🔴 FOCUS ZONES</div>${weakHtml}</div>
+    </div>`;
+
+  // Radar chart
+  if (r.topic_analysis?.length >= 3) {
+    const labels = r.topic_analysis.slice(0,7).map(t => t.topic.slice(0,15));
+    const scores = r.topic_analysis.slice(0,7).map(t => t.score_percent || 0);
+    content.innerHTML += `<div class="card"><div class="card-title">PERFORMANCE RADAR</div><canvas id="radarChart"></canvas></div>`;
+    setTimeout(() => {
+      new Chart(document.getElementById('radarChart'), {
+        type: 'radar',
+        data: { labels, datasets: [{ data: scores, borderColor: '#00F5FF', backgroundColor: 'rgba(0,245,255,0.08)', pointBackgroundColor: '#00F5FF', borderWidth: 2 }] },
+        options: { plugins: { legend: { display: false } }, scales: { r: { min: 0, max: 100, ticks: { color: '#6B8299', backdropColor: 'transparent', font: { family: 'JetBrains Mono', size: 10 } }, grid: { color: 'rgba(26,58,85,0.5)' }, pointLabels: { color: '#C8D8E8', font: { family: 'Rajdhani', size: 11 } }, angleLines: { color: 'rgba(26,58,85,0.5)' } } }, responsive: true }
+      });
+    }, 100);
+  }
+
+  // 7-day revision plan
+  if (r.seven_day_revision_plan?.length) {
+    const days = r.seven_day_revision_plan.map(d => `
+      <div class="rev-day">
+        <div class="rev-day-num">DAY ${d.day}</div>
+        <div class="rev-topic">${d.focus_topic}</div>
+        <div class="rev-time">${d.duration_minutes}min</div>
+        <div style="font-size:.68rem;color:var(--dim);margin-top:4px;line-height:1.3">${(d.activity||'').slice(0,35)}</div>
+      </div>`).join('');
+    content.innerHTML += `
+      <div class="card revision-card">
+        <div class="revision-header"><div class="card-title" style="margin:0">SYNAPTIQ REVISION STRATEGY</div><div class="gemini-badge">GEMINI</div></div>
+        <div class="rev-grid">${days}</div>
+      </div>`;
+  }
+
+  // Motivational
+  if (r.motivational_message) {
+    content.innerHTML += `
+      <div class="motive-card">
+        <div class="motive-text">"${r.motivational_message}"</div>
+        <div class="exam-tip">💡 EXAM TIP: ${r.exam_day_tip || 'Stay calm and read every question carefully.'}</div>
+      </div>`;
+  }
+}
+
+window.sortTable = (th, col) => {
+  const tbody = document.getElementById('topicTableBody');
+  if (!tbody) return;
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const asc = th.dataset.asc !== 'true';
+  th.dataset.asc = asc;
+  rows.sort((a, b) => {
+    const av = a.cells[col]?.textContent.trim() || '';
+    const bv = b.cells[col]?.textContent.trim() || '';
+    const an = parseFloat(av), bn = parseFloat(bv);
+    if (!isNaN(an) && !isNaN(bn)) return asc ? an - bn : bn - an;
+    return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+  rows.forEach(r => tbody.appendChild(r));
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Login - SYNAPTIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--void:#050B18;--navy:#0A1628;--panel:#0D2137;--neon:#00F5FF;--plasma:#7B2FFF;--laser:#FF2D78;--green:#00FF9D;--amber:#FFB300;--silver:#C8D8E8;--dim:#6B8299;--border:#1A3A55}
+body{background:var(--void);color:var(--silver);font-family:'Rajdhani',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,245,255,0.025) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,245,255,0.025) 40px);animation:gm 25s linear infinite;pointer-events:none;z-index:0}
+@keyframes gm{0%{background-position:0 0,0 0}100%{background-position:0 40px,40px 0}}
+.card{position:relative;z-index:1;background:rgba(10,22,40,0.92);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:14px;padding:40px;width:100%;max-width:420px;box-shadow:0 0 60px rgba(123,47,255,0.15)}
+.logo{display:flex;flex-direction:column;align-items:center;gap:10px;font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:var(--neon);letter-spacing:3px;text-align:center;margin-bottom:6px;text-shadow:0 0 20px rgba(0,245,255,0.5)}
+.logo img{width:68px;height:68px;object-fit:contain;filter:drop-shadow(0 0 18px rgba(0,245,255,0.35))}
+.tagline{text-align:center;color:var(--dim);font-size:.9rem;margin-bottom:28px;font-style:italic}
+.field{margin-bottom:16px}
+label{display:block;font-size:.7rem;letter-spacing:1.5px;color:var(--dim);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+input{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--silver);padding:11px 14px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:1rem;outline:none;transition:.2s}
+input:focus{border-color:var(--neon);box-shadow:0 0 10px rgba(0,245,255,0.18)}
+input::placeholder{color:var(--dim)}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:44px}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--dim);font-size:1rem;background:none;border:none}
+.pw-eye:hover{color:var(--neon)}
+.row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.remember{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem;color:var(--dim)}
+.remember input[type=checkbox]{width:16px;height:16px;accent-color:var(--neon);cursor:pointer}
+.forgot{color:var(--plasma);font-size:.85rem;text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:.7rem}
+.forgot:hover{color:var(--neon)}
+.btn-primary{width:100%;padding:12px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.7rem;font-weight:700;letter-spacing:2px;border:none;border-radius:6px;cursor:pointer;transition:.2s}
+.btn-primary:hover{box-shadow:0 0 24px rgba(0,245,255,0.4);transform:translateY(-1px)}
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--dim);font-size:.75rem}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.btn-google{width:100%;padding:11px;background:transparent;border:1px solid #444;color:var(--silver);font-family:'Rajdhani',sans-serif;font-size:.95rem;border-radius:6px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-google:hover{border-color:var(--silver);background:rgba(255,255,255,0.04)}
+.link-row{text-align:center;margin-top:18px;font-size:.85rem;color:var(--dim)}
+.link-row a{color:var(--neon);text-decoration:none}
+.error-banner{background:rgba(255,45,120,0.1);border:1px solid var(--laser);border-radius:6px;padding:10px 14px;font-size:.85rem;color:var(--laser);margin-bottom:14px;display:none}
+.error-banner.show{display:block}
+.success-banner{background:rgba(0,255,157,0.1);border:1px solid var(--green);border-radius:6px;padding:10px 14px;font-size:.85rem;color:var(--green);margin-bottom:14px;display:none}
+.success-banner.show{display:block}
+.lockout{text-align:center;padding:16px;background:rgba(255,179,0,0.08);border:1px solid var(--amber);border-radius:8px;margin-bottom:14px;display:none}
+.lockout.show{display:block}
+.lockout-timer{font-family:'Orbitron',monospace;font-size:1.2rem;color:var(--amber);margin-top:4px}
+/* forgot form */
+.forgot-section{display:none}
+.forgot-section.show{display:block}
+.login-section{display:block}
+.login-section.hide{display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo"><img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ logo"><span>SYNAPTIQ</span></div>
+  <div class="tagline">Welcome back, Scholar.</div>
+
+  <div class="error-banner" id="errBanner"></div>
+  <div class="success-banner" id="succBanner"></div>
+  <div class="lockout" id="lockout">
+    <div style="color:var(--amber);font-size:.75rem;letter-spacing:1px">ACCOUNT LOCKED — TOO MANY ATTEMPTS</div>
+    <div class="lockout-timer" id="lockTimer">14:32</div>
+  </div>
+
+  <!-- LOGIN FORM -->
+  <div class="login-section" id="loginSection">
+    <div class="field">
+      <label>EMAIL ADDRESS</label>
+      <input type="email" id="inp-email" placeholder="you@example.com">
+    </div>
+    <div class="field">
+      <label>PASSWORD</label>
+      <div class="pw-wrap">
+        <input type="password" id="inp-pw" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="pw-eye" onclick="togglePw()">👁</button>
+      </div>
+    </div>
+    <div class="row">
+      <label class="remember"><input type="checkbox" id="remember"> Remember me</label>
+      <a href="#" class="forgot" onclick="showForgot();return false">Forgot Password?</a>
+    </div>
+    <button class="btn-primary" onclick="doLogin()">LOGIN</button>
+    <div class="divider">— OR —</div>
+    <button class="btn-google" onclick="doGoogle()">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Continue with Google
+    </button>
+    <div class="link-row">New here? <a href="signup.html">Create Account</a></div>
+  </div>
+
+  <!-- FORGOT PASSWORD -->
+  <div class="forgot-section" id="forgotSection">
+    <div style="font-family:'Orbitron',monospace;font-size:.85rem;color:var(--neon);margin-bottom:16px;letter-spacing:2px">RESET PASSWORD</div>
+    <div class="field">
+      <label>EMAIL ADDRESS</label>
+      <input type="email" id="reset-email" placeholder="you@example.com">
+    </div>
+    <button class="btn-primary" onclick="doReset()">SEND RESET LINK</button>
+    <div class="link-row" style="margin-top:14px"><a href="#" onclick="showLogin();return false">← Back to Login</a></div>
+  </div>
+</div>
+
+<script type="module">
+import { loginWithEmail, loginWithGoogle, sendReset } from "../js/auth.js";
+
+window.togglePw = () => {
+  const i = document.getElementById('inp-pw');
+  i.type = i.type === 'password' ? 'text' : 'password';
+};
+function showErr(msg) {
+  const b = document.getElementById('errBanner');
+  b.textContent = msg; b.classList.add('show');
+  setTimeout(() => b.classList.remove('show'), 5000);
+}
+function showSucc(msg) {
+  const b = document.getElementById('succBanner');
+  b.textContent = msg; b.classList.add('show');
+}
+window.showForgot = () => {
+  document.getElementById('loginSection').classList.add('hide');
+  document.getElementById('forgotSection').classList.add('show');
+};
+window.showLogin = () => {
+  document.getElementById('loginSection').classList.remove('hide');
+  document.getElementById('forgotSection').classList.remove('show');
+};
+window.doLogin = async () => {
+  const email = document.getElementById('inp-email').value.trim();
+  const pw = document.getElementById('inp-pw').value;
+  if (!email || !pw) { showErr('Please enter email and password.'); return; }
+  const res = await loginWithEmail(email, pw);
+  if (res.success) {
+    window.location.href = 'dashboard.html';
+  } else if (res.locked) {
+    document.getElementById('lockout').classList.add('show');
+    showErr(res.error);
+  } else {
+    showErr(res.error + (res.attemptsLeft ? ` (${res.attemptsLeft} attempts left)` : ''));
+  }
+};
+window.doGoogle = async () => {
+  const res = await loginWithGoogle();
+  if (res.success) {
+    window.location.href = res.isNewUser ? 'signup.html' : 'dashboard.html';
+  } else showErr(res.error);
+};
+window.doReset = async () => {
+  const email = document.getElementById('reset-email').value.trim();
+  if (!email) { showErr('Enter your email.'); return; }
+  const res = await sendReset(email);
+  if (res.success) showSucc('TRANSMISSION SENT. Check your email for reset instructions.');
+  else showErr(res.error);
+};
+</script>
+</body>
+</html>

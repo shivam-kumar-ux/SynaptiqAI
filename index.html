@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYNAPTIQ - Study Smarter with Gemini</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--void:#050B18;--navy:#0A1628;--panel:#0D2137;--neon:#00F5FF;--plasma:#7B2FFF;--laser:#FF2D78;--green:#00FF9D;--amber:#FFB300;--silver:#C8D8E8;--dim:#6B8299;--border:#1A3A55}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--silver);font-family:'Rajdhani',sans-serif;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,245,255,0.03) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,245,255,0.03) 40px);animation:gridMove 25s linear infinite;pointer-events:none;z-index:0}
+@keyframes gridMove{0%{background-position:0 0,0 0}100%{background-position:0 40px,40px 0}}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(5,11,24,0.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:12px;font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:var(--neon);letter-spacing:3px;text-shadow:0 0 20px rgba(0,245,255,0.5)}
+.logo img{width:38px;height:38px;object-fit:contain;filter:drop-shadow(0 0 16px rgba(0,245,255,0.35))}
+.nav-links{display:flex;gap:12px}
+.btn-outline{padding:8px 20px;border:1px solid var(--neon);background:transparent;color:var(--neon);font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:2px;cursor:pointer;border-radius:4px;transition:.2s;text-decoration:none;display:inline-block}
+.btn-outline:hover{background:rgba(0,245,255,0.08);box-shadow:0 0 16px rgba(0,245,255,0.3)}
+.btn-primary{padding:10px 24px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;cursor:pointer;border:none;border-radius:4px;transition:.2s;text-decoration:none;display:inline-block}
+.btn-primary:hover{box-shadow:0 0 24px rgba(0,245,255,0.45);transform:translateY(-1px)}
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px;overflow:hidden}
+.hero-glow{position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;background:radial-gradient(circle,rgba(123,47,255,0.12) 0%,transparent 70%);pointer-events:none}
+.hero-glow2{position:absolute;top:60%;right:10%;width:400px;height:400px;background:radial-gradient(circle,rgba(0,245,255,0.06) 0%,transparent 70%);pointer-events:none}
+.hero-content{position:relative;z-index:1;max-width:820px}
+.hero-mark{display:flex;justify-content:center;margin-bottom:22px}
+.hero-mark img{width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 0 26px rgba(0,245,255,0.35))}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border:1px solid rgba(0,245,255,0.3);border-radius:99px;font-size:.7rem;letter-spacing:2px;color:var(--neon);margin-bottom:24px;font-family:'JetBrains Mono',monospace}
+.hero-badge span{width:6px;height:6px;background:var(--neon);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--neon)}50%{opacity:.4;box-shadow:none}}
+h1{font-family:'Orbitron',monospace;font-size:clamp(2.2rem,6vw,4.5rem);font-weight:900;line-height:1.1;letter-spacing:2px;margin-bottom:20px}
+h1 .line1{color:var(--silver)}
+h1 .line2{background:linear-gradient(135deg,var(--neon),var(--plasma));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:1.1rem;color:var(--dim);max-width:580px;margin:0 auto 40px;line-height:1.6}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-lg{padding:14px 32px;font-size:.75rem}
+.float-icon{position:absolute;font-size:2rem;opacity:.15;animation:float 6s ease-in-out infinite}
+.fi1{top:20%;left:8%;animation-delay:0s}
+.fi2{top:35%;right:10%;animation-delay:2s}
+.fi3{bottom:25%;left:15%;animation-delay:4s}
+.fi4{bottom:30%;right:8%;animation-delay:1s;font-size:1.5rem}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+section{position:relative;z-index:1;padding:80px 40px;max-width:1200px;margin:0 auto}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:4px;color:var(--plasma);margin-bottom:12px}
+.section-title{font-family:'Orbitron',monospace;font-size:1.8rem;color:var(--neon);margin-bottom:48px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
+.steps::before{content:'';position:absolute;top:32px;left:16%;right:16%;height:1px;background:linear-gradient(90deg,transparent,var(--plasma),var(--neon),var(--plasma),transparent);opacity:.4}
+.step{text-align:center;padding:20px}
+.step-num{width:64px;height:64px;border-radius:50%;border:2px solid var(--plasma);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:900;color:var(--plasma);margin:0 auto 20px;background:rgba(123,47,255,0.08);box-shadow:0 0 24px rgba(123,47,255,0.2)}
+.step h3{font-family:'Orbitron',monospace;font-size:.8rem;letter-spacing:2px;color:var(--silver);margin-bottom:10px}
+.step p{font-size:.9rem;color:var(--dim);line-height:1.5}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.feat-card{background:rgba(10,22,40,0.85);backdrop-filter:blur(12px);border:1px solid var(--border);border-left:3px solid var(--neon);border-radius:10px;padding:28px;transition:.3s;cursor:default}
+.feat-card:hover{transform:translateY(-4px);border-color:var(--neon);box-shadow:0 0 30px rgba(0,245,255,0.12)}
+.feat-icon{font-size:1.8rem;margin-bottom:16px}
+.feat-card h3{font-family:'Orbitron',monospace;font-size:.75rem;letter-spacing:2px;color:var(--neon);margin-bottom:10px}
+.feat-card p{font-size:.9rem;color:var(--dim);line-height:1.5}
+.ai-section{text-align:center;padding:60px 40px}
+.ai-label{font-size:.8rem;letter-spacing:3px;color:var(--dim);margin-bottom:24px;font-family:'JetBrains Mono',monospace}
+.ai-badges{display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
+.ai-badge{padding:10px 28px;border-radius:99px;font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:2px;font-weight:700}
+.ai-gemini{border:1px solid #4285F4;color:#4285F4;box-shadow:0 0 16px rgba(66,133,244,0.2)}
+footer{border-top:1px solid var(--border);text-align:center;padding:32px;font-size:.8rem;color:var(--dim);font-family:'JetBrains Mono',monospace;position:relative;z-index:1}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+@media(max-width:768px){nav{padding:14px 20px}.steps,.features-grid{grid-template-columns:1fr}.steps::before{display:none}section{padding:60px 20px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><img src="img/synaptiq_logo_removebg.png" alt="SYNAPTIQ logo"><span>SYNAPTIQ</span></div>
+  <div class="nav-links">
+    <a href="pages/login.html" class="btn-outline">LOGIN</a>
+    <a href="pages/signup.html" class="btn-primary">GET STARTED</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <span class="float-icon fi1">O</span>
+  <span class="float-icon fi2">[]</span>
+  <span class="float-icon fi3">+</span>
+  <span class="float-icon fi4">*</span>
+  <div class="hero-content">
+    <div class="hero-mark"><img src="img/synaptiq_logo_removebg.png" alt="SYNAPTIQ logo"></div>
+    <div class="hero-badge"><span></span>POWERED BY SECURE GEMINI</div>
+    <h1>
+      <div class="line1">STUDY SMARTER.</div>
+      <div class="line2">POWERED BY SYNAPTIQ.</div>
+    </h1>
+    <p class="hero-sub">SYNAPTIQ turns your syllabus into a secure Gemini-powered study plan with daily sessions, quizzes, analytics, and final readiness reports.</p>
+    <div class="hero-btns">
+      <a href="pages/signup.html" class="btn-primary btn-lg">GET STARTED</a>
+      <a href="pages/login.html" class="btn-outline btn-lg">LOGIN</a>
+    </div>
+  </div>
+</div>
+
+<div style="max-width:1200px;margin:0 auto">
+  <section class="reveal">
+    <div class="section-label">// HOW IT WORKS</div>
+    <div class="section-title">THREE STEPS TO EXAM MASTERY</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><h3>UPLOAD SYLLABUS</h3><p>Paste or upload your syllabus and SYNAPTIQ converts it into structured chapters and topics.</p></div>
+      <div class="step"><div class="step-num">02</div><h3>GEMINI BUILDS YOUR PLAN</h3><p>One secure Gemini workflow generates a personalized plan with revisions, buffers, and focus priorities.</p></div>
+      <div class="step"><div class="step-num">03</div><h3>STUDY AND TRACK</h3><p>Use guided focus sessions, daily quizzes, progress analytics, and a final readiness assessment.</p></div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <div class="section-label">// FEATURES</div>
+    <div class="section-title">EVERYTHING YOU NEED</div>
+    <div class="features-grid">
+      <div class="feat-card"><div class="feat-icon">!</div><h3>SECURE GEMINI PLANNING</h3><p>The Gemini API key lives on the server only, never in browser code, localStorage, or HTML.</p></div>
+      <div class="feat-card"><div class="feat-icon">T</div><h3>SMART POMODORO</h3><p>Run focused study blocks with escalating break protection and a clean session flow.</p></div>
+      <div class="feat-card"><div class="feat-icon">#</div><h3>DAILY QUIZZES</h3><p>Auto-generate quick quizzes after sessions and flag weak topics for revision.</p></div>
+      <div class="feat-card"><div class="feat-icon">[]</div><h3>FINAL ASSESSMENT</h3><p>Take a full-syllabus assessment covering conceptual, application, and analytical thinking.</p></div>
+      <div class="feat-card"><div class="feat-icon">O</div><h3>SYLLABUS TRACKER</h3><p>Track exam countdowns, progress snapshots, and what to study next from any device.</p></div>
+      <div class="feat-card"><div class="feat-icon">*</div><h3>DIAGNOSTIC REPORT</h3><p>Review Gemini-generated strengths, weak areas, and a seven-day revision strategy.</p></div>
+    </div>
+  </section>
+</div>
+
+<div class="ai-section reveal">
+  <div class="ai-label">// AI ENGINE</div>
+  <div class="ai-badges">
+    <div class="ai-badge ai-gemini">GEMINI</div>
+  </div>
+</div>
+
+<footer>SYNAPTIQ © 2025 &nbsp;·&nbsp; BUILT FOR STUDENTS &nbsp;·&nbsp; POWERED BY SECURE GEMINI</footer>
+
+<script>
+const reveals = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+reveals.forEach(r => obs.observe(r));
+</script>
+</body>
+</html>

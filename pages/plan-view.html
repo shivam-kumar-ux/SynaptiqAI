@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>View Plan - SYNAPTIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--void:#050B18;--navy:#0A1628;--panel:#0D2137;--neon:#00F5FF;--plasma:#7B2FFF;--laser:#FF2D78;--green:#00FF9D;--amber:#FFB300;--silver:#C8D8E8;--dim:#6B8299;--border:#1A3A55}
+body{background:var(--void);color:var(--silver);font-family:'Rajdhani',sans-serif;min-height:100vh;display:flex}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px);pointer-events:none;z-index:0}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:rgba(10,22,40,0.98);border-right:1px solid var(--border);z-index:50;padding:20px 0;display:flex;flex-direction:column}
+.sb-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;font-family:'Orbitron',monospace;font-size:.82rem;font-weight:900;color:var(--neon);letter-spacing:2px}
+.sb-logo img{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(0,245,255,0.35))}
+nav{flex:1;padding:16px 0}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;font-size:.85rem;color:var(--dim);transition:.2s;text-decoration:none;position:relative}
+.nav-item:hover{color:var(--silver);background:rgba(0,245,255,0.04)}
+.nav-item.active{color:var(--neon);background:rgba(0,245,255,0.07)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--neon)}
+.main{margin-left:240px;flex:1;padding:28px;position:relative;z-index:1}
+.page-header{margin-bottom:24px}
+.page-title{font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--neon);letter-spacing:2px;margin-bottom:6px}
+.page-sub{font-size:.85rem;color:var(--dim);margin-bottom:14px}
+.badges{display:flex;gap:10px;flex-wrap:wrap}
+.badge{padding:4px 14px;border-radius:99px;font-size:.7rem;font-family:'JetBrains Mono',monospace;border:1px solid var(--neon);color:var(--neon)}
+.badge.plasma{border-color:var(--plasma);color:var(--plasma)}
+.summary-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.sum-pill{background:rgba(10,22,40,0.85);border:1px solid var(--border);border-radius:8px;padding:14px 16px;text-align:center}
+.sum-val{font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--neon)}
+.sum-label{font-size:.7rem;color:var(--dim);margin-top:4px;font-family:'JetBrains Mono',monospace}
+.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.insight-card,.risk-card{background:rgba(10,22,40,0.85);border:1px solid var(--border);border-radius:10px;padding:18px}
+.risk-card{border-color:rgba(255,179,0,0.28);background:rgba(255,179,0,0.05)}
+.card-head{font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:2px;color:var(--neon);margin-bottom:10px}
+.risk-card .card-head{color:var(--amber)}
+.card-copy{font-size:.88rem;color:var(--dim);line-height:1.6}
+.plan-wrap{background:rgba(10,22,40,0.85);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--plasma)}
+thead th{padding:12px 16px;font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:2px;color:var(--void);text-align:left;font-weight:700}
+tbody tr{border-bottom:1px solid var(--border);transition:.15s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(0,245,255,0.03)}
+tbody td{padding:11px 16px;font-size:.88rem}
+.day-num{font-family:'JetBrains Mono',monospace;color:var(--plasma);font-size:.8rem;min-width:36px}
+.day-type{font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:2px 8px;border-radius:4px}
+.day-type.study{color:var(--neon);background:rgba(0,245,255,0.08)}
+.day-type.revision{color:var(--amber);background:rgba(255,179,0,0.08)}
+.day-type.buffer{color:var(--dim);background:rgba(107,130,153,0.08)}
+.topics-cell{line-height:1.8}
+.topic-chip{display:inline-block;margin:1px 4px 1px 0;font-size:.78rem}
+.priority-pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.65rem;font-family:'JetBrains Mono',monospace;margin-left:4px}
+.priority-pill.high{background:rgba(255,45,120,0.15);color:var(--laser);border:1px solid rgba(255,45,120,0.3)}
+.priority-pill.medium{background:rgba(255,179,0,0.12);color:var(--amber);border:1px solid rgba(255,179,0,0.3)}
+.priority-pill.low{background:rgba(107,130,153,0.12);color:var(--dim);border:1px solid rgba(107,130,153,0.2)}
+.time-cell{font-family:'JetBrains Mono',monospace;color:var(--amber);font-size:.8rem;white-space:nowrap}
+.action-bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.btn-accept{padding:13px 32px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.7rem;font-weight:700;letter-spacing:2px;border:none;border-radius:8px;cursor:pointer;transition:.2s}
+.btn-accept:hover{box-shadow:0 0 28px rgba(0,245,255,0.45);transform:translateY(-1px)}
+.btn-regen{padding:12px 24px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:1px;border-radius:8px;cursor:pointer;transition:.2s}
+.btn-regen:hover{background:rgba(0,245,255,0.08)}
+.btn-back{color:var(--dim);font-size:.85rem;text-decoration:none;font-family:'Rajdhani',sans-serif}
+.btn-back:hover{color:var(--silver)}
+.activated{position:fixed;inset:0;background:rgba(0,255,157,0.08);display:none;align-items:center;justify-content:center;z-index:300;animation:fadeIn .2s ease}
+.activated.show{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.activated-text{font-family:'Orbitron',monospace;font-size:2rem;color:var(--green);text-shadow:0 0 40px rgba(0,255,157,0.6);letter-spacing:4px;animation:pulse 1s ease}
+@keyframes pulse{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.no-plan{text-align:center;padding:60px;color:var(--dim);font-size:1rem}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.summary-bar,.insight-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sb-logo"><img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ logo"><span>SYNAPTIQ</span></div>
+  <nav>
+    <a href="dashboard.html" class="nav-item"><span>O</span> Dashboard</a>
+    <a href="plan-new.html" class="nav-item active"><span>*</span> New Plan</a>
+    <a href="session.html" class="nav-item"><span>T</span> Study Now</a>
+    <a href="progress.html" class="nav-item"><span>#</span> Progress</a>
+    <a href="assessment.html" class="nav-item"><span>[]</span> Assessment</a>
+    <a href="settings.html" class="nav-item"><span>@</span> Settings</a>
+  </nav>
+</div>
+
+<div class="main">
+  <div class="page-header">
+    <div class="page-title">SYNAPTIQ PLAN GENERATED</div>
+    <div class="page-sub">Your secure Gemini-powered study plan is ready to review and activate.</div>
+    <div class="badges">
+      <div class="badge" id="subjectBadge">Subject</div>
+      <div class="badge plasma" id="dateBadge">Exam Date</div>
+    </div>
+  </div>
+
+  <div class="summary-bar">
+    <div class="sum-pill"><div class="sum-val" id="sumDays">-</div><div class="sum-label">TOTAL DAYS</div></div>
+    <div class="sum-pill"><div class="sum-val" id="sumHours">-</div><div class="sum-label">TOTAL HOURS</div></div>
+    <div class="sum-pill"><div class="sum-val" id="sumRevision">-</div><div class="sum-label">REVISION DAYS</div></div>
+    <div class="sum-pill"><div class="sum-val" id="sumBuffer">-</div><div class="sum-label">BUFFER DAYS</div></div>
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight-card">
+      <div class="card-head">PLAN STRATEGY</div>
+      <div class="card-copy" id="strategySummary">Loading plan strategy...</div>
+    </div>
+    <div class="risk-card">
+      <div class="card-head">RISK NOTE</div>
+      <div class="card-copy" id="riskSummary">Loading risk note...</div>
+    </div>
+  </div>
+
+  <div class="plan-wrap">
+    <table>
+      <thead><tr>
+        <th>#</th><th>DAY</th><th>TOPICS</th><th>TIME</th><th>TYPE</th>
+      </tr></thead>
+      <tbody id="planBody">
+        <tr><td colspan="5" class="no-plan">Loading plan data...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn-accept" onclick="acceptPlan()">ACCEPT THIS PLAN</button>
+    <button class="btn-regen" onclick="window.location.href='plan-new.html'">REGENERATE</button>
+    <a href="plan-new.html" class="btn-back">Back to Setup</a>
+  </div>
+</div>
+
+<div class="activated" id="activatedFlash">
+  <div class="activated-text">PLAN ACTIVATED</div>
+</div>
+
+<script type="module">
+import { checkAuthState } from "../js/auth.js";
+import { updatePlanStatus } from "../js/storage.js";
+
+let planData = null;
+
+checkAuthState(() => {
+  const raw = localStorage.getItem("pendingPlan");
+  if (!raw) { window.location.href = "plan-new.html"; return; }
+  planData = JSON.parse(raw);
+  initPage();
+}, () => window.location.href = "login.html");
+
+function initPage() {
+  const plan = planData.studyPlan || planData.mergedPlan || planData.geminiPlan;
+  if (!plan) {
+    document.getElementById("planBody").innerHTML = '<tr><td colspan="5" class="no-plan">No plan data was found. Please generate a new plan.</td></tr>';
+    return;
+  }
+
+  document.getElementById("subjectBadge").textContent = planData.subject || "Subject";
+  const dateLabel = planData.examDate
+    ? new Date(planData.examDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+    : "-";
+  document.getElementById("dateBadge").textContent = "Exam: " + dateLabel;
+
+  document.getElementById("strategySummary").textContent = plan.strategy_summary || "Focused study plan with revisions and buffers.";
+  document.getElementById("riskSummary").textContent = plan.risk_note || "No major risks detected.";
+
+  document.getElementById("sumDays").textContent = plan.total_days ?? plan.days?.length ?? "-";
+  document.getElementById("sumHours").textContent = plan.summary?.total_study_hours ? plan.summary.total_study_hours + "h" : "-";
+  document.getElementById("sumRevision").textContent = plan.revision_days?.length ?? "-";
+  document.getElementById("sumBuffer").textContent = plan.buffer_days_before_exam ?? "-";
+
+  renderTable(plan);
+}
+
+function renderTable(plan) {
+  const tbody = document.getElementById("planBody");
+  if (!plan?.days?.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="no-plan" style="text-align:center;padding:32px;color:var(--dim)">This plan has no scheduled study days yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = plan.days.map((day) => {
+    const topicsHtml = (day.topics || []).map((topic) => {
+      const priority = (topic.priority || "medium").toLowerCase();
+      return `<span class="topic-chip">${topic.topic_name}<span class="priority-pill ${priority}">${priority.toUpperCase()}</span></span>`;
+    }).join("");
+    const typeClass = day.day_type || "study";
+    return `<tr>
+      <td class="day-num">${day.day_number}</td>
+      <td><span class="day-type ${typeClass}">${(day.day_type || "study").toUpperCase()}</span></td>
+      <td class="topics-cell">${topicsHtml}</td>
+      <td class="time-cell">${day.total_minutes}m</td>
+      <td style="font-size:.78rem;color:var(--dim)">${(day.topics || []).length} topic${(day.topics || []).length !== 1 ? "s" : ""}</td>
+    </tr>`;
+  }).join("");
+}
+
+window.acceptPlan = async () => {
+  const planId = localStorage.getItem("currentPlanId");
+  if (planId) await updatePlanStatus(planId, "active");
+  document.getElementById("activatedFlash").classList.add("show");
+  setTimeout(() => window.location.href = "dashboard.html", 1600);
+};
+</script>
+</body>
+</html>

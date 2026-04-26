@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>New Plan - SYNAPTIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--void:#050B18;--navy:#0A1628;--panel:#0D2137;--neon:#00F5FF;--plasma:#7B2FFF;--laser:#FF2D78;--green:#00FF9D;--amber:#FFB300;--silver:#C8D8E8;--dim:#6B8299;--border:#1A3A55}
+body{background:var(--void);color:var(--silver);font-family:'Rajdhani',sans-serif;min-height:100vh;display:flex}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px);pointer-events:none;z-index:0}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:rgba(10,22,40,0.98);border-right:1px solid var(--border);z-index:50;padding:20px 0;display:flex;flex-direction:column}
+.sb-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;font-family:'Orbitron',monospace;font-size:.82rem;font-weight:900;color:var(--neon);letter-spacing:2px}
+.sb-logo img{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(0,245,255,0.35))}
+nav{flex:1;padding:16px 0}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;font-size:.85rem;color:var(--dim);cursor:pointer;transition:.2s;text-decoration:none;position:relative}
+.nav-item:hover{color:var(--silver);background:rgba(0,245,255,0.04)}
+.nav-item.active{color:var(--neon);background:rgba(0,245,255,0.07)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--neon)}
+.main{margin-left:240px;flex:1;padding:28px;position:relative;z-index:1}
+.page-title{font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--neon);letter-spacing:2px;margin-bottom:6px}
+.page-sub{font-size:.85rem;color:var(--dim);margin-bottom:28px}
+.layout{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}
+.card{background:rgba(10,22,40,0.85);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:10px;padding:24px}
+.section-head{font-family:'Orbitron',monospace;font-size:.75rem;letter-spacing:2px;color:var(--neon);margin-bottom:18px;padding-left:10px;border-left:3px solid var(--neon)}
+.field{margin-bottom:16px}
+label{display:block;font-size:.7rem;letter-spacing:1.5px;color:var(--dim);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+input,select,textarea{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--silver);padding:10px 14px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;transition:.2s}
+input:focus,select:focus,textarea:focus{border-color:var(--neon);box-shadow:0 0 10px rgba(0,245,255,0.15)}
+input::placeholder,textarea::placeholder{color:var(--dim)}
+select option{background:var(--panel)}
+textarea{resize:vertical;min-height:80px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mode-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mode-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 8px;text-align:center;cursor:pointer;transition:.2s}
+.mode-card:hover{border-color:rgba(0,245,255,0.4)}
+.mode-card.selected{border-color:var(--neon);background:rgba(0,245,255,0.07);box-shadow:0 0 12px rgba(0,245,255,0.12)}
+.mode-name{font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:1px;color:var(--silver)}
+.mode-desc{font-size:.75rem;color:var(--dim);margin-top:3px}
+.upload-zone{border:2px dashed var(--neon);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:12px;position:relative}
+.upload-zone:hover,.upload-zone.dragover{background:rgba(0,245,255,0.04);border-style:solid}
+.upload-text{font-family:'Orbitron',monospace;font-size:.7rem;letter-spacing:2px;color:var(--neon);margin-bottom:6px}
+.upload-sub{font-size:.8rem;color:var(--dim)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.btn-generate{width:100%;padding:14px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;letter-spacing:2px;border:none;border-radius:8px;cursor:pointer;transition:.2s;margin-top:8px}
+.btn-generate:hover{box-shadow:0 0 28px rgba(0,245,255,0.45);transform:translateY(-1px)}
+.btn-generate:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.ai-status{margin-top:14px}
+.ai-dot{text-align:center;padding:10px;background:var(--panel);border-radius:6px;font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--dim);border:1px solid var(--border);transition:.3s}
+.ai-dot.loading{color:var(--neon);border-color:var(--neon)}
+.ai-dot.done{color:var(--green);border-color:var(--green)}
+.ai-dot.error{color:var(--laser);border-color:var(--laser)}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-left:4px}
+.loading .dot{background:var(--neon);animation:blinkDot 1s infinite}
+.done .dot{background:var(--green)}
+.error .dot{background:var(--laser)}
+@keyframes blinkDot{0%,100%{opacity:1}50%{opacity:.2}}
+.info-step{display:flex;gap:12px;margin-bottom:16px}
+.info-num{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--plasma);color:var(--plasma);font-family:'Orbitron',monospace;font-size:.65rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.info-text h4{font-family:'Orbitron',monospace;font-size:.65rem;color:var(--silver);letter-spacing:1px;margin-bottom:3px}
+.info-text p{font-size:.8rem;color:var(--dim);line-height:1.5}
+.quality-item{margin-bottom:10px}
+.quality-head{display:flex;justify-content:space-between;font-size:.75rem;color:var(--dim);margin-bottom:4px}
+.bar-bg{background:var(--panel);border-radius:99px;height:4px}
+.bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--neon),var(--plasma));transition:width .5s ease}
+.tips{margin-top:20px;border-top:1px solid var(--border);padding-top:16px}
+.tip-item{font-size:.82rem;color:var(--dim);line-height:1.5;margin-bottom:8px;padding-left:16px;position:relative}
+.tip-item::before{content:'>';position:absolute;left:0;color:var(--neon)}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none}.main{margin-left:0}}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sb-logo"><img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ logo"><span>SYNAPTIQ</span></div>
+  <nav>
+    <a href="dashboard.html" class="nav-item"><span>O</span>Dashboard</a>
+    <a href="plan-new.html" class="nav-item active"><span>*</span>New Plan</a>
+    <a href="session.html" class="nav-item"><span>T</span>Study Now</a>
+    <a href="progress.html" class="nav-item"><span>#</span>Progress</a>
+    <a href="assessment.html" class="nav-item"><span>[]</span>Assessment</a>
+    <a href="settings.html" class="nav-item"><span>@</span>Settings</a>
+  </nav>
+</div>
+<div class="main">
+  <div class="page-title">INITIALIZE NEW STUDY PLAN</div>
+  <div class="page-sub">Upload your syllabus and let SYNAPTIQ build a secure Gemini-powered study schedule.</div>
+  <div class="layout">
+    <div class="card">
+      <div class="section-head">PLAN DETAILS</div>
+      <div class="field"><label>SUBJECT NAME</label><input type="text" id="subject" placeholder="e.g. Physics, Mathematics, History" oninput="updateQuality()"></div>
+      <div class="field-row">
+        <div class="field"><label>EXAM DATE</label><input type="date" id="examDate" oninput="updateQuality()"></div>
+        <div class="field">
+          <label>DAILY STUDY TIME</label>
+          <div style="display:flex;gap:8px">
+            <input type="number" id="dailyTime" value="120" min="30" max="720" style="width:80px;flex-shrink:0" oninput="updateQuality()">
+            <select id="timeUnit" style="flex:1">
+              <option value="minutes">Minutes</option>
+              <option value="hours">Hours</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>SESSION STYLE</label>
+        <div class="mode-cards">
+          <div class="mode-card selected" onclick="selectMode(this,'25/5')"><div class="mode-name">STRICT</div><div class="mode-desc">25/5 Pomodoro</div></div>
+          <div class="mode-card" onclick="selectMode(this,'50/10')"><div class="mode-name">POWER</div><div class="mode-desc">50/10 blocks</div></div>
+          <div class="mode-card" onclick="selectMode(this,'custom')"><div class="mode-name">FLOW</div><div class="mode-desc">Custom timing</div></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>SYLLABUS UPLOAD</label>
+        <div class="upload-zone" id="uploadZone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+          <div class="upload-text">DRAG AND DROP SYLLABUS HERE</div>
+          <div class="upload-sub">TXT, PDF, DOC, DOCX, or paste below</div>
+          <input type="file" accept=".txt,.pdf,.doc,.docx" onchange="onFileSelect(event)">
+        </div>
+        <textarea id="syllabus" rows="6" placeholder="Or paste your syllabus text here..." oninput="updateQuality()"></textarea>
+      </div>
+      <div class="field"><label>NOTES FOR SYNAPTIQ (optional)</label><textarea id="notes" rows="3" placeholder="e.g. Focus on MCQ-based questions, I am weak in Chapter 3, prioritize numerical problems..."></textarea></div>
+      <button class="btn-generate" id="genBtn" onclick="generatePlan()">GENERATE PLAN</button>
+      <div class="ai-status">
+        <div class="ai-dot" id="dotGemini">GEMINI SECURE BACKEND <span class="dot"></span></div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="section-head">HOW IT WORKS</div>
+        <div class="info-step"><div class="info-num">1</div><div class="info-text"><h4>SYLLABUS PARSED</h4><p>Gemini reads your syllabus and extracts chapters, topics, difficulty, and priority.</p></div></div>
+        <div class="info-step"><div class="info-num">2</div><div class="info-text"><h4>SMART PLAN GENERATED</h4><p>SYNAPTIQ creates one focused plan with study days, revision checkpoints, and exam buffers.</p></div></div>
+        <div class="info-step"><div class="info-num">3</div><div class="info-text"><h4>READY TO EXECUTE</h4><p>Your plan is saved to Firebase and available on every device after login.</p></div></div>
+        <div class="section-head" style="margin-top:20px">PLAN QUALITY ESTIMATE</div>
+        <div class="quality-item"><div class="quality-head"><span>Syllabus Detail</span><span id="q1">0%</span></div><div class="bar-bg"><div class="bar-fill" id="qb1" style="width:0%"></div></div></div>
+        <div class="quality-item"><div class="quality-head"><span>Time Available</span><span id="q2">0%</span></div><div class="bar-bg"><div class="bar-fill" id="qb2" style="width:0%"></div></div></div>
+        <div class="quality-item"><div class="quality-head"><span>Exam Deadline</span><span id="q3">0%</span></div><div class="bar-bg"><div class="bar-fill" id="qb3" style="width:0%"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="section-head">TIPS FOR BETTER RESULTS</div>
+        <div class="tips">
+          <div class="tip-item">Paste the full chapter list, not just the subject name</div>
+          <div class="tip-item">Include topic names inside each chapter whenever possible</div>
+          <div class="tip-item">Add exam pattern notes such as MCQ, descriptive, or practical</div>
+          <div class="tip-item">Mention weak chapters so the plan can allocate more time</div>
+          <div class="tip-item">Set a realistic exam date to get accurate revision buffers</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { checkAuthState } from "../js/auth.js";
+import { getUserProfile, savePlan } from "../js/storage.js";
+import { parseSyllabus, generateStudyPlan } from "../js/ai.js";
+
+let currentUser = null;
+let userProfile = null;
+let selectedMode = "25/5";
+
+checkAuthState(async (user) => {
+  currentUser = user;
+  const r = await getUserProfile(user.uid);
+  if (r.success) userProfile = r.data;
+}, () => window.location.href = "login.html");
+
+window.selectMode = (el, mode) => {
+  document.querySelectorAll(".mode-card").forEach((card) => card.classList.remove("selected"));
+  el.classList.add("selected");
+  selectedMode = mode;
+};
+
+window.onDragOver = (e) => { e.preventDefault(); document.getElementById("uploadZone").classList.add("dragover"); };
+window.onDragLeave = () => document.getElementById("uploadZone").classList.remove("dragover");
+window.onDrop = (e) => {
+  e.preventDefault();
+  document.getElementById("uploadZone").classList.remove("dragover");
+  const file = e.dataTransfer.files[0];
+  if (file) readFile(file);
+};
+window.onFileSelect = (e) => { if (e.target.files[0]) readFile(e.target.files[0]); };
+
+function readFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById("syllabus").value = e.target.result;
+    updateQuality();
+  };
+  reader.readAsText(file);
+}
+
+window.updateQuality = () => {
+  const syl = document.getElementById("syllabus").value.trim();
+  const date = document.getElementById("examDate").value;
+  const time = parseInt(document.getElementById("dailyTime").value, 10) || 0;
+  const q1 = Math.min(syl.length / 5, 100);
+  const q2 = Math.min(time / 4.8, 100);
+  const q3 = date ? 100 : 0;
+  ["q1","q2","q3"].forEach((id, index) => {
+    const value = [q1, q2, q3][index];
+    document.getElementById(id).textContent = Math.round(value) + "%";
+    document.getElementById("qb" + (index + 1)).style.width = value + "%";
+  });
+};
+
+function setDot(state) {
+  const el = document.getElementById("dotGemini");
+  el.className = "ai-dot " + state;
+}
+
+window.generatePlan = async () => {
+  const subject = document.getElementById("subject").value.trim();
+  const examDate = document.getElementById("examDate").value;
+  const syllabusText = document.getElementById("syllabus").value.trim();
+  if (!subject) { alert("Please enter a subject name."); return; }
+  if (!syllabusText) { alert("Please paste or upload your syllabus."); return; }
+  if (!examDate) { alert("Please set your exam date."); return; }
+
+  const btn = document.getElementById("genBtn");
+  btn.disabled = true;
+  btn.textContent = "GENERATING...";
+  setDot("loading");
+
+  try {
+    const daysRem = Math.max(1, Math.ceil((new Date(examDate) - new Date()) / 86400000));
+    const dailyMins = document.getElementById("timeUnit").value === "hours"
+      ? parseInt(document.getElementById("dailyTime").value, 10) * 60
+      : parseInt(document.getElementById("dailyTime").value, 10);
+
+    let parsed;
+    try {
+      parsed = await parseSyllabus(
+        syllabusText,
+        subject,
+        userProfile?.classGrade || "Student",
+        userProfile?.examTypes?.[0] || "General Exam"
+      );
+    } catch (error) {
+      parsed = [{
+        chapter_number: 1,
+        chapter_name: subject,
+        topics: [syllabusText.substring(0, 100)],
+        estimated_study_hours: Math.max(1, (daysRem * dailyMins) / 60 * 0.8),
+        difficulty: "medium",
+        priority: "high"
+      }];
+    }
+
+    const profile = {
+      name: userProfile?.name || "Student",
+      classGrade: userProfile?.classGrade || "Student",
+      examType: userProfile?.examTypes?.[0] || "General",
+      examDate,
+      daysRemaining: daysRem,
+      dailyMinutes: dailyMins,
+      weakSubjects: userProfile?.weakSubjects?.join(", ") || "",
+      notes: document.getElementById("notes").value
+    };
+
+    const studyPlan = await generateStudyPlan(profile, parsed);
+    setDot("done");
+
+    const planData = {
+      userId: currentUser.uid,
+      subject,
+      examDate,
+      dailyMinutes: dailyMins,
+      sessionMode: selectedMode,
+      syllabusText,
+      parsedSyllabus: parsed,
+      studyPlan,
+      status: "draft"
+    };
+
+    const saved = await savePlan(planData);
+    if (!saved.success) throw new Error(saved.error || "Unable to save the plan.");
+
+    localStorage.setItem("currentPlanId", saved.planId);
+    localStorage.setItem("pendingPlan", JSON.stringify({ ...planData, id: saved.planId }));
+    window.location.href = "plan-view.html";
+  } catch (error) {
+    setDot("error");
+    btn.disabled = false;
+    btn.textContent = "GENERATE PLAN";
+    alert("Error: " + error.message + "\n\nCheck your secure Gemini backend configuration in Settings and deployment setup.");
+  }
+};
+</script>
+</body>
+</html>
