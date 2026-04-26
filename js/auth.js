@@ -138,6 +138,7 @@ function friendlyError(code) {
   const map = {
     "auth/wrong-password":       "Incorrect password. Check and try again.",
     "auth/user-not-found":       "No account found with this email.",
+    "auth/invalid-credential":   "Incorrect email or password. Please try again.",
     "auth/email-already-in-use": "This email is already registered. Try logging in.",
     "auth/weak-password":        "Password must be at least 6 characters.",
     "auth/too-many-requests":    "Too many attempts. Please wait before trying again.",
