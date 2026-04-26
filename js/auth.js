@@ -27,7 +27,7 @@ export async function signUpWithEmail(name, email, phone, password) {
     });
     return { success: true, userId: cred.user.uid, isNewUser: true };
   } catch (e) {
-    return { success: false, error: friendlyError(e.code) };
+    return { success: false, error: friendlyError(e.code || e.message) };
   }
 }
 
@@ -145,5 +145,5 @@ function friendlyError(code) {
     "auth/popup-closed-by-user": "Google sign-in was cancelled.",
     "auth/network-request-failed": "Network error. Check your internet connection."
   };
-  return map[code] || "Something went wrong. Please try again.";
+  return map[code] || `Something went wrong. Please try again. (Error code: ${code})`;
 }
