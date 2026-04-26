@@ -1,4 +1,4 @@
-const MODEL = "gemini-pro";
+const MODEL = "gemini-1.5-flash";
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
@@ -30,8 +30,7 @@ module.exports = async function handler(req, res) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           generationConfig: {
-            temperature,
-            responseMimeType: "text/plain"
+            temperature
           },
           contents: [{ parts: [{ text: prompt }] }]
         })
