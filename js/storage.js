@@ -18,7 +18,12 @@ export async function getUserProfile(userId) {
 
 export async function updateUserProfile(userId, updates) {
   try {
-    await updateDoc(doc(db, "users", userId), { ...updates, updatedAt: serverTimestamp() });
+    // Use merge upsert so profile updates never fail for missing docs.
+    await setDoc(
+      doc(db, "users", userId),
+      { ...updates, updatedAt: serverTimestamp() },
+      { merge: true }
+    );
     return { success: true };
   } catch (e) { return { success: false, error: e.message }; }
 }

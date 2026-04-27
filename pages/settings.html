@@ -45,6 +45,13 @@ select option{background:var(--panel)}
 .danger-card{background:rgba(255,45,120,0.04);border:1px solid rgba(255,45,120,0.2);border-radius:10px;padding:20px}
 .btn-danger{padding:10px 20px;background:transparent;border:1px solid var(--laser);color:var(--laser);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:1px;border-radius:6px;cursor:pointer;transition:.2s}
 .btn-danger:hover{background:rgba(255,45,120,0.1)}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.profile-item{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.profile-item .k{font-size:.62rem;color:var(--dim);font-family:'JetBrains Mono',monospace;letter-spacing:1px;margin-bottom:5px}
+.profile-item .v{font-size:.95rem;color:var(--silver);word-break:break-word}
+.profile-item.full{grid-column:1 / -1}
+.btn-logout{padding:10px 20px;background:transparent;border:1px solid var(--amber);color:var(--amber);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:1px;border-radius:6px;cursor:pointer;transition:.2s}
+.btn-logout:hover{background:rgba(255,179,0,0.1)}
 .toast{position:fixed;bottom:28px;right:28px;background:rgba(10,22,40,0.97);border:1px solid var(--green);border-radius:8px;padding:12px 20px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--green);z-index:1000;transform:translateY(80px);opacity:0;transition:.3s}
 .toast.show{transform:none;opacity:1}
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.field-row{grid-template-columns:1fr}.status-card{grid-template-columns:1fr}.status-pill{justify-self:start}}
@@ -107,10 +114,20 @@ select option{background:var(--panel)}
   </div>
 
   <div class="section">
+    <div class="section-head">PROFILE SNAPSHOT</div>
+    <div class="card">
+      <div class="profile-grid" id="profileSnapshot"></div>
+    </div>
+  </div>
+
+  <div class="section">
     <div class="section-head">DANGER ZONE</div>
     <div class="danger-card">
       <div style="font-size:.9rem;color:var(--dim);margin-bottom:14px">Clearing all local data removes cached plan state and session progress from this device. Your Firebase account remains intact.</div>
-      <button class="btn-danger" onclick="clearLocalData()">CLEAR LOCAL DATA</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-danger" onclick="clearLocalData()">CLEAR LOCAL DATA</button>
+        <button class="btn-logout" onclick="performLogout()">LOGOUT</button>
+      </div>
     </div>
   </div>
 </div>
@@ -118,7 +135,7 @@ select option{background:var(--panel)}
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { checkAuthState } from "../js/auth.js";
+import { checkAuthState, logout } from "../js/auth.js";
 import { getUserProfile, updateUserProfile } from "../js/storage.js";
 import { testGeminiConnection } from "../js/ai.js";
 
@@ -129,10 +146,13 @@ checkAuthState(async (u) => {
   const r = await getUserProfile(u.uid);
   if (r.success) {
     const p = r.data;
+    renderProfileSnapshot(p, u.email);
     if (p.name) document.getElementById("pf-name").value = p.name;
     if (p.phone) document.getElementById("pf-phone").value = p.phone;
     if (p.classGrade) document.getElementById("pf-class").value = p.classGrade;
     if (p.institution) document.getElementById("pf-inst").value = p.institution;
+  } else {
+    renderProfileSnapshot({ name: "", phone: "", classGrade: "", institution: "" }, u.email);
   }
 }, () => window.location.href = "login.html");
 
@@ -160,7 +180,17 @@ window.saveProfile = async () => {
     institution: document.getElementById("pf-inst").value.trim()
   };
   const r = await updateUserProfile(user.uid, updates);
-  if (r.success) showToast("Profile updated.");
+  if (r.success) {
+    const current = {
+      email: user.email,
+      name: updates.name,
+      phone: updates.phone,
+      classGrade: updates.classGrade,
+      institution: updates.institution
+    };
+    renderProfileSnapshot(current, user.email);
+    showToast("Profile updated.");
+  }
   else showToast("Error: " + r.error, true);
 };
 
@@ -173,6 +203,42 @@ window.clearLocalData = () => {
     showToast("Local data cleared.");
   }
 };
+
+window.performLogout = async () => {
+  try {
+    await logout();
+  } catch (error) {
+    showToast("Logout failed: " + (error?.message || "try again"), true);
+  }
+};
+
+function renderProfileSnapshot(profile, fallbackEmail) {
+  const cleanList = (arr) => Array.isArray(arr) && arr.length ? arr.join(", ") : "—";
+  const items = [
+    ["Full Name", profile?.name || "—"],
+    ["Email", profile?.email || fallbackEmail || "—"],
+    ["Phone", profile?.phone || "—"],
+    ["Class / Grade", profile?.classGrade || "—"],
+    ["Board / University", profile?.board || "—"],
+    ["Institution", profile?.institution || "—"],
+    ["City", profile?.city || "—"],
+    ["State", profile?.state || "—"],
+    ["Exam Types", cleanList(profile?.examTypes)],
+    ["Study Time", profile?.studyTime || "—"],
+    ["Study Days", cleanList(profile?.studyDays)],
+    ["Daily Hours", profile?.dailyHours ? `${profile.dailyHours}h` : "—"],
+    ["Strong Subjects", cleanList(profile?.strongSubjects)],
+    ["Weak Subjects", cleanList(profile?.weakSubjects)]
+  ];
+
+  const root = document.getElementById("profileSnapshot");
+  root.innerHTML = items.map(([k, v], idx) => `
+    <div class="profile-item ${idx >= 12 ? "full" : ""}">
+      <div class="k">${k}</div>
+      <div class="v">${v}</div>
+    </div>
+  `).join("");
+}
 
 function showToast(msg, isErr) {
   const t = document.getElementById("toast");

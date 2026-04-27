@@ -120,7 +120,7 @@ nav{flex:1;padding:16px 0}
     <div class="avatar" id="avatarEl">?</div>
     <div class="user-name" id="userName">Loading...</div>
     <div class="user-class" id="userClass">—</div>
-    <button class="logout-btn" onclick="document.getElementById('logoutModal').classList.add('show')">⚿ Logout</button>
+    <button class="logout-btn" onclick="quickLogout()">⚿ Logout</button>
   </div>
 </div>
 
@@ -318,6 +318,12 @@ window.doLogout = async () => {
     err.classList.add('show');
     setTimeout(() => err.classList.remove('show'), 3000);
   }
+};
+
+window.quickLogout = async () => {
+  const yes = confirm("Logout from this session?");
+  if (!yes) return;
+  await logout();
 };
 </script>
 </body>
