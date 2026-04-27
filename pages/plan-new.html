@@ -233,6 +233,103 @@ function setDot(state) {
   el.className = "ai-dot " + state;
 }
 
+function createFallbackStudyPlan(profile, parsedSyllabus, daysRemaining) {
+  const totalDays = Math.max(1, Math.min(daysRemaining, 90));
+  const safeDailyMinutes = Math.max(30, profile.dailyMinutes || 120);
+  const topicPool = (parsedSyllabus || []).flatMap((chapter) =>
+    (chapter.topics || []).map((topic) => ({
+      topic_name: topic,
+      chapter_number: chapter.chapter_number || 1,
+      priority: (chapter.priority || "medium").toLowerCase()
+    }))
+  );
+
+  if (!topicPool.length) {
+    topicPool.push({
+      topic_name: "Core syllabus revision",
+      chapter_number: 1,
+      priority: "high"
+    });
+  }
+
+  const revisionEvery = 6;
+  const bufferDays = Math.min(3, Math.max(1, Math.floor(totalDays * 0.12)));
+  const revisionDays = [];
+  const days = [];
+  let topicCursor = 0;
+
+  for (let day = 1; day <= totalDays; day++) {
+    const isBuffer = day > totalDays - bufferDays;
+    const isRevision = !isBuffer && day % revisionEvery === 0;
+
+    if (isRevision) revisionDays.push(day);
+
+    if (isBuffer) {
+      days.push({
+        day_number: day,
+        topics: [{
+          topic_name: "Final revision and mock test",
+          chapter_number: 0,
+          minutes: safeDailyMinutes,
+          type: "buffer",
+          priority: "high",
+          notes: "Revise weak areas and solve timed questions."
+        }],
+        total_minutes: safeDailyMinutes,
+        day_type: "buffer"
+      });
+      continue;
+    }
+
+    const first = topicPool[topicCursor % topicPool.length];
+    const second = topicPool[(topicCursor + 1) % topicPool.length];
+    topicCursor += isRevision ? 1 : 2;
+
+    const mainMinutes = Math.round(safeDailyMinutes * 0.65);
+    const supportMinutes = safeDailyMinutes - mainMinutes;
+
+    days.push({
+      day_number: day,
+      topics: [
+        {
+          topic_name: first.topic_name,
+          chapter_number: first.chapter_number,
+          minutes: mainMinutes,
+          type: isRevision ? "revision" : "new_learning",
+          priority: first.priority || "medium",
+          notes: isRevision ? "Revise actively and solve questions." : "Learn core concepts and examples."
+        },
+        {
+          topic_name: second.topic_name,
+          chapter_number: second.chapter_number,
+          minutes: supportMinutes,
+          type: isRevision ? "practice" : "practice",
+          priority: second.priority || "medium",
+          notes: "Practice and recap key formulas/concepts."
+        }
+      ],
+      total_minutes: safeDailyMinutes,
+      day_type: isRevision ? "revision" : "study"
+    });
+  }
+
+  const totalTopics = days.reduce((acc, day) => acc + (day.topics?.length || 0), 0);
+  return {
+    plan_name: "SYNAPTIQ Fallback Plan",
+    strategy_summary: "Generated with local fallback due temporary Gemini unavailability.",
+    risk_note: "AI quota/server issue detected. Review and refine this plan when Gemini is available.",
+    total_days: totalDays,
+    revision_days: revisionDays,
+    buffer_days_before_exam: bufferDays,
+    days,
+    summary: {
+      total_study_hours: Math.round((totalDays * safeDailyMinutes / 60) * 10) / 10,
+      total_topics: totalTopics,
+      coverage_confidence: "medium"
+    }
+  };
+}
+
 window.generatePlan = async () => {
   const subject = document.getElementById("subject").value.trim();
   const examDate = document.getElementById("examDate").value;
@@ -282,8 +379,22 @@ window.generatePlan = async () => {
       notes: document.getElementById("notes").value
     };
 
-    const studyPlan = await generateStudyPlan(profile, parsed);
-    setDot("done");
+    let studyPlan;
+    let usedFallback = false;
+    try {
+      studyPlan = await generateStudyPlan(profile, parsed);
+      setDot("done");
+    } catch (error) {
+      usedFallback = true;
+      studyPlan = createFallbackStudyPlan(profile, parsed, daysRem);
+      setDot("done");
+      const friendly = error?.message || "Gemini unavailable.";
+      alert(
+        "Gemini is currently unavailable, so SYNAPTIQ generated a fallback plan.\n\n" +
+        friendly +
+        "\n\nYou can continue now and regenerate later."
+      );
+    }
 
     const planData = {
       userId: currentUser.uid,
@@ -294,6 +405,7 @@ window.generatePlan = async () => {
       syllabusText,
       parsedSyllabus: parsed,
       studyPlan,
+      generatedBy: usedFallback ? "fallback" : "gemini",
       status: "draft"
     };
 
@@ -307,7 +419,7 @@ window.generatePlan = async () => {
     setDot("error");
     btn.disabled = false;
     btn.textContent = "GENERATE PLAN";
-    alert("Error: " + error.message + "\n\nCheck your secure Gemini backend configuration in Settings and deployment setup.");
+    alert(error?.message || "Failed to generate the plan. Please try again.");
   }
 };
 </script>

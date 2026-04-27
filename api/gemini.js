@@ -5,6 +5,15 @@ const DEFAULT_MODEL_CANDIDATES = [
 ];
 
 const API_VERSIONS = ["v1beta", "v1"];
+const MAX_PROMPT_CHARS = 12000;
+const MIN_OUTPUT_TOKENS = 64;
+const MAX_OUTPUT_TOKENS = 2048;
+
+function clampNumber(value, min, max, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(min, Math.min(max, n));
+}
 
 function getModelCandidates() {
   const envModel = String(process.env.GEMINI_MODEL || "").trim();
@@ -26,11 +35,16 @@ module.exports = async function handler(req, res) {
   }
 
   const prompt = String(req.body?.prompt || "").trim();
-  const temperature = Number.isFinite(req.body?.temperature)
-    ? req.body.temperature
-    : 0.35;
+  const safePrompt = prompt.slice(0, MAX_PROMPT_CHARS);
+  const temperature = clampNumber(req.body?.temperature, 0, 1, 0.35);
+  const maxOutputTokens = clampNumber(
+    req.body?.maxOutputTokens,
+    MIN_OUTPUT_TOKENS,
+    MAX_OUTPUT_TOKENS,
+    800
+  );
 
-  if (!prompt) {
+  if (!safePrompt) {
     return res.status(400).json({ error: "Prompt is required." });
   }
 
@@ -47,9 +61,10 @@ module.exports = async function handler(req, res) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               generationConfig: {
-                temperature
+                temperature,
+                maxOutputTokens
               },
-              contents: [{ parts: [{ text: prompt }] }]
+              contents: [{ parts: [{ text: safePrompt }] }]
             })
           }
         );
