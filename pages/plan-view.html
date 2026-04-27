@@ -163,6 +163,7 @@ nav{flex:1;padding:16px 0}
       <div class="video-actions">
         <button class="btn-secondary" id="ytEnglish" onclick="loadVideosForLanguage('english')">ENGLISH</button>
         <button class="btn-secondary" id="ytHindi" onclick="loadVideosForLanguage('hindi')">HINDI</button>
+        <button class="btn-secondary" id="ytHinglish" onclick="loadVideosForLanguage('hinglish')">HINGLISH</button>
       </div>
       <div class="video-topic-list" id="videoTopicList"></div>
       <div class="video-results" id="videoResults"></div>
@@ -176,7 +177,6 @@ nav{flex:1;padding:16px 0}
   </div>
 </div>
 
-<script src="https://www.youtube.com/iframe_api"></script>
 <script type="module">
 import { checkAuthState } from "../js/auth.js";
 import { getPlan } from "../js/storage.js";
@@ -327,8 +327,12 @@ function renderVideoResults() {
 }
 
 function buildVideoQuery(topicName, language) {
-  const languageSuffix = language === "hindi" ? "hindi lecture" : "english lecture";
-  return `${planData.subject || "Subject"} ${topicName} ${languageSuffix}`.trim();
+  let languageSuffix = "";
+  if (language === "hindi") languageSuffix = "in hindi";
+  else if (language === "hinglish") languageSuffix = "hinglish";
+  else languageSuffix = "in english";
+  
+  return `${planData.subject || ""} ${topicName} ${languageSuffix} best detailed lecture`.trim();
 }
 
 function setVideoTopic(topicName, sequenceIndex = 0) {
@@ -338,7 +342,7 @@ function setVideoTopic(topicName, sequenceIndex = 0) {
   pendingVideoId = "";
   setLanguageButtons();
   setTimerTopic(planSequence[sequenceIndex], sequenceIndex, false);
-  document.getElementById("videoCaption").textContent = `Selected topic: ${topicName}. Click English or Hindi to fetch videos, then click a result to play here.`;
+  document.getElementById("videoCaption").textContent = `Selected topic: ${topicName}. Click English, Hindi, or Hinglish to fetch videos.`;
   renderVideoTopics();
   renderVideoResults();
 }
@@ -435,6 +439,8 @@ async function fetchVideosForLanguage(language) {
 function setLanguageButtons() {
   document.getElementById("ytEnglish").classList.toggle("active", selectedLanguage === "english");
   document.getElementById("ytHindi").classList.toggle("active", selectedLanguage === "hindi");
+  const hinglishBtn = document.getElementById("ytHinglish");
+  if (hinglishBtn) hinglishBtn.classList.toggle("active", selectedLanguage === "hinglish");
 }
 
 function loadVideoById(videoId) {
@@ -450,6 +456,9 @@ function loadVideoById(videoId) {
 function handlePlayerState(event) {
   if (event?.data === window.YT?.PlayerState?.PLAYING) {
     ensureTimerRunning();
+    if (event.target.setPlaybackQuality) {
+      event.target.setPlaybackQuality('hd1080');
+    }
   }
 }
 
@@ -461,7 +470,8 @@ window.onYouTubeIframeAPIReady = () => {
     playerVars: {
       rel: 0,
       modestbranding: 1,
-      playsinline: 1
+      playsinline: 1,
+      vq: 'hd1080'
     },
     events: {
       onStateChange: handlePlayerState
@@ -471,6 +481,11 @@ window.onYouTubeIframeAPIReady = () => {
     player.loadVideoById(pendingVideoId);
   }
 };
+
+const ytScriptTag = document.createElement('script');
+ytScriptTag.src = "https://www.youtube.com/iframe_api";
+const firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(ytScriptTag, firstScriptTag);
 
 window.loadVideosForLanguage = async (language) => {
   await fetchVideosForLanguage(language);
