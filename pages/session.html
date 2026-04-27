@@ -91,6 +91,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="main">
   <div style="text-align:center">
     <div class="topic-label">STUDYING</div>
+    <div class="topic-label" id="planStepLabel">PLAN STEP 1 / 1</div>
     <div class="topic-name" id="topicName">Loading topic...</div>
   </div>
 
@@ -182,15 +183,41 @@ let state = {
 let interval = null;
 let currentUser = null;
 let topic = null;
+let planSequence = [];
+let sequenceIndex = 0;
 let sessionStart = Date.now();
+
+function getTopicFocusSeconds() {
+  const mins = Number(topic?.minutes);
+  if (!Number.isFinite(mins) || mins <= 0) return 25 * 60;
+  return Math.max(10, Math.min(180, Math.round(mins))) * 60;
+}
 
 checkAuthState((user) => {
   currentUser = user;
-  // Load topic from localStorage
-  const raw = localStorage.getItem('currentTopic');
-  if (raw) { try { topic = JSON.parse(raw); } catch { topic = { topic_name: 'Study Session', minutes: 25 }; } }
-  else topic = { topic_name: 'Study Session', minutes: 25 };
+  // Load plan sequence and current topic from localStorage.
+  try {
+    planSequence = JSON.parse(localStorage.getItem("planSequence") || "[]");
+  } catch {
+    planSequence = [];
+  }
+  sequenceIndex = Number(localStorage.getItem("planSequenceIndex") || "0");
+  if (!Number.isFinite(sequenceIndex) || sequenceIndex < 0) sequenceIndex = 0;
+
+  if (planSequence.length && planSequence[sequenceIndex]) {
+    topic = planSequence[sequenceIndex];
+  } else {
+    const raw = localStorage.getItem("currentTopic");
+    if (raw) {
+      try { topic = JSON.parse(raw); } catch { topic = { topic_name: "Study Session", minutes: 25 }; }
+    } else {
+      topic = { topic_name: "Study Session", minutes: 25 };
+    }
+  }
+
   document.getElementById('topicName').textContent = topic.topic_name || 'Study Session';
+  document.getElementById("planStepLabel").textContent = `PLAN STEP ${Math.min(sequenceIndex + 1, Math.max(planSequence.length, 1))} / ${Math.max(planSequence.length, 1)}`;
+  state.focusLength = getTopicFocusSeconds();
 
   // Restore state if page reloaded mid-session
   const saved = getTimerState();
@@ -282,7 +309,7 @@ function triggerBreak(duration, enforced) {
 function endBreak() {
   state.phase = 'FOCUSING';
   state.elapsed = 0;
-  state.focusLength = 25 * 60; // reset to 25 mins
+  state.focusLength = getTopicFocusSeconds();
   state.breaksSkipped = 0;
   document.getElementById('breakPanel').classList.remove('show');
   document.getElementById('enforcedOverlay').classList.remove('show');
@@ -296,7 +323,7 @@ window.skipBreak = () => {
   state.breaksSkipped++;
   state.phase = 'FOCUSING';
   state.elapsed = 0;
-  state.focusLength = 25 * 60;
+  state.focusLength = getTopicFocusSeconds();
   document.getElementById('breakPanel').classList.remove('show');
   document.getElementById('statusBadge').className = 'status-badge status-warning';
   document.getElementById('statusBadge').textContent = '⚠ SKIP WARNING';
@@ -368,6 +395,19 @@ window.saveSession = async () => {
     date: new Date().toISOString()
   }));
   clearTimerState();
+
+  const hasNext = Array.isArray(planSequence) && sequenceIndex + 1 < planSequence.length;
+  if (hasNext) {
+    const continueNext = confirm("Session saved. Continue to next topic in your plan?");
+    if (continueNext) {
+      const nextIndex = sequenceIndex + 1;
+      localStorage.setItem("planSequenceIndex", String(nextIndex));
+      localStorage.setItem("currentTopic", JSON.stringify(planSequence[nextIndex]));
+      window.location.href = "session.html";
+      return;
+    }
+  }
+
   window.location.href = 'quiz.html';
 };
 </script>

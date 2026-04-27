@@ -49,6 +49,11 @@ nav{flex:1;padding:16px 0}
 /* topics list */
 .topic-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(26,58,85,0.5)}
 .topic-row:last-child{border-bottom:none}
+.day-block{padding:12px 0;border-bottom:1px solid rgba(26,58,85,0.35)}
+.day-block:last-child{border-bottom:none}
+.day-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.day-label{font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:1px;color:var(--neon)}
+.day-type-pill{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--dim)}
 .topic-status{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.6rem}
 .topic-status.done{background:var(--green);border-color:var(--green);color:var(--void)}
 .topic-status.active{border-color:var(--neon);box-shadow:0 0 8px rgba(0,245,255,0.4)}
@@ -56,6 +61,9 @@ nav{flex:1;padding:16px 0}
 .topic-time{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--amber);margin-right:8px}
 .btn-start{padding:5px 14px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:1px;border-radius:4px;cursor:pointer;transition:.2s}
 .btn-start:hover{background:rgba(0,245,255,0.1);box-shadow:0 0 10px rgba(0,245,255,0.2)}
+.topic-links{margin-left:30px;margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
+.yt-link{display:inline-block;padding:3px 10px;border-radius:99px;border:1px solid rgba(0,245,255,0.35);color:var(--neon);text-decoration:none;font-size:.64rem;font-family:'JetBrains Mono',monospace}
+.yt-link:hover{background:rgba(0,245,255,0.08)}
 /* countdown ring */
 .ring-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
 .ring-svg{filter:drop-shadow(0 0 12px rgba(0,245,255,0.4))}
@@ -273,14 +281,46 @@ async function loadDashboard(user, profile) {
 
   document.getElementById('statToday').textContent = todayPlan ? Math.round(todayPlan.total_minutes/60*10)/10 + 'h' : '—';
 
-  if (todayPlan) {
-    const html = todayPlan.topics.slice(0,4).map(t => `
-      <div class="topic-row">
-        <div class="topic-status ${t.status === 'completed' ? 'done' : ''}">${t.status === 'completed' ? '✓' : ''}</div>
-        <div class="topic-name">${t.topic_name}</div>
-        <div class="topic-time">${t.minutes}m</div>
-        <button class="btn-start" onclick="startSession('${encodeURIComponent(JSON.stringify(t))}')">START →</button>
-      </div>`).join('');
+  if (mergedDays.length) {
+    const sequence = mergedDays.flatMap((day) =>
+      (day.topics || []).map((topic) => ({
+        ...topic,
+        day_number: day.day_number,
+        day_type: day.day_type || "study"
+      }))
+    );
+    localStorage.setItem("planSequence", JSON.stringify(sequence));
+
+    let seqCursor = 0;
+    const html = mergedDays.map((day) => {
+      const topicsHtml = (day.topics || []).map((t) => {
+        const seqIdx = seqCursor++;
+        const queryBase = `${plan.subject || "subject"} ${t.topic_name}`;
+        const enUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(queryBase + " english lecture")}`;
+        const hiUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(queryBase + " hindi lecture")}`;
+        return `
+          <div class="topic-row">
+            <div class="topic-status ${t.status === 'completed' ? 'done' : ''}">${t.status === 'completed' ? '✓' : ''}</div>
+            <div class="topic-name">${t.topic_name}</div>
+            <div class="topic-time">${t.minutes}m</div>
+            <button class="btn-start" onclick="startSession(${seqIdx})">START →</button>
+          </div>
+          <div class="topic-links">
+            <a class="yt-link" href="${enUrl}" target="_blank" rel="noopener noreferrer">YouTube English</a>
+            <a class="yt-link" href="${hiUrl}" target="_blank" rel="noopener noreferrer">YouTube Hindi</a>
+          </div>
+        `;
+      }).join("");
+      return `
+        <div class="day-block">
+          <div class="day-head">
+            <div class="day-label">DAY ${day.day_number}</div>
+            <div class="day-type-pill">${(day.day_type || "study").toUpperCase()}</div>
+          </div>
+          ${topicsHtml}
+        </div>
+      `;
+    }).join("");
     document.getElementById('topicsList').innerHTML = html;
   }
 
@@ -304,8 +344,13 @@ async function loadDashboard(user, profile) {
   }
 }
 
-window.startSession = (topicStr) => {
-  localStorage.setItem('currentTopic', decodeURIComponent(topicStr));
+window.startSession = (sequenceIndex) => {
+  const sequence = JSON.parse(localStorage.getItem("planSequence") || "[]");
+  const idx = Number.isFinite(Number(sequenceIndex)) ? Number(sequenceIndex) : 0;
+  const topic = sequence[idx];
+  if (!topic) return;
+  localStorage.setItem("planSequenceIndex", String(idx));
+  localStorage.setItem('currentTopic', JSON.stringify(topic));
   window.location.href = 'session.html';
 };
 
