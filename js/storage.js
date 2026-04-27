@@ -50,7 +50,23 @@ export async function getUserPlans(userId) {
     const q = query(collection(db, "plans"), where("userId", "==", userId), orderBy("createdAt", "desc"));
     const snaps = await getDocs(q);
     return { success: true, data: snaps.docs.map(d => ({ id: d.id, ...d.data() })) };
-  } catch (e) { return { success: false, error: e.message }; }
+  } catch (e) {
+    try {
+      // Fallback when orderBy/index constraints fail in some deployments.
+      const fallback = query(collection(db, "plans"), where("userId", "==", userId));
+      const snaps = await getDocs(fallback);
+      const data = snaps.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => {
+          const at = a?.createdAt?.toMillis?.() || 0;
+          const bt = b?.createdAt?.toMillis?.() || 0;
+          return bt - at;
+        });
+      return { success: true, data };
+    } catch (inner) {
+      return { success: false, error: inner.message || e.message };
+    }
+  }
 }
 
 export async function updatePlanStatus(planId, status) {
@@ -105,7 +121,22 @@ export async function getSessionsForPlan(planId) {
     const q = query(collection(db, "sessions"), where("planId", "==", planId), orderBy("createdAt", "desc"));
     const snaps = await getDocs(q);
     return { success: true, data: snaps.docs.map(d => ({ id: d.id, ...d.data() })) };
-  } catch (e) { return { success: false, error: e.message }; }
+  } catch (e) {
+    try {
+      const fallback = query(collection(db, "sessions"), where("planId", "==", planId));
+      const snaps = await getDocs(fallback);
+      const data = snaps.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => {
+          const at = a?.createdAt?.toMillis?.() || 0;
+          const bt = b?.createdAt?.toMillis?.() || 0;
+          return bt - at;
+        });
+      return { success: true, data };
+    } catch (inner) {
+      return { success: false, error: inner.message || e.message };
+    }
+  }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -123,7 +154,23 @@ export async function getQuizHistory(userId, limitCount) {
     const q = query(collection(db, "quizzes"), where("userId", "==", userId), orderBy("createdAt", "desc"), limit(limitCount || 30));
     const snaps = await getDocs(q);
     return { success: true, data: snaps.docs.map(d => ({ id: d.id, ...d.data() })) };
-  } catch (e) { return { success: false, error: e.message }; }
+  } catch (e) {
+    try {
+      const fallback = query(collection(db, "quizzes"), where("userId", "==", userId));
+      const snaps = await getDocs(fallback);
+      const data = snaps.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => {
+          const at = a?.createdAt?.toMillis?.() || 0;
+          const bt = b?.createdAt?.toMillis?.() || 0;
+          return bt - at;
+        })
+        .slice(0, limitCount || 30);
+      return { success: true, data };
+    } catch (inner) {
+      return { success: false, error: inner.message || e.message };
+    }
+  }
 }
 
 // ════════════════════════════════════════════════════════════

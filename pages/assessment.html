@@ -169,7 +169,7 @@ nav{flex:1;padding:16px 0}
 
 <script type="module">
 import { checkAuthState } from "../js/auth.js";
-import { getUserPlans, saveAssessment } from "../js/storage.js";
+import { getUserPlans, getUserProfile, saveAssessment } from "../js/storage.js";
 import { generateAssessment, generateDiagnosticReport } from "../js/ai.js";
 
 const SECTIONS = [
@@ -181,12 +181,23 @@ const SECTIONS = [
 let user = null, questions = [], answers = {}, currentSection = 0, currentQ = 0;
 let sectionTimer = null, sectionTimeLeft = 0;
 let allTopics = [], planId = null, subject = 'General';
+let profile = { classGrade: "Student", examTypes: ["General"], name: "Student" };
 
 checkAuthState(async (u) => {
   user = u;
-  const plansRes = await getUserPlans(u.uid);
+  const [plansRes, profileRes] = await Promise.all([
+    getUserPlans(u.uid),
+    getUserProfile(u.uid)
+  ]);
+
+  if (profileRes.success) {
+    profile = { ...profile, ...profileRes.data };
+  }
+
   if (plansRes.success && plansRes.data.length > 0) {
-    const plan = plansRes.data[0];
+    const plan =
+      plansRes.data.find((item) => item.status === "active") ||
+      plansRes.data[0];
     planId = plan.id;
     subject = plan.subject || 'General';
     allTopics = (plan.parsedSyllabus || []).flatMap(c => [c.chapter_name, ...(c.topics || [])]).slice(0, 20);
@@ -198,8 +209,12 @@ window.startAssessment = async () => {
   const btn = document.getElementById('initiateBtn');
   btn.disabled = true; btn.textContent = '⟳ GENERATING QUESTIONS...';
   try {
-    const userProfile = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    questions = await generateAssessment(allTopics.length ? allTopics : [subject], userProfile.classGrade || 'Student', userProfile.examTypes?.[0] || 'General', subject);
+    questions = await generateAssessment(
+      allTopics.length ? allTopics : [subject],
+      profile.classGrade || "Student",
+      profile.examTypes?.[0] || "General",
+      subject
+    );
     if (!questions.length) throw new Error('No questions generated');
   } catch (e) {
     questions = getFallbackQuestions();
@@ -320,9 +335,18 @@ async function finishAssessment() {
   // Generate report
   let report = null;
   try {
-    const userProfile = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const studyHistory = { totalHours: 10, quizAverage: 65, flaggedTopics: JSON.parse(localStorage.getItem('flaggedTopics') || '[]') };
-    report = await generateDiagnosticReport(answerSheet, questions, { name: userProfile.name || 'Student', classGrade: userProfile.classGrade || 'Student', examType: userProfile.examTypes?.[0] || 'General', subject }, studyHistory);
+    report = await generateDiagnosticReport(
+      answerSheet,
+      questions,
+      {
+        name: profile.name || user.email || "Student",
+        classGrade: profile.classGrade || "Student",
+        examType: profile.examTypes?.[0] || "General",
+        subject
+      },
+      studyHistory
+    );
   } catch (e) {
     report = buildFallbackReport(answerSheet);
   }
@@ -341,10 +365,11 @@ function buildFallbackReport(answerSheet) {
 }
 
 function getFallbackQuestions() {
+  const mainTopic = allTopics[0] || subject || "General";
   const base = [
-    { question:'What does CPU stand for?', options:{A:'Central Processing Unit',B:'Computer Personal Unit',C:'Core Processing Utility',D:'Central Program Unit'}, correct_answer:'A', topic:'Computing', difficulty:'easy', marks:1 },
-    { question:'Which data structure uses LIFO order?', options:{A:'Queue',B:'Stack',C:'Array',D:'Tree'}, correct_answer:'B', topic:'Data Structures', difficulty:'easy', marks:1 },
-    { question:'What is the time complexity of binary search?', options:{A:'O(n)',B:'O(n²)',C:'O(log n)',D:'O(1)'}, correct_answer:'C', topic:'Algorithms', difficulty:'medium', marks:2 },
+    { question:`What is the most important first step to master ${mainTopic}?`, options:{A:'Skip fundamentals',B:'Understand core concepts',C:'Memorize random facts',D:'Avoid practice'}, correct_answer:'B', topic:mainTopic, difficulty:'easy', marks:1 },
+    { question:`True or False: Regular revision improves long-term retention in ${mainTopic}.`, options:{A:'True',B:'False'}, correct_answer:'A', topic:mainTopic, difficulty:'easy', marks:1 },
+    { question:`Which method is best for solving difficult ${mainTopic} questions?`, options:{A:'One quick read',B:'Timed practice plus review',C:'Only theory notes',D:'Skip hard parts'}, correct_answer:'B', topic:mainTopic, difficulty:'medium', marks:2 },
   ];
   const all = [];
   SECTIONS.forEach((sec, si) => {

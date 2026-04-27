@@ -195,7 +195,23 @@ function renderTable(plan) {
 
 window.acceptPlan = async () => {
   const planId = localStorage.getItem("currentPlanId");
-  if (planId) await updatePlanStatus(planId, "active");
+  if (planId) {
+    try {
+      await updatePlanStatus(planId, "active");
+    } catch (error) {
+      alert("Unable to activate this plan right now. Please try again.");
+      return;
+    }
+  }
+  localStorage.setItem(
+    "activePlanMeta",
+    JSON.stringify({
+      id: planId,
+      subject: planData?.subject || "Subject",
+      examDate: planData?.examDate || null
+    })
+  );
+  localStorage.removeItem("pendingPlan");
   document.getElementById("activatedFlash").classList.add("show");
   setTimeout(() => window.location.href = "dashboard.html", 1600);
 };

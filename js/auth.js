@@ -112,13 +112,26 @@ export async function logout() {
   localStorage.removeItem("timerState");
   localStorage.removeItem("currentSession");
   localStorage.removeItem("cachedPlan");
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("activePlanMeta");
   window.location.href = "../index.html";
 }
 
 // ── Auth State Listener ───────────────────────────────────────
 export function checkAuthState(onLoggedIn, onLoggedOut) {
   onAuthStateChanged(auth, user => {
-    if (user) onLoggedIn(user);
+    if (user) {
+      try {
+        localStorage.setItem("currentUser", JSON.stringify({
+          uid: user.uid,
+          email: user.email || "",
+          name: user.displayName || ""
+        }));
+      } catch {
+        // ignore localStorage write issues
+      }
+      onLoggedIn(user);
+    }
     else { if (onLoggedOut) onLoggedOut(); }
   });
 }

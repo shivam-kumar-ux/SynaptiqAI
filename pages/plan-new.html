@@ -162,7 +162,14 @@ let selectedMode = "25/5";
 checkAuthState(async (user) => {
   currentUser = user;
   const r = await getUserProfile(user.uid);
-  if (r.success) userProfile = r.data;
+  if (r.success) {
+    userProfile = r.data;
+    localStorage.setItem("currentUser", JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      ...r.data
+    }));
+  }
 }, () => window.location.href = "login.html");
 
 window.selectMode = (el, mode) => {
@@ -419,7 +426,11 @@ window.generatePlan = async () => {
     setDot("error");
     btn.disabled = false;
     btn.textContent = "GENERATE PLAN";
-    alert(error?.message || "Failed to generate the plan. Please try again.");
+    alert(
+      "Plan generation failed.\n\n" +
+      (error?.message || "Unknown error") +
+      "\n\nPlease retry. If this persists, check Firestore rules and deployment env settings."
+    );
   }
 };
 </script>

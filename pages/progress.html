@@ -112,7 +112,9 @@ checkAuthState(async (user) => {
   // ── Sessions & Hours ──────────────────────────────────
   let allSessions = [];
   if (plansRes.success && plansRes.data.length > 0) {
-    const plan = plansRes.data[0];
+    const plan =
+      plansRes.data.find((item) => item.status === "active") ||
+      plansRes.data[0];
     const sessRes = await getSessionsForPlan(plan.id);
     if (sessRes.success) allSessions = sessRes.data;
     renderSyllabusProgress(plansRes.data);

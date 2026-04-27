@@ -361,7 +361,12 @@ window.saveSession = async () => {
   };
   await saveSession(sessionData);
   // Flag quiz as available
-  localStorage.setItem('pendingQuiz', JSON.stringify({ topics: [topic?.topic_name], date: new Date().toISOString() }));
+  const activeMeta = JSON.parse(localStorage.getItem("activePlanMeta") || "{}");
+  localStorage.setItem('pendingQuiz', JSON.stringify({
+    topics: [topic?.topic_name || activeMeta.subject || "Today's Topics"],
+    subject: activeMeta.subject || null,
+    date: new Date().toISOString()
+  }));
   clearTimerState();
   window.location.href = 'quiz.html';
 };

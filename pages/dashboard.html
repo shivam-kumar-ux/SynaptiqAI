@@ -243,7 +243,9 @@ document.getElementById('todayDate').textContent = new Date().toLocaleDateString
 async function loadDashboard(user, profile) {
   const plansRes = await getUserPlans(user.uid);
   if (!plansRes.success || plansRes.data.length === 0) return;
-  const plan = plansRes.data[0]; // most recent plan
+  const plan =
+    plansRes.data.find((item) => item.status === "active") ||
+    plansRes.data[0];
   const activePlan = plan.studyPlan || plan.mergedPlan || plan.geminiPlan;
   const examDate = plan.examDate ? new Date(plan.examDate) : null;
   const today = new Date(); today.setHours(0,0,0,0);

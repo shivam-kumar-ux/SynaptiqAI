@@ -163,22 +163,28 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 
 <script type="module">
 import { checkAuthState } from "../js/auth.js";
-import { saveQuizResult } from "../js/storage.js";
+import { getUserProfile, saveQuizResult } from "../js/storage.js";
 import { generateDailyQuiz } from "../js/ai.js";
 
 let questions = [], answers = {}, currentQ = 0, timer = null, timeLeft = 600;
 let user = null;
+let profile = { classGrade: "Student", examTypes: ["General"] };
 
 checkAuthState(async (u) => {
   user = u;
+  const profileRes = await getUserProfile(u.uid);
+  if (profileRes.success) profile = { ...profile, ...profileRes.data };
   const pending = JSON.parse(localStorage.getItem('pendingQuiz') || '{}');
-  const topics = pending.topics || ['Today\'s Topics'];
+  const topics = pending.topics?.length ? pending.topics : ['Today\'s Topics'];
   try {
-    const profile = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    questions = await generateDailyQuiz(topics, profile.classGrade || 'Student', profile.examTypes?.[0] || 'General');
+    questions = await generateDailyQuiz(
+      topics,
+      profile.classGrade || "Student",
+      profile.examTypes?.[0] || "General"
+    );
   } catch (e) {
     // Fallback sample questions
-    questions = getSampleQuestions();
+    questions = getSampleQuestions(topics);
   }
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('quizContainer').style.display = 'block';
@@ -314,11 +320,12 @@ function showResults(pct, topicScores, flagged) {
   }
 }
 
-function getSampleQuestions() {
+function getSampleQuestions(topics = []) {
+  const topic = topics[0] || "Current Subject";
   return [
-    { question_number:1, type:'mcq', question:'What is the SI unit of force?', options:{A:'Joule',B:'Newton',C:'Watt',D:'Pascal'}, correct_answer:'B', topic:'Mechanics', difficulty:'easy', explanation:'Force is measured in Newtons (N), named after Isaac Newton.' },
-    { question_number:2, type:'true_false', question:'The speed of light in vacuum is approximately 3×10⁸ m/s.', options:{A:'True',B:'False'}, correct_answer:'A', topic:'Modern Physics', difficulty:'easy', explanation:'Yes, c ≈ 3×10⁸ m/s is correct.' },
-    { question_number:3, type:'mcq', question:'Which law states that every action has an equal and opposite reaction?', options:{A:'First Law',B:'Second Law',C:'Third Law',D:'Law of Gravitation'}, correct_answer:'C', topic:'Mechanics', difficulty:'easy', explanation:"Newton's Third Law of Motion." },
+    { question_number:1, type:'mcq', question:`In ${topic}, what is the best first revision step?`, options:{A:'Skip basics',B:'Review core definitions',C:'Ignore examples',D:'Memorize only formulas'}, correct_answer:'B', topic, difficulty:'easy', explanation:'Revisiting core concepts first improves understanding.' },
+    { question_number:2, type:'true_false', question:`Consistent daily practice improves ${topic} performance over time.`, options:{A:'True',B:'False'}, correct_answer:'A', topic, difficulty:'easy', explanation:'Spaced, consistent practice generally improves retention.' },
+    { question_number:3, type:'mcq', question:`Which strategy is most effective for difficult ${topic} problems?`, options:{A:'One-pass reading only',B:'Active problem solving and review',C:'Skip tough questions always',D:'Study without notes'}, correct_answer:'B', topic, difficulty:'medium', explanation:'Practice + review is the strongest approach for hard topics.' },
   ];
 }
 </script>
