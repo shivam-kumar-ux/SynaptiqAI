@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>View Plan - SYNAPTIQ</title>
+<title>Plan Details - SYNAPTIQ</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -28,65 +28,75 @@ nav{flex:1;padding:16px 0}
 .sum-pill{background:rgba(10,22,40,0.85);border:1px solid var(--border);border-radius:8px;padding:14px 16px;text-align:center}
 .sum-val{font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--neon)}
 .sum-label{font-size:.7rem;color:var(--dim);margin-top:4px;font-family:'JetBrains Mono',monospace}
-.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
-.insight-card,.risk-card{background:rgba(10,22,40,0.85);border:1px solid var(--border);border-radius:10px;padding:18px}
-.risk-card{border-color:rgba(255,179,0,0.28);background:rgba(255,179,0,0.05)}
+.workspace{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:20px;align-items:start}
+.timer-card,.info-card,.risk-card,.video-card,.day-card{background:rgba(10,22,40,0.85);border:1px solid var(--border);border-radius:10px}
+.timer-card{padding:20px}
+.timer-shell{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.timer-wrap{position:relative;width:220px;height:220px;flex-shrink:0}
+.timer-svg{transform:rotate(-90deg);filter:drop-shadow(0 0 18px rgba(0,245,255,0.35))}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:10}
+.ring-fg{fill:none;stroke:var(--neon);stroke-width:10;stroke-linecap:round;stroke-dasharray:754}
+.timer-digits{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.digits{font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:700;letter-spacing:3px;color:var(--neon);text-shadow:0 0 30px rgba(0,245,255,0.5);line-height:1}
+.timer-label{font-size:.7rem;color:var(--dim);letter-spacing:2px;margin-top:10px}
+.timer-meta{flex:1;min-width:220px;display:flex;flex-direction:column;gap:12px}
 .card-head{font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:2px;color:var(--neon);margin-bottom:10px}
+.info-card,.risk-card,.video-card{padding:18px}
+.risk-card{border-color:rgba(255,179,0,0.28);background:rgba(255,179,0,0.05)}
 .risk-card .card-head{color:var(--amber)}
 .card-copy{font-size:.88rem;color:var(--dim);line-height:1.6}
-.plan-wrap{background:rgba(10,22,40,0.85);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
-table{width:100%;border-collapse:collapse}
-thead tr{background:var(--plasma)}
-thead th{padding:12px 16px;font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:2px;color:var(--void);text-align:left;font-weight:700}
-tbody tr{border-bottom:1px solid var(--border);transition:.15s}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:rgba(0,245,255,0.03)}
-tbody td{padding:11px 16px;font-size:.88rem}
-.day-num{font-family:'JetBrains Mono',monospace;color:var(--plasma);font-size:.8rem;min-width:36px}
-.day-type{font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:2px 8px;border-radius:4px}
+.plan-days{display:flex;flex-direction:column;gap:16px;margin-top:18px}
+.day-card{padding:18px}
+.day-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.day-num{font-family:'JetBrains Mono',monospace;color:var(--plasma);font-size:.85rem}
+.time-cell{font-family:'JetBrains Mono',monospace;color:var(--amber);font-size:.8rem;white-space:nowrap}
+.day-type{font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:4px 10px;border-radius:999px}
 .day-type.study{color:var(--neon);background:rgba(0,245,255,0.08)}
 .day-type.revision{color:var(--amber);background:rgba(255,179,0,0.08)}
 .day-type.buffer{color:var(--dim);background:rgba(107,130,153,0.08)}
-.topics-cell{line-height:1.8}
-.topic-chip{display:inline-block;margin:1px 4px 1px 0;font-size:.78rem}
-.priority-pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.65rem;font-family:'JetBrains Mono',monospace;margin-left:4px}
+.topic-list{display:flex;flex-direction:column;gap:10px}
+.topic-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:12px;border:1px solid rgba(26,58,85,0.6);border-radius:8px;background:rgba(13,33,55,0.55)}
+.topic-main{min-width:0}
+.topic-chip{display:block;font-size:.9rem;color:var(--silver);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.priority-pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.65rem;font-family:'JetBrains Mono',monospace;margin-left:6px}
 .priority-pill.high{background:rgba(255,45,120,0.15);color:var(--laser);border:1px solid rgba(255,45,120,0.3)}
 .priority-pill.medium{background:rgba(255,179,0,0.12);color:var(--amber);border:1px solid rgba(255,179,0,0.3)}
 .priority-pill.low{background:rgba(107,130,153,0.12);color:var(--dim);border:1px solid rgba(107,130,153,0.2)}
-.time-cell{font-family:'JetBrains Mono',monospace;color:var(--amber);font-size:.8rem;white-space:nowrap}
-.action-bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-.btn-accept{padding:13px 32px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.7rem;font-weight:700;letter-spacing:2px;border:none;border-radius:8px;cursor:pointer;transition:.2s}
-.btn-accept:hover{box-shadow:0 0 28px rgba(0,245,255,0.45);transform:translateY(-1px)}
-.btn-regen{padding:12px 24px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:1px;border-radius:8px;cursor:pointer;transition:.2s}
-.btn-regen:hover{background:rgba(0,245,255,0.08)}
-.btn-back{color:var(--dim);font-size:.85rem;text-decoration:none;font-family:'Rajdhani',sans-serif}
+.video-card{position:sticky;top:28px}
+.video-frame{width:100%;aspect-ratio:16/9;border:0;border-radius:10px;background:var(--panel);margin:12px 0 16px}
+.video-actions,.topic-actions,.action-bar{display:flex;gap:10px;flex-wrap:wrap}
+.video-topic-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.video-topic-btn{padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:rgba(13,33,55,0.7);color:var(--silver);cursor:pointer}
+.video-topic-btn.active,.video-topic-btn:hover{border-color:var(--neon);color:var(--neon)}
+.btn-primary,.btn-secondary{border-radius:8px;cursor:pointer;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.btn-primary{padding:13px 24px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.7rem;font-weight:700;letter-spacing:2px;border:none}
+.btn-primary:hover{box-shadow:0 0 28px rgba(0,245,255,0.45);transform:translateY(-1px)}
+.btn-secondary{padding:10px 16px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:1px}
+.btn-secondary:hover{background:rgba(0,245,255,0.08)}
+.btn-back{color:var(--dim);font-size:.85rem;text-decoration:none}
 .btn-back:hover{color:var(--silver)}
-.activated{position:fixed;inset:0;background:rgba(0,255,157,0.08);display:none;align-items:center;justify-content:center;z-index:300;animation:fadeIn .2s ease}
-.activated.show{display:flex}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.activated-text{font-family:'Orbitron',monospace;font-size:2rem;color:var(--green);text-shadow:0 0 40px rgba(0,255,157,0.6);letter-spacing:4px;animation:pulse 1s ease}
-@keyframes pulse{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
 .no-plan{text-align:center;padding:60px;color:var(--dim);font-size:1rem}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.summary-bar,.insight-grid{grid-template-columns:1fr}}
+@media(max-width:1024px){.workspace{grid-template-columns:1fr}.video-card{position:static}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.summary-bar{grid-template-columns:1fr 1fr}.topic-row{grid-template-columns:1fr}.timer-shell{justify-content:center}}
 </style>
 </head>
 <body>
 <div class="sidebar">
   <div class="sb-logo"><img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ logo"><span>SYNAPTIQ</span></div>
   <nav>
-    <a href="dashboard.html" class="nav-item"><span>O</span> Dashboard</a>
-    <a href="plan-new.html" class="nav-item active"><span>*</span> New Plan</a>
-    <a href="session.html" class="nav-item"><span>T</span> Study Now</a>
-    <a href="progress.html" class="nav-item"><span>#</span> Progress</a>
-    <a href="assessment.html" class="nav-item"><span>[]</span> Assessment</a>
-    <a href="settings.html" class="nav-item"><span>@</span> Settings</a>
+    <a href="dashboard.html" class="nav-item active"><span>O</span>Dashboard</a>
+    <a href="plan-new.html" class="nav-item"><span>*</span>New Plan</a>
+    <a href="session.html" class="nav-item"><span>T</span>Study Now</a>
+    <a href="progress.html" class="nav-item"><span>#</span>Progress</a>
+    <a href="assessment.html" class="nav-item"><span>[]</span>Assessment</a>
+    <a href="settings.html" class="nav-item"><span>@</span>Settings</a>
   </nav>
 </div>
 
 <div class="main">
   <div class="page-header">
-    <div class="page-title">SYNAPTIQ PLAN GENERATED</div>
-    <div class="page-sub">Your secure Gemini-powered study plan is ready to review and activate.</div>
+    <div class="page-title">PLAN DETAILS</div>
+    <div class="page-sub">Study time stays on the left, the full day-by-day plan stays below it, and YouTube videos stay inside the page on the right.</div>
     <div class="badges">
       <div class="badge" id="subjectBadge">Subject</div>
       <div class="badge plasma" id="dateBadge">Exam Date</div>
@@ -100,120 +110,205 @@ tbody td{padding:11px 16px;font-size:.88rem}
     <div class="sum-pill"><div class="sum-val" id="sumBuffer">-</div><div class="sum-label">BUFFER DAYS</div></div>
   </div>
 
-  <div class="insight-grid">
-    <div class="insight-card">
-      <div class="card-head">PLAN STRATEGY</div>
-      <div class="card-copy" id="strategySummary">Loading plan strategy...</div>
+  <div class="workspace">
+    <div>
+      <div class="timer-card">
+        <div class="card-head">STUDY TIME</div>
+        <div class="timer-shell">
+          <div class="timer-wrap">
+            <svg class="timer-svg" width="220" height="220" viewBox="0 0 280 280">
+              <circle class="ring-bg" cx="140" cy="140" r="120"/>
+              <circle class="ring-fg" cx="140" cy="140" r="120" stroke-dashoffset="188"/>
+            </svg>
+            <div class="timer-digits">
+              <div class="digits" id="studyTimeDigits">00:00</div>
+              <div class="timer-label">DAILY TARGET</div>
+            </div>
+          </div>
+          <div class="timer-meta">
+            <div class="info-card">
+              <div class="card-head">PLAN STRATEGY</div>
+              <div class="card-copy" id="strategySummary">Loading plan strategy...</div>
+            </div>
+            <div class="risk-card">
+              <div class="card-head">RISK NOTE</div>
+              <div class="card-copy" id="riskSummary">Loading risk note...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="plan-days" id="planBody">
+        <div class="no-plan">Loading plan data...</div>
+      </div>
     </div>
-    <div class="risk-card">
-      <div class="card-head">RISK NOTE</div>
-      <div class="card-copy" id="riskSummary">Loading risk note...</div>
+
+    <div class="video-card">
+      <div class="card-head">YOUTUBE VIDEOS</div>
+      <div class="card-copy" id="videoCaption">Pick a topic to load YouTube study videos right here.</div>
+      <iframe class="video-frame" id="videoFrame" title="YouTube study videos" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      <div class="video-actions">
+        <a class="btn-secondary" id="ytEnglish" href="#" target="_blank" rel="noopener noreferrer">OPEN ENGLISH</a>
+        <a class="btn-secondary" id="ytHindi" href="#" target="_blank" rel="noopener noreferrer">OPEN HINDI</a>
+      </div>
+      <div class="video-topic-list" id="videoTopicList"></div>
     </div>
   </div>
 
-  <div class="plan-wrap">
-    <table>
-      <thead><tr>
-        <th>#</th><th>DAY</th><th>TOPICS</th><th>TIME</th><th>TYPE</th>
-      </tr></thead>
-      <tbody id="planBody">
-        <tr><td colspan="5" class="no-plan">Loading plan data...</td></tr>
-      </tbody>
-    </table>
+  <div class="action-bar" style="margin-top:20px">
+    <button class="btn-primary" onclick="startPlanSession(0)">START FROM FIRST TOPIC</button>
+    <a class="btn-secondary" href="plan-new.html">CREATE MORE PLANS</a>
+    <a href="dashboard.html" class="btn-back">Back to Plans</a>
   </div>
-
-  <div class="action-bar">
-    <button class="btn-accept" onclick="acceptPlan()">ACCEPT THIS PLAN</button>
-    <button class="btn-regen" onclick="window.location.href='plan-new.html'">REGENERATE</button>
-    <a href="plan-new.html" class="btn-back">Back to Setup</a>
-  </div>
-</div>
-
-<div class="activated" id="activatedFlash">
-  <div class="activated-text">PLAN ACTIVATED</div>
 </div>
 
 <script type="module">
 import { checkAuthState } from "../js/auth.js";
-import { updatePlanStatus } from "../js/storage.js";
+import { getPlan } from "../js/storage.js";
 
 let planData = null;
+let planSequence = [];
+let selectedVideoTopic = "";
 
-checkAuthState(() => {
-  const raw = localStorage.getItem("pendingPlan");
-  if (!raw) { window.location.href = "plan-new.html"; return; }
-  planData = JSON.parse(raw);
+checkAuthState(async () => {
+  const params = new URLSearchParams(window.location.search);
+  const planId = params.get("planId") || localStorage.getItem("currentPlanId");
+  if (!planId) { window.location.href = "dashboard.html"; return; }
+  localStorage.setItem("currentPlanId", planId);
+  const res = await getPlan(planId);
+  if (!res.success) { window.location.href = "dashboard.html"; return; }
+  planData = res.data;
   initPage();
 }, () => window.location.href = "login.html");
 
 function initPage() {
   const plan = planData.studyPlan || planData.mergedPlan || planData.geminiPlan;
   if (!plan) {
-    document.getElementById("planBody").innerHTML = '<tr><td colspan="5" class="no-plan">No plan data was found. Please generate a new plan.</td></tr>';
+    document.getElementById("planBody").innerHTML = '<div class="no-plan">No plan data was found. Please generate a new plan.</div>';
     return;
   }
 
   document.getElementById("subjectBadge").textContent = planData.subject || "Subject";
-  const dateLabel = planData.examDate
-    ? new Date(planData.examDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
-    : "-";
-  document.getElementById("dateBadge").textContent = "Exam: " + dateLabel;
-
+  document.getElementById("dateBadge").textContent = `Exam: ${planData.examDate ? new Date(planData.examDate).toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" }) : "-"}`;
   document.getElementById("strategySummary").textContent = plan.strategy_summary || "Focused study plan with revisions and buffers.";
   document.getElementById("riskSummary").textContent = plan.risk_note || "No major risks detected.";
-
   document.getElementById("sumDays").textContent = plan.total_days ?? plan.days?.length ?? "-";
-  document.getElementById("sumHours").textContent = plan.summary?.total_study_hours ? plan.summary.total_study_hours + "h" : "-";
+  document.getElementById("sumHours").textContent = plan.summary?.total_study_hours ? `${plan.summary.total_study_hours}h` : "-";
   document.getElementById("sumRevision").textContent = plan.revision_days?.length ?? "-";
   document.getElementById("sumBuffer").textContent = plan.buffer_days_before_exam ?? "-";
 
-  renderTable(plan);
+  const dailyMinutes = Number(planData.dailyMinutes) || plan.days?.[0]?.total_minutes || 0;
+  const hours = Math.floor(dailyMinutes / 60);
+  const minutes = dailyMinutes % 60;
+  document.getElementById("studyTimeDigits").textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+
+  planSequence = (plan.days || []).flatMap((day) =>
+    (day.topics || []).map((topic) => ({
+      ...topic,
+      day_number: day.day_number,
+      day_type: day.day_type || "study",
+      planId: planData.id,
+      subject: planData.subject
+    }))
+  );
+
+  renderDays(plan);
+  renderVideoTopics();
+  if (planSequence[0]) setVideoTopic(planSequence[0].topic_name);
 }
 
-function renderTable(plan) {
-  const tbody = document.getElementById("planBody");
+function renderDays(plan) {
+  const body = document.getElementById("planBody");
   if (!plan?.days?.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="no-plan" style="text-align:center;padding:32px;color:var(--dim)">This plan has no scheduled study days yet.</td></tr>';
+    body.innerHTML = '<div class="no-plan">This plan has no scheduled study days yet.</div>';
     return;
   }
 
-  tbody.innerHTML = plan.days.map((day) => {
+  let sequenceIndex = 0;
+  body.innerHTML = plan.days.map((day) => {
     const topicsHtml = (day.topics || []).map((topic) => {
       const priority = (topic.priority || "medium").toLowerCase();
-      return `<span class="topic-chip">${topic.topic_name}<span class="priority-pill ${priority}">${priority.toUpperCase()}</span></span>`;
+      const currentIndex = sequenceIndex++;
+      return `
+        <div class="topic-row">
+          <div class="topic-main">
+            <span class="topic-chip">${escapeHtml(topic.topic_name)}<span class="priority-pill ${priority}">${priority.toUpperCase()}</span></span>
+          </div>
+          <div class="time-cell">${topic.minutes || day.total_minutes}m</div>
+          <div class="topic-actions">
+            <button class="btn-secondary" onclick="openVideoTopic('${escapeJs(topic.topic_name)}')">VIDEOS</button>
+            <button class="btn-primary" onclick="startPlanSession(${currentIndex})">START</button>
+          </div>
+        </div>
+      `;
     }).join("");
     const typeClass = day.day_type || "study";
-    return `<tr>
-      <td class="day-num">${day.day_number}</td>
-      <td><span class="day-type ${typeClass}">${(day.day_type || "study").toUpperCase()}</span></td>
-      <td class="topics-cell">${topicsHtml}</td>
-      <td class="time-cell">${day.total_minutes}m</td>
-      <td style="font-size:.78rem;color:var(--dim)">${(day.topics || []).length} topic${(day.topics || []).length !== 1 ? "s" : ""}</td>
-    </tr>`;
+    return `
+      <div class="day-card">
+        <div class="day-head">
+          <div class="day-num">DAY ${day.day_number}</div>
+          <div class="time-cell">${day.total_minutes}m</div>
+          <span class="day-type ${typeClass}">${(day.day_type || "study").toUpperCase()}</span>
+        </div>
+        <div class="topic-list">${topicsHtml}</div>
+      </div>
+    `;
   }).join("");
 }
 
-window.acceptPlan = async () => {
-  const planId = localStorage.getItem("currentPlanId");
-  if (planId) {
-    try {
-      await updatePlanStatus(planId, "active");
-    } catch (error) {
-      alert("Unable to activate this plan right now. Please try again.");
-      return;
-    }
-  }
-  localStorage.setItem(
-    "activePlanMeta",
-    JSON.stringify({
-      id: planId,
-      subject: planData?.subject || "Subject",
-      examDate: planData?.examDate || null
-    })
-  );
-  localStorage.removeItem("pendingPlan");
-  document.getElementById("activatedFlash").classList.add("show");
-  setTimeout(() => window.location.href = "dashboard.html", 1600);
+function renderVideoTopics() {
+  const container = document.getElementById("videoTopicList");
+  const uniqueTopics = [...new Set(planSequence.map((item) => item.topic_name).filter(Boolean))].slice(0, 12);
+  container.innerHTML = uniqueTopics.map((topic) => `
+    <button class="video-topic-btn ${topic === selectedVideoTopic ? "active" : ""}" onclick="openVideoTopic('${escapeJs(topic)}')">${escapeHtml(topic)}</button>
+  `).join("");
+}
+
+function buildVideoQuery(topicName, suffix) {
+  return `${planData.subject || "Subject"} ${topicName} ${suffix}`.trim();
+}
+
+function setVideoTopic(topicName) {
+  selectedVideoTopic = topicName;
+  const englishQuery = buildVideoQuery(topicName, "english lecture");
+  const hindiQuery = buildVideoQuery(topicName, "hindi lecture");
+  document.getElementById("videoFrame").src = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(englishQuery)}`;
+  document.getElementById("videoCaption").textContent = `YouTube videos for ${topicName}`;
+  document.getElementById("ytEnglish").href = `https://www.youtube.com/results?search_query=${encodeURIComponent(englishQuery)}`;
+  document.getElementById("ytHindi").href = `https://www.youtube.com/results?search_query=${encodeURIComponent(hindiQuery)}`;
+  renderVideoTopics();
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function escapeJs(value) {
+  return String(value ?? "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
+window.openVideoTopic = (topicName) => {
+  setVideoTopic(topicName);
+};
+
+window.startPlanSession = (sequenceIndex) => {
+  const idx = Number.isFinite(Number(sequenceIndex)) ? Number(sequenceIndex) : 0;
+  const topic = planSequence[idx];
+  if (!topic) return;
+  localStorage.setItem("currentPlanId", planData.id);
+  localStorage.setItem("activePlanMeta", JSON.stringify({
+    id: planData.id,
+    subject: planData.subject || "Subject",
+    examDate: planData.examDate || null
+  }));
+  localStorage.setItem("planSequence", JSON.stringify(planSequence));
+  localStorage.setItem("planSequenceIndex", String(idx));
+  localStorage.setItem("currentTopic", JSON.stringify(topic));
+  window.location.href = "session.html";
 };
 </script>
 </body>

@@ -26,7 +26,8 @@ nav{flex:1;padding:16px 0}
 .section-head{font-family:'Orbitron',monospace;font-size:.75rem;letter-spacing:2px;color:var(--neon);margin-bottom:18px;padding-left:10px;border-left:3px solid var(--neon)}
 .field{margin-bottom:16px}
 label{display:block;font-size:.7rem;letter-spacing:1.5px;color:var(--dim);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
-input,select,textarea{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--silver);padding:10px 14px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;transition:.2s}
+input,select,textarea,button{font-family:inherit}
+input,select,textarea{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--silver);padding:10px 14px;border-radius:6px;font-size:.95rem;outline:none;transition:.2s}
 input:focus,select:focus,textarea:focus{border-color:var(--neon);box-shadow:0 0 10px rgba(0,245,255,0.15)}
 input::placeholder,textarea::placeholder{color:var(--dim)}
 select option{background:var(--panel)}
@@ -46,6 +47,14 @@ textarea{resize:vertical;min-height:80px}
 .btn-generate{width:100%;padding:14px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;letter-spacing:2px;border:none;border-radius:8px;cursor:pointer;transition:.2s;margin-top:8px}
 .btn-generate:hover{box-shadow:0 0 28px rgba(0,245,255,0.45);transform:translateY(-1px)}
 .btn-generate:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{width:100%;padding:12px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:1px;border-radius:8px;cursor:pointer;transition:.2s}
+.btn-secondary:hover{background:rgba(0,245,255,0.08)}
+.subject-stack{display:flex;flex-direction:column;gap:16px}
+.subject-card{border:1px solid rgba(26,58,85,0.7);border-radius:10px;padding:18px;background:rgba(13,33,55,0.38)}
+.subject-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.subject-title{font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:2px;color:var(--neon)}
+.subject-remove{background:none;border:none;color:var(--laser);cursor:pointer;font-size:.8rem}
+.subject-remove:hover{text-shadow:0 0 10px rgba(255,45,120,0.45)}
 .ai-status{margin-top:14px}
 .ai-dot{text-align:center;padding:10px;background:var(--panel);border-radius:6px;font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--dim);border:1px solid var(--border);transition:.3s}
 .ai-dot.loading{color:var(--neon);border-color:var(--neon)}
@@ -82,68 +91,63 @@ textarea{resize:vertical;min-height:80px}
     <a href="settings.html" class="nav-item"><span>@</span>Settings</a>
   </nav>
 </div>
+
 <div class="main">
-  <div class="page-title">INITIALIZE NEW STUDY PLAN</div>
-  <div class="page-sub">Upload your syllabus and let SYNAPTIQ build a secure Gemini-powered study schedule.</div>
+  <div class="page-title">INITIALIZE NEW STUDY PLANS</div>
+  <div class="page-sub">Build multiple subject plans in one flow and keep them active together in your planner.</div>
   <div class="layout">
     <div class="card">
-      <div class="section-head">PLAN DETAILS</div>
-      <div class="field"><label>SUBJECT NAME</label><input type="text" id="subject" placeholder="e.g. Physics, Mathematics, History" oninput="updateQuality()"></div>
+      <div class="section-head">SHARED SETTINGS</div>
       <div class="field-row">
-        <div class="field"><label>EXAM DATE</label><input type="date" id="examDate" oninput="updateQuality()"></div>
         <div class="field">
           <label>DAILY STUDY TIME</label>
           <div style="display:flex;gap:8px">
-            <input type="number" id="dailyTime" value="120" min="30" max="720" style="width:80px;flex-shrink:0" oninput="updateQuality()">
+            <input type="number" id="dailyTime" value="120" min="30" max="720" style="width:90px;flex-shrink:0" oninput="updateQuality()">
             <select id="timeUnit" style="flex:1">
               <option value="minutes">Minutes</option>
               <option value="hours">Hours</option>
             </select>
           </div>
         </div>
-      </div>
-      <div class="field">
-        <label>SESSION STYLE</label>
-        <div class="mode-cards">
-          <div class="mode-card selected" onclick="selectMode(this,'25/5')"><div class="mode-name">STRICT</div><div class="mode-desc">25/5 Pomodoro</div></div>
-          <div class="mode-card" onclick="selectMode(this,'50/10')"><div class="mode-name">POWER</div><div class="mode-desc">50/10 blocks</div></div>
-          <div class="mode-card" onclick="selectMode(this,'custom')"><div class="mode-name">FLOW</div><div class="mode-desc">Custom timing</div></div>
+        <div class="field">
+          <label>SESSION STYLE</label>
+          <div class="mode-cards">
+            <div class="mode-card selected" onclick="selectMode(this,'25/5')"><div class="mode-name">STRICT</div><div class="mode-desc">25/5 Pomodoro</div></div>
+            <div class="mode-card" onclick="selectMode(this,'50/10')"><div class="mode-name">POWER</div><div class="mode-desc">50/10 blocks</div></div>
+            <div class="mode-card" onclick="selectMode(this,'custom')"><div class="mode-name">FLOW</div><div class="mode-desc">Custom timing</div></div>
+          </div>
         </div>
       </div>
-      <div class="field">
-        <label>SYLLABUS UPLOAD</label>
-        <div class="upload-zone" id="uploadZone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
-          <div class="upload-text">DRAG AND DROP SYLLABUS HERE</div>
-          <div class="upload-sub">TXT, PDF, DOC, DOCX, or paste below</div>
-          <input type="file" accept=".txt,.pdf,.doc,.docx" onchange="onFileSelect(event)">
-        </div>
-        <textarea id="syllabus" rows="6" placeholder="Or paste your syllabus text here..." oninput="updateQuality()"></textarea>
-      </div>
-      <div class="field"><label>NOTES FOR SYNAPTIQ (optional)</label><textarea id="notes" rows="3" placeholder="e.g. Focus on MCQ-based questions, I am weak in Chapter 3, prioritize numerical problems..."></textarea></div>
-      <button class="btn-generate" id="genBtn" onclick="generatePlan()">GENERATE PLAN</button>
+
+      <div class="section-head">SUBJECT PLANS</div>
+      <div class="subject-stack" id="subjectsWrap"></div>
+      <button class="btn-secondary" type="button" onclick="addSubjectBlock()">+ ADD ANOTHER SUBJECT</button>
+
+      <button class="btn-generate" id="genBtn" onclick="generatePlan()">GENERATE PLANS</button>
       <div class="ai-status">
         <div class="ai-dot" id="dotGemini">GEMINI SECURE BACKEND <span class="dot"></span></div>
       </div>
     </div>
+
     <div>
       <div class="card" style="margin-bottom:20px">
         <div class="section-head">HOW IT WORKS</div>
-        <div class="info-step"><div class="info-num">1</div><div class="info-text"><h4>SYLLABUS PARSED</h4><p>Gemini reads your syllabus and extracts chapters, topics, difficulty, and priority.</p></div></div>
-        <div class="info-step"><div class="info-num">2</div><div class="info-text"><h4>SMART PLAN GENERATED</h4><p>SYNAPTIQ creates one focused plan with study days, revision checkpoints, and exam buffers.</p></div></div>
-        <div class="info-step"><div class="info-num">3</div><div class="info-text"><h4>READY TO EXECUTE</h4><p>Your plan is saved to Firebase and available on every device after login.</p></div></div>
+        <div class="info-step"><div class="info-num">1</div><div class="info-text"><h4>SYLLABUS PARSED</h4><p>Gemini reads each syllabus and extracts chapters, topics, difficulty, and priority.</p></div></div>
+        <div class="info-step"><div class="info-num">2</div><div class="info-text"><h4>SMART PLANS GENERATED</h4><p>SYNAPTIQ builds one focused plan per subject with study days, revision checkpoints, and exam buffers.</p></div></div>
+        <div class="info-step"><div class="info-num">3</div><div class="info-text"><h4>READY TO EXECUTE</h4><p>All plans are saved together and appear in the Plans section with their creation date.</p></div></div>
         <div class="section-head" style="margin-top:20px">PLAN QUALITY ESTIMATE</div>
         <div class="quality-item"><div class="quality-head"><span>Syllabus Detail</span><span id="q1">0%</span></div><div class="bar-bg"><div class="bar-fill" id="qb1" style="width:0%"></div></div></div>
         <div class="quality-item"><div class="quality-head"><span>Time Available</span><span id="q2">0%</span></div><div class="bar-bg"><div class="bar-fill" id="qb2" style="width:0%"></div></div></div>
-        <div class="quality-item"><div class="quality-head"><span>Exam Deadline</span><span id="q3">0%</span></div><div class="bar-bg"><div class="bar-fill" id="qb3" style="width:0%"></div></div></div>
+        <div class="quality-item"><div class="quality-head"><span>Exam Deadlines</span><span id="q3">0%</span></div><div class="bar-bg"><div class="bar-fill" id="qb3" style="width:0%"></div></div></div>
       </div>
       <div class="card">
         <div class="section-head">TIPS FOR BETTER RESULTS</div>
         <div class="tips">
-          <div class="tip-item">Paste the full chapter list, not just the subject name</div>
-          <div class="tip-item">Include topic names inside each chapter whenever possible</div>
-          <div class="tip-item">Add exam pattern notes such as MCQ, descriptive, or practical</div>
-          <div class="tip-item">Mention weak chapters so the plan can allocate more time</div>
-          <div class="tip-item">Set a realistic exam date to get accurate revision buffers</div>
+          <div class="tip-item">Use one subject card per subject so each plan stays clean.</div>
+          <div class="tip-item">Paste full chapter and topic lists instead of short summaries.</div>
+          <div class="tip-item">Add exam pattern notes such as MCQ, descriptive, or practical.</div>
+          <div class="tip-item">Mention weak chapters so the planner gives them more weight.</div>
+          <div class="tip-item">Upload PDFs separately when different subjects use different syllabi.</div>
         </div>
       </div>
     </div>
@@ -158,17 +162,14 @@ import { parseSyllabus, generateStudyPlan } from "../js/ai.js";
 let currentUser = null;
 let userProfile = null;
 let selectedMode = "25/5";
+let subjectCounter = 0;
 
 checkAuthState(async (user) => {
   currentUser = user;
-  const r = await getUserProfile(user.uid);
-  if (r.success) {
-    userProfile = r.data;
-    localStorage.setItem("currentUser", JSON.stringify({
-      uid: user.uid,
-      email: user.email,
-      ...r.data
-    }));
+  const res = await getUserProfile(user.uid);
+  if (res.success) {
+    userProfile = res.data;
+    localStorage.setItem("currentUser", JSON.stringify({ uid: user.uid, email: user.email, ...res.data }));
   }
 }, () => window.location.href = "login.html");
 
@@ -178,43 +179,95 @@ window.selectMode = (el, mode) => {
   selectedMode = mode;
 };
 
-window.onDragOver = (e) => { e.preventDefault(); document.getElementById("uploadZone").classList.add("dragover"); };
-window.onDragLeave = () => document.getElementById("uploadZone").classList.remove("dragover");
-window.onDrop = (e) => {
-  e.preventDefault();
-  document.getElementById("uploadZone").classList.remove("dragover");
-  const file = e.dataTransfer.files[0];
-  if (file) readFile(file);
-};
-window.onFileSelect = (e) => { if (e.target.files[0]) readFile(e.target.files[0]); };
+function addSubjectBlock() {
+  subjectCounter += 1;
+  const block = document.createElement("div");
+  block.className = "subject-card";
+  block.dataset.blockId = String(subjectCounter);
+  block.innerHTML = `
+    <div class="subject-card-head">
+      <div class="subject-title">SUBJECT ${subjectCounter}</div>
+      ${subjectCounter > 1 ? '<button class="subject-remove" type="button" onclick="removeSubjectBlock(this)">REMOVE</button>' : ""}
+    </div>
+    <div class="field"><label>SUBJECT NAME</label><input type="text" class="subject-name" placeholder="e.g. Physics, Mathematics, History" oninput="updateQuality()"></div>
+    <div class="field"><label>EXAM DATE</label><input type="date" class="subject-exam-date" oninput="updateQuality()"></div>
+    <div class="field">
+      <label>SYLLABUS UPLOAD</label>
+      <div class="upload-zone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <div class="upload-text">DRAG AND DROP SYLLABUS HERE</div>
+        <div class="upload-sub">TXT, PDF, DOC, DOCX, or paste below</div>
+        <input type="file" accept=".txt,.pdf,.doc,.docx" onchange="onFileSelect(event)">
+      </div>
+      <textarea class="subject-syllabus" rows="6" placeholder="Paste this subject's syllabus text here..." oninput="updateQuality()"></textarea>
+    </div>
+    <div class="field"><label>NOTES FOR SYNAPTIQ (optional)</label><textarea class="subject-notes" rows="3" placeholder="Weak chapters, exam style, problem areas, revision notes..."></textarea></div>
+  `;
+  document.getElementById("subjectsWrap").appendChild(block);
+  updateQuality();
+}
 
-function readFile(file) {
+window.addSubjectBlock = addSubjectBlock;
+addSubjectBlock();
+
+window.removeSubjectBlock = (button) => {
+  button.closest(".subject-card")?.remove();
+  updateQuality();
+};
+
+window.onDragOver = (event) => {
+  event.preventDefault();
+  event.currentTarget.classList.add("dragover");
+};
+
+window.onDragLeave = (event) => {
+  event.currentTarget.classList.remove("dragover");
+};
+
+window.onDrop = (event) => {
+  event.preventDefault();
+  const zone = event.currentTarget;
+  zone.classList.remove("dragover");
+  const file = event.dataTransfer.files[0];
+  if (file) {
+    const target = zone.closest(".subject-card").querySelector(".subject-syllabus");
+    readFile(file, target);
+  }
+};
+
+window.onFileSelect = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const target = event.target.closest(".subject-card").querySelector(".subject-syllabus");
+  readFile(file, target);
+};
+
+function readFile(file, targetArea) {
   if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
-    document.getElementById("syllabus").value = "Extracting text from PDF, please wait...";
+    targetArea.value = "Extracting text from PDF, please wait...";
     const reader = new FileReader();
-    reader.onload = async (e) => {
+    reader.onload = async (event) => {
       try {
         const pdfjsLib = window["pdfjs-dist/build/pdf"];
         pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
-        const typedarray = new Uint8Array(e.target.result);
+        const typedarray = new Uint8Array(event.target.result);
         const pdf = await pdfjsLib.getDocument(typedarray).promise;
         let fullText = "";
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
-          fullText += textContent.items.map(item => item.str).join(" ") + "\n";
+          fullText += textContent.items.map((item) => item.str).join(" ") + "\n";
         }
-        document.getElementById("syllabus").value = fullText.trim();
+        targetArea.value = fullText.trim();
         updateQuality();
-      } catch (err) {
-        document.getElementById("syllabus").value = "Failed to extract PDF text. Please copy and paste manually.";
+      } catch (error) {
+        targetArea.value = "Failed to extract PDF text. Please copy and paste manually.";
       }
     };
     reader.readAsArrayBuffer(file);
   } else {
     const reader = new FileReader();
-    reader.onload = (e) => {
-      document.getElementById("syllabus").value = e.target.result;
+    reader.onload = (event) => {
+      targetArea.value = event.target.result;
       updateQuality();
     };
     reader.readAsText(file);
@@ -222,22 +275,20 @@ function readFile(file) {
 }
 
 window.updateQuality = () => {
-  const syl = document.getElementById("syllabus").value.trim();
-  const date = document.getElementById("examDate").value;
+  const allSyllabusText = Array.from(document.querySelectorAll(".subject-syllabus")).map((el) => el.value.trim()).join("\n");
+  const hasExamDates = Array.from(document.querySelectorAll(".subject-exam-date")).some((el) => el.value);
   const time = parseInt(document.getElementById("dailyTime").value, 10) || 0;
-  const q1 = Math.min(syl.length / 5, 100);
+  const q1 = Math.min(allSyllabusText.length / 8, 100);
   const q2 = Math.min(time / 4.8, 100);
-  const q3 = date ? 100 : 0;
-  ["q1","q2","q3"].forEach((id, index) => {
-    const value = [q1, q2, q3][index];
-    document.getElementById(id).textContent = Math.round(value) + "%";
-    document.getElementById("qb" + (index + 1)).style.width = value + "%";
+  const q3 = hasExamDates ? 100 : 0;
+  [["q1","qb1",q1],["q2","qb2",q2],["q3","qb3",q3]].forEach(([labelId, barId, value]) => {
+    document.getElementById(labelId).textContent = `${Math.round(value)}%`;
+    document.getElementById(barId).style.width = `${value}%`;
   });
 };
 
 function setDot(state) {
-  const el = document.getElementById("dotGemini");
-  el.className = "ai-dot " + state;
+  document.getElementById("dotGemini").className = `ai-dot ${state}`;
 }
 
 function createFallbackStudyPlan(profile, parsedSyllabus, daysRemaining) {
@@ -252,11 +303,7 @@ function createFallbackStudyPlan(profile, parsedSyllabus, daysRemaining) {
   );
 
   if (!topicPool.length) {
-    topicPool.push({
-      topic_name: "Core syllabus revision",
-      chapter_number: 1,
-      priority: "high"
-    });
+    topicPool.push({ topic_name: "Core syllabus revision", chapter_number: 1, priority: "high" });
   }
 
   const revisionEvery = 6;
@@ -268,20 +315,12 @@ function createFallbackStudyPlan(profile, parsedSyllabus, daysRemaining) {
   for (let day = 1; day <= totalDays; day++) {
     const isBuffer = day > totalDays - bufferDays;
     const isRevision = !isBuffer && day % revisionEvery === 0;
-
     if (isRevision) revisionDays.push(day);
 
     if (isBuffer) {
       days.push({
         day_number: day,
-        topics: [{
-          topic_name: "Final revision and mock test",
-          chapter_number: 0,
-          minutes: safeDailyMinutes,
-          type: "buffer",
-          priority: "high",
-          notes: "Revise weak areas and solve timed questions."
-        }],
+        topics: [{ topic_name: "Final revision and mock test", chapter_number: 0, minutes: safeDailyMinutes, type: "buffer", priority: "high", notes: "Revise weak areas and solve timed questions." }],
         total_minutes: safeDailyMinutes,
         day_type: "buffer"
       });
@@ -291,29 +330,14 @@ function createFallbackStudyPlan(profile, parsedSyllabus, daysRemaining) {
     const first = topicPool[topicCursor % topicPool.length];
     const second = topicPool[(topicCursor + 1) % topicPool.length];
     topicCursor += isRevision ? 1 : 2;
-
     const mainMinutes = Math.round(safeDailyMinutes * 0.65);
     const supportMinutes = safeDailyMinutes - mainMinutes;
 
     days.push({
       day_number: day,
       topics: [
-        {
-          topic_name: first.topic_name,
-          chapter_number: first.chapter_number,
-          minutes: mainMinutes,
-          type: isRevision ? "revision" : "new_learning",
-          priority: first.priority || "medium",
-          notes: isRevision ? "Revise actively and solve questions." : "Learn core concepts and examples."
-        },
-        {
-          topic_name: second.topic_name,
-          chapter_number: second.chapter_number,
-          minutes: supportMinutes,
-          type: isRevision ? "practice" : "practice",
-          priority: second.priority || "medium",
-          notes: "Practice and recap key formulas/concepts."
-        }
+        { topic_name: first.topic_name, chapter_number: first.chapter_number, minutes: mainMinutes, type: isRevision ? "revision" : "new_learning", priority: first.priority || "medium", notes: isRevision ? "Revise actively and solve questions." : "Learn core concepts and examples." },
+        { topic_name: second.topic_name, chapter_number: second.chapter_number, minutes: supportMinutes, type: "practice", priority: second.priority || "medium", notes: "Practice and recap key formulas/concepts." }
       ],
       total_minutes: safeDailyMinutes,
       day_type: isRevision ? "revision" : "study"
@@ -338,12 +362,17 @@ function createFallbackStudyPlan(profile, parsedSyllabus, daysRemaining) {
 }
 
 window.generatePlan = async () => {
-  const subject = document.getElementById("subject").value.trim();
-  const examDate = document.getElementById("examDate").value;
-  const syllabusText = document.getElementById("syllabus").value.trim();
-  if (!subject) { alert("Please enter a subject name."); return; }
-  if (!syllabusText) { alert("Please paste or upload your syllabus."); return; }
-  if (!examDate) { alert("Please set your exam date."); return; }
+  const subjectEntries = Array.from(document.querySelectorAll(".subject-card")).map((card) => ({
+    subject: card.querySelector(".subject-name").value.trim(),
+    examDate: card.querySelector(".subject-exam-date").value,
+    syllabusText: card.querySelector(".subject-syllabus").value.trim(),
+    notes: card.querySelector(".subject-notes").value.trim()
+  })).filter((entry) => entry.subject || entry.examDate || entry.syllabusText || entry.notes);
+
+  if (!subjectEntries.length) { alert("Please add at least one subject plan."); return; }
+  if (subjectEntries.some((entry) => !entry.subject)) { alert("Please enter a subject name for each plan."); return; }
+  if (subjectEntries.some((entry) => !entry.examDate)) { alert("Please set an exam date for each subject."); return; }
+  if (subjectEntries.some((entry) => !entry.syllabusText)) { alert("Please paste or upload a syllabus for each subject."); return; }
 
   const btn = document.getElementById("genBtn");
   btn.disabled = true;
@@ -351,81 +380,78 @@ window.generatePlan = async () => {
   setDot("loading");
 
   try {
-    const daysRem = Math.max(1, Math.ceil((new Date(examDate) - new Date()) / 86400000));
     const dailyMins = document.getElementById("timeUnit").value === "hours"
       ? parseInt(document.getElementById("dailyTime").value, 10) * 60
       : parseInt(document.getElementById("dailyTime").value, 10);
 
-    let parsed;
-    try {
-      parsed = await parseSyllabus(
-        syllabusText,
-        subject,
-        userProfile?.classGrade || "Student",
-        userProfile?.examTypes?.[0] || "General Exam"
-      );
-    } catch (error) {
-      parsed = [{
-        chapter_number: 1,
-        chapter_name: subject,
-        topics: [syllabusText.substring(0, 100)],
-        estimated_study_hours: Math.max(1, (daysRem * dailyMins) / 60 * 0.8),
-        difficulty: "medium",
-        priority: "high"
-      }];
+    let fallbackCount = 0;
+    let lastPlanId = null;
+
+    for (const entry of subjectEntries) {
+      const daysRem = Math.max(1, Math.ceil((new Date(entry.examDate) - new Date()) / 86400000));
+
+      let parsed;
+      try {
+        parsed = await parseSyllabus(entry.syllabusText, entry.subject, userProfile?.classGrade || "Student", userProfile?.examTypes?.[0] || "General Exam");
+      } catch (error) {
+        parsed = [{
+          chapter_number: 1,
+          chapter_name: entry.subject,
+          topics: [entry.syllabusText.substring(0, 100)],
+          estimated_study_hours: Math.max(1, (daysRem * dailyMins) / 60 * 0.8),
+          difficulty: "medium",
+          priority: "high"
+        }];
+      }
+
+      const profile = {
+        name: userProfile?.name || "Student",
+        classGrade: userProfile?.classGrade || "Student",
+        examType: userProfile?.examTypes?.[0] || "General",
+        examDate: entry.examDate,
+        daysRemaining: daysRem,
+        dailyMinutes: dailyMins,
+        weakSubjects: userProfile?.weakSubjects?.join(", ") || "",
+        notes: entry.notes
+      };
+
+      let studyPlan;
+      let usedFallback = false;
+      try {
+        studyPlan = await generateStudyPlan(profile, parsed);
+      } catch (error) {
+        usedFallback = true;
+        fallbackCount += 1;
+        studyPlan = createFallbackStudyPlan(profile, parsed, daysRem);
+      }
+
+      const saved = await savePlan({
+        userId: currentUser.uid,
+        subject: entry.subject,
+        examDate: entry.examDate,
+        dailyMinutes: dailyMins,
+        sessionMode: selectedMode,
+        syllabusText: entry.syllabusText,
+        parsedSyllabus: parsed,
+        studyPlan,
+        generatedBy: usedFallback ? "fallback" : "gemini",
+        status: "active"
+      });
+
+      if (!saved.success) throw new Error(saved.error || "Unable to save the plan.");
+      lastPlanId = saved.planId;
     }
 
-    const profile = {
-      name: userProfile?.name || "Student",
-      classGrade: userProfile?.classGrade || "Student",
-      examType: userProfile?.examTypes?.[0] || "General",
-      examDate,
-      daysRemaining: daysRem,
-      dailyMinutes: dailyMins,
-      weakSubjects: userProfile?.weakSubjects?.join(", ") || "",
-      notes: document.getElementById("notes").value
-    };
-
-    let studyPlan;
-    let usedFallback = false;
-    try {
-      studyPlan = await generateStudyPlan(profile, parsed);
-      setDot("done");
-    } catch (error) {
-      usedFallback = true;
-      studyPlan = createFallbackStudyPlan(profile, parsed, daysRem);
-      setDot("done");
-      const friendly = error?.message || "Gemini unavailable.";
-      alert(
-        "Gemini is currently unavailable, so SYNAPTIQ generated a fallback plan.\n\n" +
-        friendly +
-        "\n\nYou can continue now and regenerate later."
-      );
+    setDot("done");
+    if (lastPlanId) localStorage.setItem("currentPlanId", lastPlanId);
+    if (fallbackCount > 0) {
+      alert(`${subjectEntries.length} plans were created. ${fallbackCount} used the fallback planner because Gemini was unavailable.`);
     }
-
-    const planData = {
-      userId: currentUser.uid,
-      subject,
-      examDate,
-      dailyMinutes: dailyMins,
-      sessionMode: selectedMode,
-      syllabusText,
-      parsedSyllabus: parsed,
-      studyPlan,
-      generatedBy: usedFallback ? "fallback" : "gemini",
-      status: "draft"
-    };
-
-    const saved = await savePlan(planData);
-    if (!saved.success) throw new Error(saved.error || "Unable to save the plan.");
-
-    localStorage.setItem("currentPlanId", saved.planId);
-    localStorage.setItem("pendingPlan", JSON.stringify({ ...planData, id: saved.planId }));
-    window.location.href = "plan-view.html";
+    window.location.href = "dashboard.html";
   } catch (error) {
     setDot("error");
     btn.disabled = false;
-    btn.textContent = "GENERATE PLAN";
+    btn.textContent = "GENERATE PLANS";
     alert(
       "Plan generation failed.\n\n" +
       (error?.message || "Unknown error") +

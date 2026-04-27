@@ -33,7 +33,11 @@ export async function updateUserProfile(userId, updates) {
 // ════════════════════════════════════════════════════════════
 export async function savePlan(planData) {
   try {
-    const ref = await addDoc(collection(db, "plans"), { ...planData, createdAt: serverTimestamp(), status: "active" });
+    const ref = await addDoc(collection(db, "plans"), {
+      ...planData,
+      createdAt: serverTimestamp(),
+      status: planData.status || "active"
+    });
     return { success: true, planId: ref.id };
   } catch (e) { return { success: false, error: e.message }; }
 }
