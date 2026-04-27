@@ -23,25 +23,17 @@ nav{flex:1;padding:16px 0}
 .section{margin-bottom:28px}
 .section-head{font-family:'Orbitron',monospace;font-size:.75rem;letter-spacing:2px;color:var(--neon);margin-bottom:14px;padding-left:10px;border-left:3px solid var(--neon)}
 .card{background:rgba(10,22,40,0.85);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:10px;padding:24px}
-.status-card{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center}
-.status-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(0,255,157,0.08);border:1px solid rgba(0,255,157,0.25);color:var(--green);font-family:'Orbitron',monospace}
-.status-title{font-family:'Orbitron',monospace;font-size:.8rem;color:var(--silver);letter-spacing:1px;margin-bottom:4px}
-.status-copy{font-size:.85rem;color:var(--dim);line-height:1.6}
-.status-pill{padding:6px 12px;border-radius:99px;border:1px solid var(--green);color:var(--green);font-family:'JetBrains Mono',monospace;font-size:.72rem}
-.btn-test{padding:10px 18px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:1px;border-radius:6px;cursor:pointer;transition:.2s}
-.btn-test:hover{background:rgba(0,245,255,0.08)}
-.key-status{font-size:.75rem;font-family:'JetBrains Mono',monospace;margin-top:12px;display:none}
-.key-status.ok{color:var(--green);display:block}
-.key-status.err{color:var(--laser);display:block}
-.key-status.testing{color:var(--amber);display:block}
 .field{margin-bottom:16px}
 label{display:block;font-size:.7rem;letter-spacing:1.5px;color:var(--dim);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 input[type=text],input[type=email],input[type=tel],select{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--silver);padding:10px 14px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;transition:.2s}
 input[type=text]:focus,input[type=email]:focus,input[type=tel]:focus,select:focus{border-color:var(--neon);box-shadow:0 0 10px rgba(0,245,255,0.15)}
 select option{background:var(--panel)}
+.readonly-field{opacity:.75;cursor:not-allowed}
 .btn-save-profile{padding:11px 28px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;border:none;border-radius:6px;cursor:pointer;transition:.2s;margin-top:8px}
 .btn-save-profile:hover{box-shadow:0 0 20px rgba(0,245,255,0.4)}
+.btn-edit-profile{padding:11px 28px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;border-radius:6px;cursor:pointer;transition:.2s;margin-top:8px}
+.btn-edit-profile:hover{background:rgba(0,245,255,0.08)}
 .danger-card{background:rgba(255,45,120,0.04);border:1px solid rgba(255,45,120,0.2);border-radius:10px;padding:20px}
 .btn-danger{padding:10px 20px;background:transparent;border:1px solid var(--laser);color:var(--laser);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:1px;border-radius:6px;cursor:pointer;transition:.2s}
 .btn-danger:hover{background:rgba(255,45,120,0.1)}
@@ -54,7 +46,7 @@ select option{background:var(--panel)}
 .btn-logout:hover{background:rgba(255,179,0,0.1)}
 .toast{position:fixed;bottom:28px;right:28px;background:rgba(10,22,40,0.97);border:1px solid var(--green);border-radius:8px;padding:12px 20px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--green);z-index:1000;transform:translateY(80px);opacity:0;transition:.3s}
 .toast.show{transform:none;opacity:1}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.field-row{grid-template-columns:1fr}.status-card{grid-template-columns:1fr}.status-pill{justify-self:start}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.field-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -72,26 +64,7 @@ select option{background:var(--panel)}
 
 <div class="main">
   <div class="page-title">SYSTEM SETTINGS</div>
-  <div class="page-sub">Manage your profile and verify the secure Gemini connection used by SYNAPTIQ.</div>
-
-  <div class="section">
-    <div class="section-head">SECURE AI BACKEND</div>
-    <div class="card">
-      <div class="status-card">
-        <div class="status-icon">AI</div>
-        <div>
-          <div class="status-title">Gemini runs only on the server</div>
-          <div class="status-copy">
-            Your Gemini API key is no longer stored in the browser, HTML, or frontend JavaScript.
-            SYNAPTIQ sends AI requests to a secure backend route that reads the key from server environment variables.
-          </div>
-        </div>
-        <div class="status-pill">SERVER-ONLY KEY</div>
-      </div>
-      <button class="btn-test" onclick="testBackend()">TEST GEMINI CONNECTION</button>
-      <div class="key-status" id="status-gemini"></div>
-    </div>
-  </div>
+  <div class="page-sub">Manage your profile and account data for SYNAPTIQ.</div>
 
   <div class="section">
     <div class="section-head">YOUR PROFILE</div>
@@ -109,7 +82,10 @@ select option{background:var(--panel)}
         </div>
         <div class="field"><label>INSTITUTION</label><input type="text" id="pf-inst" placeholder="School / College"></div>
       </div>
-      <button class="btn-save-profile" onclick="saveProfile()">SAVE PROFILE</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-edit-profile" id="editProfileBtn" onclick="enableProfileEdit()">EDIT PROFILE</button>
+        <button class="btn-save-profile" id="saveProfileBtn" onclick="saveProfile()" style="display:none">SAVE PROFILE</button>
+      </div>
     </div>
   </div>
 
@@ -137,42 +113,60 @@ select option{background:var(--panel)}
 <script type="module">
 import { checkAuthState, logout } from "../js/auth.js";
 import { getUserProfile, updateUserProfile } from "../js/storage.js";
-import { testGeminiConnection } from "../js/ai.js";
 
 let user = null;
+let profileEditMode = false;
+
+function setProfileEditMode(enabled) {
+  profileEditMode = !!enabled;
+  const ids = ["pf-name", "pf-phone", "pf-class", "pf-inst"];
+  ids.forEach((id) => {
+    const el = document.getElementById(id);
+    el.disabled = !profileEditMode;
+    el.classList.toggle("readonly-field", !profileEditMode);
+  });
+  document.getElementById("editProfileBtn").style.display = profileEditMode ? "none" : "inline-block";
+  document.getElementById("saveProfileBtn").style.display = profileEditMode ? "inline-block" : "none";
+}
+
+function applyProfileToForm(profile = {}, fallbackEmail = "") {
+  const name = profile?.name || "";
+  const phone = profile?.phone || "";
+  const classGrade = profile?.classGrade || "";
+  const institution = profile?.institution || "";
+
+  document.getElementById("pf-name").value = name;
+  document.getElementById("pf-phone").value = phone;
+  if (classGrade) document.getElementById("pf-class").value = classGrade;
+  document.getElementById("pf-inst").value = institution;
+  renderProfileSnapshot(profile, fallbackEmail);
+  setProfileEditMode(false);
+}
 
 checkAuthState(async (u) => {
   user = u;
+
+  // Instant prefill from locally cached signup/auth profile.
+  try {
+    const cached = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    if (cached && typeof cached === "object") {
+      applyProfileToForm(cached, u.email);
+    }
+  } catch {
+    // ignore cache parse issues
+  }
+
   const r = await getUserProfile(u.uid);
   if (r.success) {
-    const p = r.data;
-    renderProfileSnapshot(p, u.email);
-    if (p.name) document.getElementById("pf-name").value = p.name;
-    if (p.phone) document.getElementById("pf-phone").value = p.phone;
-    if (p.classGrade) document.getElementById("pf-class").value = p.classGrade;
-    if (p.institution) document.getElementById("pf-inst").value = p.institution;
+    const p = r.data || {};
+    applyProfileToForm(p, u.email);
   } else {
     renderProfileSnapshot({ name: "", phone: "", classGrade: "", institution: "" }, u.email);
   }
 }, () => window.location.href = "login.html");
 
-window.testBackend = async () => {
-  showStatus("testing", "Testing secure Gemini connection...");
-  try {
-    const result = await testGeminiConnection();
-    showStatus("ok", "Connection successful: " + result);
-  } catch (error) {
-    showStatus("err", "Connection failed: " + error.message);
-  }
-};
-
-function showStatus(type, msg) {
-  const el = document.getElementById("status-gemini");
-  el.className = "key-status " + type;
-  el.textContent = msg;
-}
-
 window.saveProfile = async () => {
+  if (!profileEditMode) return;
   const updates = {
     name: document.getElementById("pf-name").value.trim(),
     phone: document.getElementById("pf-phone").value.trim(),
@@ -182,16 +176,23 @@ window.saveProfile = async () => {
   const r = await updateUserProfile(user.uid, updates);
   if (r.success) {
     const current = {
+      uid: user.uid,
       email: user.email,
       name: updates.name,
       phone: updates.phone,
       classGrade: updates.classGrade,
       institution: updates.institution
     };
+    localStorage.setItem("currentUser", JSON.stringify(current));
     renderProfileSnapshot(current, user.email);
     showToast("Profile updated.");
+    setProfileEditMode(false);
   }
   else showToast("Error: " + r.error, true);
+};
+
+window.enableProfileEdit = () => {
+  setProfileEditMode(true);
 };
 
 window.clearLocalData = () => {
