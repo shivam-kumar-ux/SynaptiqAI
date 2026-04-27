@@ -35,11 +35,13 @@ nav{flex:1;padding:16px 0}
 .timer-wrap{position:relative;width:220px;height:220px;flex-shrink:0}
 .timer-svg{transform:rotate(-90deg);filter:drop-shadow(0 0 18px rgba(0,245,255,0.35))}
 .ring-bg{fill:none;stroke:var(--border);stroke-width:10}
-.ring-fg{fill:none;stroke:var(--neon);stroke-width:10;stroke-linecap:round;stroke-dasharray:754}
+.ring-fg{fill:none;stroke:var(--neon);stroke-width:10;stroke-linecap:round;stroke-dasharray:754;stroke-dashoffset:0}
 .timer-digits{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .digits{font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:700;letter-spacing:3px;color:var(--neon);text-shadow:0 0 30px rgba(0,245,255,0.5);line-height:1}
 .timer-label{font-size:.7rem;color:var(--dim);letter-spacing:2px;margin-top:10px}
 .timer-meta{flex:1;min-width:220px;display:flex;flex-direction:column;gap:12px}
+.timer-status{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:1px;color:var(--dim);margin-top:10px}
+.timer-controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .card-head{font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:2px;color:var(--neon);margin-bottom:10px}
 .info-card,.risk-card,.video-card{padding:18px}
 .risk-card{border-color:rgba(255,179,0,0.28);background:rgba(255,179,0,0.05)}
@@ -68,10 +70,17 @@ nav{flex:1;padding:16px 0}
 .video-topic-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .video-topic-btn{padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:rgba(13,33,55,0.7);color:var(--silver);cursor:pointer}
 .video-topic-btn.active,.video-topic-btn:hover{border-color:var(--neon);color:var(--neon)}
+.video-results{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+.video-result{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;border:1px solid rgba(26,58,85,0.6);border-radius:10px;padding:10px;background:rgba(13,33,55,0.55);cursor:pointer;transition:.2s}
+.video-result:hover,.video-result.active{border-color:var(--neon);box-shadow:0 0 16px rgba(0,245,255,0.12)}
+.video-thumb{width:100%;aspect-ratio:16/9;border-radius:8px;object-fit:cover;background:var(--panel)}
+.video-title{font-size:.88rem;color:var(--silver);line-height:1.4}
+.video-meta{font-size:.76rem;color:var(--dim);margin-top:6px;display:flex;gap:10px;flex-wrap:wrap}
 .btn-primary,.btn-secondary{border-radius:8px;cursor:pointer;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 .btn-primary{padding:13px 24px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.7rem;font-weight:700;letter-spacing:2px;border:none}
 .btn-primary:hover{box-shadow:0 0 28px rgba(0,245,255,0.45);transform:translateY(-1px)}
 .btn-secondary{padding:10px 16px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:1px}
+.btn-secondary.active{background:rgba(0,245,255,0.12);border-color:var(--neon);color:var(--neon)}
 .btn-secondary:hover{background:rgba(0,245,255,0.08)}
 .btn-back{color:var(--dim);font-size:.85rem;text-decoration:none}
 .btn-back:hover{color:var(--silver)}
@@ -118,11 +127,11 @@ nav{flex:1;padding:16px 0}
           <div class="timer-wrap">
             <svg class="timer-svg" width="220" height="220" viewBox="0 0 280 280">
               <circle class="ring-bg" cx="140" cy="140" r="120"/>
-              <circle class="ring-fg" cx="140" cy="140" r="120" stroke-dashoffset="188"/>
+              <circle class="ring-fg" cx="140" cy="140" r="120" id="timerRing"/>
             </svg>
             <div class="timer-digits">
               <div class="digits" id="studyTimeDigits">00:00</div>
-              <div class="timer-label">DAILY TARGET</div>
+              <div class="timer-label" id="timerLabel">READY</div>
             </div>
           </div>
           <div class="timer-meta">
@@ -134,6 +143,11 @@ nav{flex:1;padding:16px 0}
               <div class="card-head">RISK NOTE</div>
               <div class="card-copy" id="riskSummary">Loading risk note...</div>
             </div>
+            <div class="timer-status" id="timerStatus">Choose a topic, click a language button, then play a video to begin the Pomodoro automatically.</div>
+            <div class="timer-controls">
+              <button class="btn-secondary" id="pauseTimerBtn" onclick="toggleTimerPause()" disabled>PAUSE</button>
+              <button class="btn-secondary" onclick="resetCurrentTimer()">RESET</button>
+            </div>
           </div>
         </div>
       </div>
@@ -144,23 +158,25 @@ nav{flex:1;padding:16px 0}
 
     <div class="video-card">
       <div class="card-head">YOUTUBE VIDEOS</div>
-      <div class="card-copy" id="videoCaption">Pick a topic to load YouTube study videos right here.</div>
-      <iframe class="video-frame" id="videoFrame" title="YouTube study videos" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      <div class="card-copy" id="videoCaption">Pick a topic, then click English or Hindi to let SYNAPTIQ fetch playable videos for this page.</div>
+      <div class="video-frame" id="videoPlayerMount"></div>
       <div class="video-actions">
-        <a class="btn-secondary" id="ytEnglish" href="#" target="_blank" rel="noopener noreferrer">OPEN ENGLISH</a>
-        <a class="btn-secondary" id="ytHindi" href="#" target="_blank" rel="noopener noreferrer">OPEN HINDI</a>
+        <button class="btn-secondary" id="ytEnglish" onclick="loadVideosForLanguage('english')">ENGLISH</button>
+        <button class="btn-secondary" id="ytHindi" onclick="loadVideosForLanguage('hindi')">HINDI</button>
       </div>
       <div class="video-topic-list" id="videoTopicList"></div>
+      <div class="video-results" id="videoResults"></div>
     </div>
   </div>
 
   <div class="action-bar" style="margin-top:20px">
-    <button class="btn-primary" onclick="startPlanSession(0)">START FROM FIRST TOPIC</button>
+    <button class="btn-primary" onclick="focusFirstTopic()">START FROM FIRST TOPIC</button>
     <a class="btn-secondary" href="plan-new.html">CREATE MORE PLANS</a>
     <a href="dashboard.html" class="btn-back">Back to Plans</a>
   </div>
 </div>
 
+<script src="https://www.youtube.com/iframe_api"></script>
 <script type="module">
 import { checkAuthState } from "../js/auth.js";
 import { getPlan } from "../js/storage.js";
@@ -168,6 +184,20 @@ import { getPlan } from "../js/storage.js";
 let planData = null;
 let planSequence = [];
 let selectedVideoTopic = "";
+let selectedLanguage = "";
+let videoResults = [];
+let player = null;
+let pendingVideoId = "";
+let timerState = {
+  totalSeconds: 0,
+  remainingSeconds: 0,
+  running: false,
+  paused: false,
+  currentTopic: "",
+  sequenceIndex: 0
+};
+let timerInterval = null;
+const TIMER_RING_LENGTH = 754;
 
 checkAuthState(async () => {
   const params = new URLSearchParams(window.location.search);
@@ -197,10 +227,6 @@ function initPage() {
   document.getElementById("sumBuffer").textContent = plan.buffer_days_before_exam ?? "-";
 
   const dailyMinutes = Number(planData.dailyMinutes) || plan.days?.[0]?.total_minutes || 0;
-  const hours = Math.floor(dailyMinutes / 60);
-  const minutes = dailyMinutes % 60;
-  document.getElementById("studyTimeDigits").textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-
   planSequence = (plan.days || []).flatMap((day) =>
     (day.topics || []).map((topic) => ({
       ...topic,
@@ -211,9 +237,14 @@ function initPage() {
     }))
   );
 
+  const firstTopic = planSequence[0] || null;
+  setTimerTopic(firstTopic, 0, false);
+
   renderDays(plan);
   renderVideoTopics();
-  if (planSequence[0]) setVideoTopic(planSequence[0].topic_name);
+  if (planSequence[0]) setVideoTopic(planSequence[0].topic_name, 0);
+  renderVideoResults();
+  renderTimer();
 }
 
 function renderDays(plan) {
@@ -235,8 +266,8 @@ function renderDays(plan) {
           </div>
           <div class="time-cell">${topic.minutes || day.total_minutes}m</div>
           <div class="topic-actions">
-            <button class="btn-secondary" onclick="openVideoTopic('${escapeJs(topic.topic_name)}')">VIDEOS</button>
-            <button class="btn-primary" onclick="startPlanSession(${currentIndex})">START</button>
+            <button class="btn-secondary" onclick="openVideoTopic('${escapeJs(topic.topic_name)}', ${currentIndex})">VIDEOS</button>
+            <button class="btn-primary" onclick="prepareTopicTimer(${currentIndex})">FOCUS</button>
           </div>
         </div>
       `;
@@ -259,24 +290,222 @@ function renderVideoTopics() {
   const container = document.getElementById("videoTopicList");
   const uniqueTopics = [...new Set(planSequence.map((item) => item.topic_name).filter(Boolean))].slice(0, 12);
   container.innerHTML = uniqueTopics.map((topic) => `
-    <button class="video-topic-btn ${topic === selectedVideoTopic ? "active" : ""}" onclick="openVideoTopic('${escapeJs(topic)}')">${escapeHtml(topic)}</button>
+    <button class="video-topic-btn ${topic === selectedVideoTopic ? "active" : ""}" onclick="openVideoTopic('${escapeJs(topic)}', ${findTopicIndex(topic)})">${escapeHtml(topic)}</button>
   `).join("");
 }
 
-function buildVideoQuery(topicName, suffix) {
-  return `${planData.subject || "Subject"} ${topicName} ${suffix}`.trim();
+function findTopicIndex(topicName) {
+  return Math.max(0, planSequence.findIndex((item) => item.topic_name === topicName));
 }
 
-function setVideoTopic(topicName) {
-  selectedVideoTopic = topicName;
-  const englishQuery = buildVideoQuery(topicName, "english lecture");
-  const hindiQuery = buildVideoQuery(topicName, "hindi lecture");
-  document.getElementById("videoFrame").src = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(englishQuery)}`;
-  document.getElementById("videoCaption").textContent = `YouTube videos for ${topicName}`;
-  document.getElementById("ytEnglish").href = `https://www.youtube.com/results?search_query=${encodeURIComponent(englishQuery)}`;
-  document.getElementById("ytHindi").href = `https://www.youtube.com/results?search_query=${encodeURIComponent(hindiQuery)}`;
-  renderVideoTopics();
+function renderVideoResults() {
+  const wrap = document.getElementById("videoResults");
+  if (!selectedVideoTopic) {
+    wrap.innerHTML = "";
+    return;
+  }
+  if (!selectedLanguage) {
+    wrap.innerHTML = `<div class="card-copy">Selected topic: <strong>${escapeHtml(selectedVideoTopic)}</strong>. Click a language button to fetch videos.</div>`;
+    return;
+  }
+  if (!videoResults.length) {
+    wrap.innerHTML = `<div class="card-copy">No playable videos loaded yet for ${escapeHtml(selectedVideoTopic)} in ${escapeHtml(selectedLanguage)}.</div>`;
+    return;
+  }
+  wrap.innerHTML = videoResults.map((video) => `
+    <div class="video-result ${video.videoId === pendingVideoId ? "active" : ""}" onclick="playSelectedVideo('${escapeJs(video.videoId)}')">
+      <img class="video-thumb" src="${escapeHtml(video.thumbnail)}" alt="${escapeHtml(video.title)}">
+      <div>
+        <div class="video-title">${escapeHtml(video.title)}</div>
+        <div class="video-meta">
+          <span>${escapeHtml(video.channel || "Unknown channel")}</span>
+          <span>${escapeHtml(video.duration || "")}</span>
+        </div>
+      </div>
+    </div>
+  `).join("");
 }
+
+function buildVideoQuery(topicName, language) {
+  const languageSuffix = language === "hindi" ? "hindi lecture" : "english lecture";
+  return `${planData.subject || "Subject"} ${topicName} ${languageSuffix}`.trim();
+}
+
+function setVideoTopic(topicName, sequenceIndex = 0) {
+  selectedVideoTopic = topicName;
+  selectedLanguage = "";
+  videoResults = [];
+  pendingVideoId = "";
+  setLanguageButtons();
+  setTimerTopic(planSequence[sequenceIndex], sequenceIndex, false);
+  document.getElementById("videoCaption").textContent = `Selected topic: ${topicName}. Click English or Hindi to fetch videos, then click a result to play here.`;
+  renderVideoTopics();
+  renderVideoResults();
+}
+
+function setTimerTopic(topic, sequenceIndex, preserveRunning) {
+  if (!topic) return;
+  const totalSeconds = Math.max(10, Math.min(180, Math.round(Number(topic.minutes) || 25))) * 60;
+  const shouldKeepCurrent = preserveRunning && timerState.running && timerState.currentTopic === topic.topic_name;
+  timerState = {
+    totalSeconds,
+    remainingSeconds: shouldKeepCurrent ? timerState.remainingSeconds : totalSeconds,
+    running: shouldKeepCurrent ? timerState.running : false,
+    paused: shouldKeepCurrent ? timerState.paused : false,
+    currentTopic: topic.topic_name,
+    sequenceIndex
+  };
+  if (!shouldKeepCurrent) {
+    stopTimerInterval();
+  }
+  renderTimer();
+}
+
+function formatTimer(secs) {
+  const safe = Math.max(0, secs);
+  const m = String(Math.floor(safe / 60)).padStart(2, "0");
+  const s = String(safe % 60).padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+function renderTimer() {
+  document.getElementById("studyTimeDigits").textContent = formatTimer(timerState.remainingSeconds);
+  document.getElementById("timerLabel").textContent = timerState.running ? (timerState.paused ? "PAUSED" : "FOCUSING") : "READY";
+  document.getElementById("timerStatus").textContent = timerState.currentTopic
+    ? `${timerState.currentTopic}${timerState.running ? (timerState.paused ? " is paused." : " is in focus mode.") : ". Start a video to begin the Pomodoro automatically."}`
+    : "Choose a topic, click a language button, then play a video to begin the Pomodoro automatically.";
+  document.getElementById("pauseTimerBtn").disabled = !timerState.running;
+  document.getElementById("pauseTimerBtn").textContent = timerState.paused ? "RESUME" : "PAUSE";
+  const progress = timerState.totalSeconds > 0 ? timerState.remainingSeconds / timerState.totalSeconds : 1;
+  document.getElementById("timerRing").setAttribute("stroke-dashoffset", String(TIMER_RING_LENGTH * (1 - progress)));
+}
+
+function stopTimerInterval() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
+function ensureTimerRunning() {
+  if (timerState.running && !timerState.paused) return;
+  timerState.running = true;
+  timerState.paused = false;
+  renderTimer();
+  stopTimerInterval();
+  timerInterval = setInterval(() => {
+    if (timerState.paused || !timerState.running) return;
+    timerState.remainingSeconds = Math.max(0, timerState.remainingSeconds - 1);
+    renderTimer();
+    if (timerState.remainingSeconds <= 0) {
+      stopTimerInterval();
+      timerState.running = false;
+      timerState.paused = false;
+      renderTimer();
+      alert("Pomodoro completed for this topic.");
+    }
+  }, 1000);
+}
+
+async function fetchVideosForLanguage(language) {
+  if (!selectedVideoTopic) return;
+  selectedLanguage = language;
+  setLanguageButtons();
+  document.getElementById("videoCaption").textContent = `Finding ${language} videos for ${selectedVideoTopic}...`;
+  renderVideoResults();
+  try {
+    const query = buildVideoQuery(selectedVideoTopic, language);
+    const res = await fetch(`/api/youtube-search?q=${encodeURIComponent(query)}&limit=5`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Unable to fetch videos.");
+    videoResults = Array.isArray(data.videos) ? data.videos : [];
+    pendingVideoId = videoResults[0]?.videoId || "";
+    document.getElementById("videoCaption").textContent = videoResults.length
+      ? `Choose a ${language} video for ${selectedVideoTopic}. The Pomodoro starts when playback begins.`
+      : `No ${language} videos were found for ${selectedVideoTopic}.`;
+    renderVideoResults();
+  } catch (error) {
+    videoResults = [];
+    pendingVideoId = "";
+    document.getElementById("videoCaption").textContent = error?.message || "Unable to fetch videos right now.";
+    renderVideoResults();
+  }
+}
+
+function setLanguageButtons() {
+  document.getElementById("ytEnglish").classList.toggle("active", selectedLanguage === "english");
+  document.getElementById("ytHindi").classList.toggle("active", selectedLanguage === "hindi");
+}
+
+function loadVideoById(videoId) {
+  pendingVideoId = videoId;
+  renderVideoResults();
+  if (!player) {
+    pendingVideoId = videoId;
+    return;
+  }
+  player.loadVideoById(videoId);
+}
+
+function handlePlayerState(event) {
+  if (event?.data === window.YT?.PlayerState?.PLAYING) {
+    ensureTimerRunning();
+  }
+}
+
+window.onYouTubeIframeAPIReady = () => {
+  player = new window.YT.Player("videoPlayerMount", {
+    width: "100%",
+    height: "100%",
+    videoId: "",
+    playerVars: {
+      rel: 0,
+      modestbranding: 1,
+      playsinline: 1
+    },
+    events: {
+      onStateChange: handlePlayerState
+    }
+  });
+  if (pendingVideoId) {
+    player.loadVideoById(pendingVideoId);
+  }
+};
+
+window.loadVideosForLanguage = async (language) => {
+  await fetchVideosForLanguage(language);
+};
+
+window.playSelectedVideo = (videoId) => {
+  loadVideoById(videoId);
+};
+
+window.prepareTopicTimer = (sequenceIndex) => {
+  const idx = Number.isFinite(Number(sequenceIndex)) ? Number(sequenceIndex) : 0;
+  const topic = planSequence[idx];
+  if (!topic) return;
+  setVideoTopic(topic.topic_name, idx);
+};
+
+window.focusFirstTopic = () => {
+  if (!planSequence.length) return;
+  setVideoTopic(planSequence[0].topic_name, 0);
+};
+
+window.toggleTimerPause = () => {
+  if (!timerState.running) return;
+  timerState.paused = !timerState.paused;
+  renderTimer();
+};
+
+window.resetCurrentTimer = () => {
+  const topic = planSequence[timerState.sequenceIndex];
+  setTimerTopic(topic, timerState.sequenceIndex, false);
+};
+
+window.startPlanSession = (sequenceIndex) => {
+  window.prepareTopicTimer(sequenceIndex);
+};
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -291,24 +520,9 @@ function escapeJs(value) {
   return String(value ?? "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
-window.openVideoTopic = (topicName) => {
-  setVideoTopic(topicName);
-};
-
-window.startPlanSession = (sequenceIndex) => {
-  const idx = Number.isFinite(Number(sequenceIndex)) ? Number(sequenceIndex) : 0;
-  const topic = planSequence[idx];
-  if (!topic) return;
-  localStorage.setItem("currentPlanId", planData.id);
-  localStorage.setItem("activePlanMeta", JSON.stringify({
-    id: planData.id,
-    subject: planData.subject || "Subject",
-    examDate: planData.examDate || null
-  }));
-  localStorage.setItem("planSequence", JSON.stringify(planSequence));
-  localStorage.setItem("planSequenceIndex", String(idx));
-  localStorage.setItem("currentTopic", JSON.stringify(topic));
-  window.location.href = "session.html";
+window.openVideoTopic = (topicName, sequenceIndex) => {
+  const idx = Number.isFinite(Number(sequenceIndex)) ? Number(sequenceIndex) : findTopicIndex(topicName);
+  setVideoTopic(topicName, idx);
 };
 </script>
 </body>
