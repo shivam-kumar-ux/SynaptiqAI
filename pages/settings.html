@@ -26,8 +26,8 @@ nav{flex:1;padding:16px 0}
 .field{margin-bottom:16px}
 label{display:block;font-size:.7rem;letter-spacing:1.5px;color:var(--dim);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-input[type=text],input[type=email],input[type=tel],select{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--silver);padding:10px 14px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;transition:.2s}
-input[type=text]:focus,input[type=email]:focus,input[type=tel]:focus,select:focus{border-color:var(--neon);box-shadow:0 0 10px rgba(0,245,255,0.15)}
+input[type=text],input[type=email],input[type=tel],input[type=number],select{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--silver);padding:10px 14px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;transition:.2s}
+input[type=text]:focus,input[type=email]:focus,input[type=tel]:focus,input[type=number]:focus,select:focus{border-color:var(--neon);box-shadow:0 0 10px rgba(0,245,255,0.15)}
 select option{background:var(--panel)}
 .readonly-field{opacity:.75;cursor:not-allowed}
 .btn-save-profile{padding:11px 28px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;border:none;border-radius:6px;cursor:pointer;transition:.2s;margin-top:8px}
@@ -48,6 +48,7 @@ select option{background:var(--panel)}
 .toast.show{transform:none;opacity:1}
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.field-row{grid-template-columns:1fr}}
 </style>
+<link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
 </head>
 <body>
 <div class="sidebar">
@@ -81,6 +82,34 @@ select option{background:var(--panel)}
           </select>
         </div>
         <div class="field"><label>INSTITUTION</label><input type="text" id="pf-inst" placeholder="School / College"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>BOARD / UNIVERSITY</label>
+          <select id="pf-board">
+            <option value="">Select...</option>
+            <option>CBSE</option><option>ICSE</option><option>State Board</option><option>University</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field"><label>DAILY HOURS</label><input type="number" id="pf-hours" placeholder="e.g. 4"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>CITY</label><input type="text" id="pf-city" placeholder="Your city"></div>
+        <div class="field"><label>STATE</label><input type="text" id="pf-state" placeholder="Your state"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>EXAM TYPES</label><input type="text" id="pf-exams" placeholder="Comma separated"></div>
+        <div class="field"><label>STUDY DAYS</label><input type="text" id="pf-days" placeholder="e.g. Mon, Tue"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>STRONG SUBJECTS</label><input type="text" id="pf-strong" placeholder="Comma separated"></div>
+        <div class="field"><label>WEAK SUBJECTS</label><input type="text" id="pf-weak" placeholder="Comma separated"></div>
+      </div>
+      <div class="field">
+        <label>STUDY TIME</label>
+        <select id="pf-time">
+          <option value="">Select...</option>
+          <option>Morning</option><option>Afternoon</option><option>Evening</option><option>Late Night</option>
+        </select>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn-edit-profile" id="editProfileBtn" onclick="enableProfileEdit()">EDIT PROFILE</button>
@@ -119,7 +148,7 @@ let profileEditMode = false;
 
 function setProfileEditMode(enabled) {
   profileEditMode = !!enabled;
-  const ids = ["pf-name", "pf-phone", "pf-class", "pf-inst"];
+  const ids = ["pf-name", "pf-phone", "pf-class", "pf-inst", "pf-board", "pf-hours", "pf-city", "pf-state", "pf-exams", "pf-days", "pf-strong", "pf-weak", "pf-time"];
   ids.forEach((id) => {
     const el = document.getElementById(id);
     el.disabled = !profileEditMode;
@@ -130,15 +159,20 @@ function setProfileEditMode(enabled) {
 }
 
 function applyProfileToForm(profile = {}, fallbackEmail = "") {
-  const name = profile?.name || "";
-  const phone = profile?.phone || "";
-  const classGrade = profile?.classGrade || "";
-  const institution = profile?.institution || "";
+  document.getElementById("pf-name").value = profile?.name || "";
+  document.getElementById("pf-phone").value = profile?.phone || "";
+  if (profile?.classGrade) document.getElementById("pf-class").value = profile.classGrade;
+  document.getElementById("pf-inst").value = profile?.institution || "";
+  if (profile?.board) document.getElementById("pf-board").value = profile.board;
+  document.getElementById("pf-city").value = profile?.city || "";
+  document.getElementById("pf-state").value = profile?.state || "";
+  document.getElementById("pf-hours").value = profile?.dailyHours || "";
+  document.getElementById("pf-exams").value = (profile?.examTypes || []).join(", ");
+  document.getElementById("pf-days").value = (profile?.studyDays || []).join(", ");
+  document.getElementById("pf-strong").value = (profile?.strongSubjects || []).join(", ");
+  document.getElementById("pf-weak").value = (profile?.weakSubjects || []).join(", ");
+  if (profile?.studyTime) document.getElementById("pf-time").value = profile.studyTime;
 
-  document.getElementById("pf-name").value = name;
-  document.getElementById("pf-phone").value = phone;
-  if (classGrade) document.getElementById("pf-class").value = classGrade;
-  document.getElementById("pf-inst").value = institution;
   renderProfileSnapshot(profile, fallbackEmail);
   setProfileEditMode(false);
 }
@@ -167,21 +201,28 @@ checkAuthState(async (u) => {
 
 window.saveProfile = async () => {
   if (!profileEditMode) return;
+  const parseList = (str) => str.split(",").map(s => s.trim()).filter(Boolean);
   const updates = {
     name: document.getElementById("pf-name").value.trim(),
     phone: document.getElementById("pf-phone").value.trim(),
     classGrade: document.getElementById("pf-class").value,
-    institution: document.getElementById("pf-inst").value.trim()
+    institution: document.getElementById("pf-inst").value.trim(),
+    board: document.getElementById("pf-board").value,
+    city: document.getElementById("pf-city").value.trim(),
+    state: document.getElementById("pf-state").value.trim(),
+    dailyHours: Number(document.getElementById("pf-hours").value) || 0,
+    examTypes: parseList(document.getElementById("pf-exams").value),
+    studyDays: parseList(document.getElementById("pf-days").value),
+    strongSubjects: parseList(document.getElementById("pf-strong").value),
+    weakSubjects: parseList(document.getElementById("pf-weak").value),
+    studyTime: document.getElementById("pf-time").value
   };
   const r = await updateUserProfile(user.uid, updates);
   if (r.success) {
     const current = {
       uid: user.uid,
       email: user.email,
-      name: updates.name,
-      phone: updates.phone,
-      classGrade: updates.classGrade,
-      institution: updates.institution
+      ...updates
     };
     localStorage.setItem("currentUser", JSON.stringify(current));
     renderProfileSnapshot(current, user.email);
