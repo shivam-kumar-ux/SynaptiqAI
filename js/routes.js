@@ -1,40 +1,55 @@
-// js/routes.js — Centralized Route Registry & Navigation Engine for SYNAPTIQAI
+// js/routes.js — Dynamic Relative Navigation Engine for SYNAPTIQAI
 
-export const ROUTES = {
-  home: "/index.html",
-  login: "/pages/login.html",
-  signup: "/pages/signup.html",
-  dashboard: "/pages/dashboard.html",
-  planNew: "/pages/plan-new.html",
-  planView: "/pages/plan-view.html",
-  assessment: "/pages/assessment.html",
-  quiz: "/pages/quiz.html",
-  session: "/pages/session.html",
-  progress: "/pages/progress.html",
-  report: "/pages/report.html",
-  settings: "/pages/settings.html",
-  profile: "/pages/profile.html",
-  aiProvider: "/pages/ai-provider.html",
-  setupGuide: "/setup-guide.html"
+const PAGE_FILES = {
+  home: "index.html",
+  login: "pages/login.html",
+  signup: "pages/signup.html",
+  dashboard: "pages/dashboard.html",
+  planNew: "pages/plan-new.html",
+  planView: "pages/plan-view.html",
+  assessment: "pages/assessment.html",
+  quiz: "pages/quiz.html",
+  session: "pages/session.html",
+  progress: "pages/progress.html",
+  report: "pages/report.html",
+  settings: "pages/settings.html",
+  profile: "pages/profile.html",
+  aiProvider: "pages/ai-provider.html",
+  setupGuide: "setup-guide.html"
 };
 
 /**
- * Resolves path correctly whether page is in root or /pages/ subdirectory
+ * Returns the exact relative path for any target page based on current page location
  */
-export function getRelativeRoute(routeName) {
-  const target = ROUTES[routeName] || ROUTES.dashboard;
-  const isSubdir = window.location.pathname.includes("/pages/");
-  if (isSubdir) {
-    return target.replace("/pages/", "");
+export function getRoute(routeName) {
+  const fullTarget = PAGE_FILES[routeName] || PAGE_FILES.dashboard;
+  const isSubDir = window.location.pathname.includes("/pages/");
+
+  if (isSubDir) {
+    if (fullTarget.startsWith("pages/")) {
+      return fullTarget.replace("pages/", ""); // e.g. "plan-new.html"
+    } else {
+      return "../" + fullTarget; // e.g. "../index.html"
+    }
+  } else {
+    return fullTarget; // e.g. "pages/dashboard.html" or "index.html"
   }
-  return target.startsWith("/") ? target.slice(1) : target;
 }
 
 /**
- * Perform safe application navigation without 404s
+ * Global ROUTES object populated dynamically
+ */
+export const ROUTES = new Proxy({}, {
+  get(target, prop) {
+    return getRoute(prop);
+  }
+});
+
+/**
+ * Perform safe relative navigation without 404s
  */
 export function navigateTo(routeName, params = {}) {
-  let path = ROUTES[routeName] || ROUTES.dashboard;
+  let path = getRoute(routeName);
   const queryString = new URLSearchParams(params).toString();
   if (queryString) {
     path += "?" + queryString;
@@ -49,5 +64,5 @@ export function logoutUser() {
   localStorage.removeItem("synaptiq_active_user");
   localStorage.removeItem("synaptiq_active_timer_session");
   sessionStorage.clear();
-  window.location.href = ROUTES.login;
+  window.location.href = getRoute("login");
 }

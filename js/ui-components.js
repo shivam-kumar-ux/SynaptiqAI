@@ -1,7 +1,7 @@
 // js/ui-components.js — Shared App Shell, Header, Mobile Nav, and Toasts for SYNAPTIQAI
 
 import { globalCommandPalette } from "./command-palette.js";
-import { ROUTES, navigateTo, logoutUser } from "./routes.js";
+import { ROUTES, navigateTo, logoutUser, getRoute } from "./routes.js";
 
 export function renderAppShell(activePage = "dashboard", breadcrumbTitle = "Dashboard") {
   const sidebarNavItems = [
@@ -22,12 +22,12 @@ export function renderAppShell(activePage = "dashboard", breadcrumbTitle = "Dash
   if (sidebarEl) {
     sidebarEl.innerHTML = `
       <div class="sidebar-brand" style="cursor:pointer" id="brandLogoHome">
-        <img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ Logo" onerror="this.src='/img/synaptiq_logo_removebg.png'">
+        <img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ Logo" onerror="this.src='img/synaptiq_logo_removebg.png'">
         <span>SYNAPTIQ</span>
       </div>
       <nav class="sidebar-nav">
         ${sidebarNavItems.map(item => `
-          <a href="${ROUTES[item.route]}" class="nav-link ${item.id === activePage ? 'active' : ''}">
+          <a href="${getRoute(item.route)}" class="nav-link ${item.id === activePage ? 'active' : ''}">
             <span style="font-size:1.1rem">${item.icon}</span>
             <span>${item.label}</span>
           </a>
@@ -63,9 +63,9 @@ export function renderAppShell(activePage = "dashboard", breadcrumbTitle = "Dash
           <span class="kbd-badge">Ctrl K</span>
         </button>
 
-        <a href="${ROUTES.aiProvider}" class="btn btn-ghost btn-sm" title="AI Provider Setup">🤖</a>
-        <a href="${ROUTES.profile}" class="btn btn-ghost btn-sm" title="Profile">👤</a>
-        <a href="${ROUTES.settings}" class="btn btn-ghost btn-sm" title="Settings">⚙️</a>
+        <a href="${getRoute('aiProvider')}" class="btn btn-ghost btn-sm" title="AI Provider Setup">🤖</a>
+        <a href="${getRoute('profile')}" class="btn btn-ghost btn-sm" title="Profile">👤</a>
+        <a href="${getRoute('settings')}" class="btn btn-ghost btn-sm" title="Settings">⚙️</a>
       </div>
     `;
 
@@ -83,23 +83,23 @@ export function renderAppShell(activePage = "dashboard", breadcrumbTitle = "Dash
   }
 
   mobileNav.innerHTML = `
-    <a href="${ROUTES.dashboard}" class="mobile-nav-item ${activePage === 'dashboard' ? 'active' : ''}">
+    <a href="${getRoute('dashboard')}" class="mobile-nav-item ${activePage === 'dashboard' ? 'active' : ''}">
       <span style="font-size:1.2rem">📊</span>
       <span>Home</span>
     </a>
-    <a href="${ROUTES.session}" class="mobile-nav-item ${activePage === 'session' ? 'active' : ''}">
+    <a href="${getRoute('session')}" class="mobile-nav-item ${activePage === 'session' ? 'active' : ''}">
       <span style="font-size:1.2rem">🧠</span>
       <span>Learn</span>
     </a>
-    <a href="${ROUTES.planNew}" class="mobile-nav-item ${activePage === 'plan-new' ? 'active' : ''}">
+    <a href="${getRoute('planNew')}" class="mobile-nav-item ${activePage === 'plan-new' ? 'active' : ''}">
       <span style="font-size:1.2rem">➕</span>
       <span>Plan</span>
     </a>
-    <a href="${ROUTES.progress}" class="mobile-nav-item ${activePage === 'progress' ? 'active' : ''}">
+    <a href="${getRoute('progress')}" class="mobile-nav-item ${activePage === 'progress' ? 'active' : ''}">
       <span style="font-size:1.2rem">📈</span>
       <span>Progress</span>
     </a>
-    <a href="${ROUTES.profile}" class="mobile-nav-item ${activePage === 'profile' ? 'active' : ''}">
+    <a href="${getRoute('profile')}" class="mobile-nav-item ${activePage === 'profile' ? 'active' : ''}">
       <span style="font-size:1.2rem">👤</span>
       <span>Profile</span>
     </a>

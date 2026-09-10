@@ -1,6 +1,7 @@
 // js/command-palette.js — Global Command Palette (Ctrl + K) for SYNAPTIQAI
 
 import { dbGetAll } from "./db.js";
+import { navigateTo, getRoute } from "./routes.js";
 
 export class CommandPalette {
   constructor() {
@@ -84,7 +85,7 @@ export class CommandPalette {
       }
 
       .cmd-badge {
-        background: var(--bg-elevated, #182235);
+        background: var(--bg-secondary, #182235);
         border: 1px solid var(--border, #1E293B);
         padding: 2px 8px;
         border-radius: 4px;
@@ -118,7 +119,7 @@ export class CommandPalette {
       }
 
       .cmd-item:hover, .cmd-item.selected {
-        background: var(--bg-elevated, #182235);
+        background: var(--bg-secondary, #182235);
       }
 
       .cmd-item-left {
@@ -188,11 +189,11 @@ export class CommandPalette {
 
   async loadItems() {
     const defaultActions = [
-      { icon: "🎯", title: "Start Focus Session", subtitle: "Launch Pomodoro learning timer", action: () => window.location.href = "/pages/session.html" },
-      { icon: "🧠", title: "Open Knowledge Map", subtitle: "View topic mastery & forgetting risk", action: () => window.location.href = "/pages/progress.html" },
-      { icon: "🧪", title: "Take Diagnostic Quiz", subtitle: "Test current strengths and weaknesses", action: () => window.location.href = "/pages/quiz.html" },
-      { icon: "⚠", title: "Review Mistake Bank", subtitle: "Fix conceptual and application errors", action: () => window.location.href = "/pages/progress.html#mistakes" },
-      { icon: "⚙️", title: "AI Provider Settings", subtitle: "Configure Gemini, Groq, OpenRouter keys", action: () => window.location.href = "/pages/settings.html" }
+      { icon: "🎯", title: "Start Focus Session", subtitle: "Launch Pomodoro learning timer", action: () => navigateTo("session") },
+      { icon: "🧠", title: "Open Knowledge Map", subtitle: "View topic mastery & forgetting risk", action: () => navigateTo("progress") },
+      { icon: "🧪", title: "Take Diagnostic Quiz", subtitle: "Test current strengths and weaknesses", action: () => navigateTo("quiz") },
+      { icon: "⚠", title: "Review Mistake Bank", subtitle: "Fix conceptual and application errors", action: () => navigateTo("progress") },
+      { icon: "⚙️", title: "AI Provider Settings", subtitle: "Configure Gemini, Groq, OpenRouter keys", action: () => navigateTo("settings") }
     ];
 
     try {
@@ -201,7 +202,7 @@ export class CommandPalette {
         icon: "📖",
         title: p.subject || p.plan_name || "Study Plan",
         subtitle: `Created: ${p.createdAt ? p.createdAt.split('T')[0] : 'Recent'}`,
-        action: () => window.location.href = `/pages/plan-view.html?id=${p.id}`
+        action: () => navigateTo("planView", { id: p.id })
       }));
       this.items = [...defaultActions, ...planItems];
     } catch {
@@ -247,7 +248,6 @@ export class CommandPalette {
 
     container.innerHTML = html;
 
-    // Click handler for result items
     container.querySelectorAll(".cmd-item").forEach((el, idx) => {
       el.addEventListener("click", () => {
         this.close();

@@ -1,2 +1,18 @@
 {
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/dashboard", "destination": "/pages/dashboard.html" },
+    { "source": "/plan-new", "destination": "/pages/plan-new.html" },
+    { "source": "/plan-view", "destination": "/pages/plan-view.html" },
+    { "source": "/session", "destination": "/pages/session.html" },
+    { "source": "/quiz", "destination": "/pages/quiz.html" },
+    { "source": "/assessment", "destination": "/pages/assessment.html" },
+    { "source": "/progress", "destination": "/pages/progress.html" },
+    { "source": "/report", "destination": "/pages/report.html" },
+    { "source": "/settings", "destination": "/pages/settings.html" },
+    { "source": "/profile", "destination": "/pages/profile.html" },
+    { "source": "/ai-provider", "destination": "/pages/ai-provider.html" },
+    { "source": "/login", "destination": "/pages/login.html" },
+    { "source": "/signup", "destination": "/pages/signup.html" }
+  ]
 }
