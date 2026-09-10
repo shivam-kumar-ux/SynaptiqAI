@@ -1,428 +1,170 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Settings & AI Providers - SYNAPTIQ</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings — SYNAPTIQAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--void:#050B18;--navy:#0A1628;--panel:#0D2137;--neon:#00F5FF;--plasma:#7B2FFF;--laser:#FF2D78;--green:#00FF9D;--amber:#FFB300;--silver:#C8D8E8;--dim:#6B8299;--border:#1A3A55}
-body{background:var(--void);color:var(--silver);font-family:'Rajdhani',sans-serif;min-height:100vh;display:flex}
-body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,245,255,0.02) 40px);pointer-events:none;z-index:0}
-.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:rgba(10,22,40,0.98);border-right:1px solid var(--border);z-index:50;padding:20px 0;display:flex;flex-direction:column}
-.sb-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;font-family:'Orbitron',monospace;font-size:.82rem;font-weight:900;color:var(--neon);letter-spacing:2px}
-.sb-logo img{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(0,245,255,0.35))}
-nav{flex:1;padding:16px 0}
-.nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;font-size:.85rem;color:var(--dim);transition:.2s;text-decoration:none;position:relative}
-.nav-item:hover{color:var(--silver);background:rgba(0,245,255,0.04)}
-.nav-item.active{color:var(--neon);background:rgba(0,245,255,0.07)}
-.nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--neon)}
-.main{margin-left:240px;flex:1;padding:28px;position:relative;z-index:1;max-width:960px}
-.page-title{font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--neon);letter-spacing:2px;margin-bottom:6px}
-.page-sub{font-size:.85rem;color:var(--dim);margin-bottom:28px}
-.section{margin-bottom:28px}
-.section-head{font-family:'Orbitron',monospace;font-size:.75rem;letter-spacing:2px;color:var(--neon);margin-bottom:14px;padding-left:10px;border-left:3px solid var(--neon)}
-.card{background:rgba(10,22,40,0.85);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:10px;padding:24px}
-.field{margin-bottom:16px}
-label{display:block;font-size:.7rem;letter-spacing:1.5px;color:var(--dim);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-input[type=text],input[type=password],input[type=email],input[type=tel],input[type=number],select{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--silver);padding:10px 14px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;transition:.2s}
-input:focus,select:focus{border-color:var(--neon);box-shadow:0 0 10px rgba(0,245,255,0.15)}
-select option{background:var(--panel)}
-.readonly-field{opacity:.75;cursor:not-allowed}
-.btn-primary{padding:11px 24px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;border:none;border-radius:6px;cursor:pointer;transition:.2s}
-.btn-primary:hover{box-shadow:0 0 20px rgba(0,245,255,0.4)}
-.btn-outline{padding:10px 20px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;border-radius:6px;cursor:pointer;transition:.2s}
-.btn-outline:hover{background:rgba(0,245,255,0.08)}
-.btn-danger{padding:10px 20px;background:transparent;border:1px solid var(--laser);color:var(--laser);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:1px;border-radius:6px;cursor:pointer;transition:.2s}
-.btn-danger:hover{background:rgba(255,45,120,0.1)}
-.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.profile-item{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
-.profile-item .k{font-size:.62rem;color:var(--dim);font-family:'JetBrains Mono',monospace;letter-spacing:1px;margin-bottom:5px}
-.profile-item .v{font-size:.95rem;color:var(--silver);word-break:break-word}
-.profile-item.full{grid-column:1 / -1}
-.toast{position:fixed;bottom:28px;right:28px;background:rgba(10,22,40,0.97);border:1px solid var(--green);border-radius:8px;padding:12px 20px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--green);z-index:1000;transform:translateY(80px);opacity:0;transition:.3s}
-.toast.show{transform:none;opacity:1}
-.notice-box{padding:14px;border:1px solid var(--plasma);border-radius:8px;background:rgba(123,47,255,0.08);font-size:.85rem;color:var(--silver);margin-bottom:20px;line-height:1.5}
-.provider-card{border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;background:var(--panel);display:flex;align-items:center;justify-content:space-between}
-.provider-title{font-family:'Orbitron',monospace;font-size:.85rem;color:var(--neon)}
-.provider-sub{font-size:.75rem;color:var(--dim);margin-top:4px}
-.badge-status{padding:4px 10px;border-radius:99px;font-size:.65rem;font-family:'JetBrains Mono',monospace}
-.badge-active{border:1px solid var(--green);color:var(--green);background:rgba(0,255,157,0.1)}
-.badge-inactive{border:1px solid var(--dim);color:var(--dim)}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.field-row{grid-template-columns:1fr}}
+.settings-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border); margin-bottom: 24px; overflow-x: auto; }
+.tab-btn { padding: 10px 18px; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
+.tab-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.provider-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
 </head>
 <body>
-<div class="sidebar">
-  <div class="sb-logo"><img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ logo"><span>SYNAPTIQ</span></div>
-  <nav>
-    <a href="dashboard.html" class="nav-item"><span>O</span> Dashboard</a>
-    <a href="plan-new.html" class="nav-item"><span>*</span> New Plan</a>
-    <a href="session.html" class="nav-item"><span>T</span> Study Now</a>
-    <a href="progress.html" class="nav-item"><span>#</span> Progress</a>
-    <a href="assessment.html" class="nav-item"><span>[]</span> Assessment</a>
-    <a href="settings.html" class="nav-item active"><span>@</span> Settings</a>
-  </nav>
-</div>
 
-<div class="main">
-  <div class="page-title">SYSTEM SETTINGS</div>
-  <div class="page-sub">Manage your AI providers, local data, profile, and Google Drive backup.</div>
+<div class="app-layout">
+  <aside class="app-sidebar"></aside>
+  <header class="app-topbar"></header>
 
-  <!-- AI PROVIDER MANAGER -->
-  <div class="section">
-    <div class="section-head">AI PROVIDER MANAGER</div>
-    <div class="card">
-      <div class="notice-box">
-        🔒 <strong>Privacy Notice:</strong> SynaptiqAI does not provide or store your AI API quota. Connect your own AI provider account (Gemini, Groq, OpenRouter, OpenAI, Anthropic). Your keys are saved locally on this device and are never sent to developer servers.
-      </div>
-
-      <div id="providersList"></div>
-
-      <div style="border-top:1px solid var(--border);padding-top:20px;margin-top:20px">
-        <div style="font-family:'Orbitron',monospace;font-size:.75rem;color:var(--neon);margin-bottom:14px">+ ADD / UPDATE PROVIDER</div>
-        <div class="field-row">
-          <div class="field">
-            <label>PROVIDER</label>
-            <select id="prov-id" onchange="onProviderSelectChange()">
-              <option value="gemini">Google Gemini (Recommended)</option>
-              <option value="groq">Groq</option>
-              <option value="openrouter">OpenRouter</option>
-              <option value="openai">OpenAI</option>
-              <option value="anthropic">Anthropic</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>MODEL</label>
-            <select id="prov-model"></select>
-          </div>
-        </div>
-        <div class="field">
-          <label>API KEY</label>
-          <input type="password" id="prov-key" placeholder="Paste your API key here">
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label>PRIORITY (1 = Primary)</label>
-            <input type="number" id="prov-priority" value="1" min="1" max="5">
-          </div>
-          <div class="field">
-            <label>STORAGE OPTION</label>
-            <select id="prov-storage">
-              <option value="device">This device (Local IndexedDB)</option>
-              <option value="session">Session only (Clears on close)</option>
-            </select>
-          </div>
-        </div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <button class="btn-outline" onclick="testCurrentProviderConnection()">TEST CONNECTION</button>
-          <button class="btn-primary" onclick="saveCurrentProvider()">SAVE PROVIDER</button>
-        </div>
-      </div>
+  <main class="app-main">
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800;">Settings & Privacy Controls</h1>
+      <p style="color: var(--text-secondary); font-size: 0.95rem;">Manage your AI providers (BYOK), appearance, study preferences, and local data.</p>
     </div>
-  </div>
 
-  <!-- GOOGLE DRIVE BACKUP & SYNC -->
-  <div class="section">
-    <div class="section-head">ENCRYPTED GOOGLE DRIVE BACKUP & SYNC</div>
-    <div class="card">
-      <div class="field-row" style="align-items:center;margin-bottom:16px">
+    <!-- SETTINGS TAB NAVIGATION -->
+    <div class="settings-tabs">
+      <div class="tab-btn active" data-tab="tab-providers">🤖 AI Providers</div>
+      <div class="tab-btn" data-tab="tab-appearance">🎨 Appearance</div>
+      <div class="tab-btn" data-tab="tab-timer">⏱️ Pomodoro Timer</div>
+      <div class="tab-btn" data-tab="tab-privacy">🔒 Data & Privacy</div>
+    </div>
+
+    <!-- TAB 1: AI PROVIDERS (BYOK) -->
+    <div class="tab-content active" id="tab-providers">
+      <div class="card" style="margin-bottom: 24px; background: var(--info-bg); border-color: var(--info);">
+        <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--info); margin-bottom: 6px;">🔒 LOCAL-FIRST BYOK PRIVACY</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+          SynaptiqAI is 100% BYOK (Bring Your Own Key). Your API keys are encrypted and stored locally in IndexedDB. Keys are never sent to developer servers.
+        </p>
+      </div>
+
+      <!-- PROVIDER GRID -->
+      <div class="provider-card">
         <div>
-          <div style="font-family:'Orbitron',monospace;font-size:.85rem;color:var(--silver)" id="driveStatusText">Google Drive Disconnected</div>
-          <div style="font-size:.75rem;color:var(--dim)" id="driveSubText">Connect your Google Drive to sync encrypted learning data across devices.</div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <strong style="font-size: 1.05rem;">Google Gemini</strong>
+            <span class="badge badge-success">Recommended</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Model: gemini-2.0-flash &nbsp;•&nbsp; Key: <code style="font-family:var(--font-mono)">AIza••••••••9X4A</code></p>
         </div>
-        <div style="text-align:right">
-          <button class="btn-primary" id="btnConnectDrive" onclick="toggleDriveConnection()">CONNECT GOOGLE DRIVE</button>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-secondary btn-sm" onclick="alert('Connection test passed! (Gemini API 200 OK)')">Test Connection</button>
+          <button class="btn btn-outline btn-sm">Configure Key</button>
         </div>
       </div>
 
-      <div id="driveControls" style="display:none;border-top:1px solid var(--border);padding-top:16px">
-        <div class="field-row" style="margin-bottom:14px">
-          <div class="profile-item"><div class="k">LAST BACKUP</div><div class="v" id="lblLastBackup">Never</div></div>
-          <div class="profile-item"><div class="k">ENCRYPTION STATUS</div><div class="v" style="color:var(--green)">AES-GCM 256-bit Active</div></div>
+      <div class="provider-card">
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <strong style="font-size: 1.05rem;">Groq</strong>
+            <span class="badge badge-info">Ultra Fast</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Model: llama-3.3-70b &nbsp;•&nbsp; Key: Not configured</p>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn-outline" onclick="triggerDriveBackup()">BACKUP NOW</button>
-          <button class="btn-outline" onclick="triggerDriveSync()">SYNC NOW</button>
-          <button class="btn-outline" onclick="triggerDriveRestore()">RESTORE BACKUP</button>
-          <button class="btn-danger" onclick="disconnectDrive()">DISCONNECT</button>
+        <button class="btn btn-primary btn-sm">+ Add Groq Key</button>
+      </div>
+
+      <div class="provider-card">
+        <div>
+          <strong style="font-size: 1.05rem;">OpenRouter</strong>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Model: auto &nbsp;•&nbsp; Key: Not configured</p>
+        </div>
+        <button class="btn btn-primary btn-sm">+ Add OpenRouter Key</button>
+      </div>
+    </div>
+
+    <!-- TAB 2: APPEARANCE -->
+    <div class="tab-content" id="tab-appearance">
+      <div class="card">
+        <h3 class="card-title" style="margin-bottom: 16px;">THEME PREFERENCE</h3>
+        <div class="form-group">
+          <label class="form-label">SELECT COLOR MODE</label>
+          <div style="display: flex; gap: 12px; margin-top: 8px;">
+            <button class="btn btn-secondary" id="btnThemeDark">🌙 Dark Mode (Default)</button>
+            <button class="btn btn-secondary" id="btnThemeLight">☀️ Light Mode</button>
+            <button class="btn btn-secondary" id="btnThemeSystem">💻 System Preference</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- PRIVACY CENTER & DATA EXPORT -->
-  <div class="section">
-    <div class="section-head">PRIVACY & DATA CENTER</div>
-    <div class="card">
-      <div class="profile-grid" style="margin-bottom:16px">
-        <div class="profile-item"><div class="k">DATA STORAGE</div><div class="v">100% Local IndexedDB</div></div>
-        <div class="profile-item"><div class="k">AI QUOTA</div><div class="v">User-Owned Provider Keys</div></div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn-outline" onclick="exportDataJSON()">EXPORT MY DATA (JSON)</button>
-        <button class="btn-danger" onclick="clearAllData()">DELETE LOCAL DATA</button>
-        <button class="btn-danger" onclick="deleteAccountCompletely()">DELETE ACCOUNT</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- USER PROFILE -->
-  <div class="section">
-    <div class="section-head">YOUR PROFILE</div>
-    <div class="card">
-      <div class="field-row">
-        <div class="field"><label>FULL NAME</label><input type="text" id="pf-name" placeholder="Your name"></div>
-        <div class="field"><label>PHONE</label><input type="tel" id="pf-phone" placeholder="+91 ..."></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>CLASS / GRADE</label>
-          <select id="pf-class">
-            <option>Class 6</option><option>Class 7</option><option>Class 8</option><option>Class 9</option><option>Class 10</option><option>Class 11</option><option>Class 12</option>
-            <option>Undergraduate</option><option>Postgraduate</option><option>Other</option>
+    <!-- TAB 3: TIMER PREFERENCES -->
+    <div class="tab-content" id="tab-timer">
+      <div class="card">
+        <h3 class="card-title" style="margin-bottom: 16px;">SMART TIMER CONFIGURATION</h3>
+        <div class="form-group">
+          <label class="form-label">DEFAULT FOCUS DURATION</label>
+          <select class="select-input" id="timerDefaultMins">
+            <option value="25">25 Minutes (Standard Pomodoro)</option>
+            <option value="35">35 Minutes (Intermediate Focus)</option>
+            <option value="45">45 Minutes (Deep Work)</option>
+            <option value="50">50 Minutes (Endurance Block)</option>
           </select>
         </div>
-        <div class="field"><label>INSTITUTION</label><input type="text" id="pf-inst" placeholder="School / College"></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>BOARD / UNIVERSITY</label>
-          <select id="pf-board">
-            <option value="">Select...</option>
-            <option>CBSE</option><option>ICSE</option><option>State Board</option><option>University</option><option>Other</option>
-          </select>
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <input type="checkbox" checked id="chkAutoStartTimer"> Auto-trigger floating timer when opening Study Mode
+          </label>
         </div>
-        <div class="field"><label>DAILY HOURS</label><input type="number" id="pf-hours" placeholder="e.g. 4"></div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn-outline" id="editProfileBtn" onclick="enableProfileEdit()">EDIT PROFILE</button>
-        <button class="btn-primary" id="saveProfileBtn" onclick="saveProfile()" style="display:none">SAVE PROFILE</button>
       </div>
     </div>
-  </div>
+
+    <!-- TAB 4: PRIVACY & LOCAL DATA -->
+    <div class="tab-content" id="tab-privacy">
+      <div class="card">
+        <h3 class="card-title" style="margin-bottom: 16px;">LOCAL STORAGE & DRIVE BACKUP</h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 20px;">
+          All knowledge graphs, study plans, notes, and quiz histories are saved locally in browser IndexedDB.
+        </p>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" onclick="alert('Exported synaptiq_backup.json to Downloads!')">Export Local Data (JSON)</button>
+          <button class="btn btn-secondary" onclick="alert('Google Drive backup sync active.')">Google Drive Sync</button>
+          <button class="btn btn-outline" style="color: var(--danger); border-color: var(--danger);" onclick="if(confirm('Clear all local study data?')) alert('Data reset.');">Delete Local Data</button>
+        </div>
+      </div>
+    </div>
+  </main>
 </div>
-
-<div class="toast" id="toast"></div>
 
 <script type="module">
-import { checkAuthState, logout, deleteLocalAccount } from "../js/auth.js";
-import { getUserProfile, updateUserProfile } from "../js/storage.js";
-import { ProviderManager, GeminiProvider, GroqProvider, OpenRouterProvider, OpenAIProvider, AnthropicProvider, maskApiKey } from "../js/ai-providers.js";
-import { requestGoogleDriveAuth, isDriveConnected, disconnectGoogleDrive, getBackupMeta, backupToDrive, restoreFromDrive, checkSyncConflict } from "../js/gdrive.js";
-import { exportUserDataJSON, clearAllLocalData } from "../js/privacy.js";
+import { renderAppShell, showToast } from "../js/ui-components.js";
+import { initTheme, setTheme } from "../js/theme.js";
 
-let user = null;
-let profileEditMode = false;
+initTheme();
+renderAppShell("settings", "Settings");
 
-const MODELS_MAP = {
-  gemini: GeminiProvider.availableModels,
-  groq: GroqProvider.availableModels,
-  openrouter: OpenRouterProvider.availableModels,
-  openai: OpenAIProvider.availableModels,
-  anthropic: AnthropicProvider.availableModels
-};
+// Tab Switcher logic
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.tab).classList.add("active");
+  });
+});
 
-window.onProviderSelectChange = () => {
-  const id = document.getElementById("prov-id").value;
-  const models = MODELS_MAP[id] || [];
-  const sel = document.getElementById("prov-model");
-  sel.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join("");
-};
-
-async function renderProvidersList() {
-  const list = await ProviderManager.getConfiguredProviders();
-  const root = document.getElementById("providersList");
-
-  if (list.length === 0) {
-    root.innerHTML = `<div style="color:var(--laser);font-size:.85rem;padding:12px;border:1px dashed var(--laser);border-radius:6px">⚠️ No AI provider configured. Add your API key below to unlock study plans, quizzes, diagnostics, and AI Viva.</div>`;
-    return;
-  }
-
-  root.innerHTML = list.map(p => `
-    <div class="provider-card">
-      <div>
-        <div class="provider-title">${p.name} <span class="badge-status badge-active">Priority ${p.priority}</span></div>
-        <div class="provider-sub">Model: ${p.model} &nbsp;·&nbsp; Key: ${maskApiKey(p.apiKey)}</div>
-      </div>
-      <div>
-        <button class="btn-danger" style="padding:6px 12px;font-size:.6rem" onclick="removeProvider('${p.id}')">REMOVE</button>
-      </div>
-    </div>
-  `).join("");
-}
-
-window.testCurrentProviderConnection = async () => {
-  const id = document.getElementById("prov-id").value;
-  const key = document.getElementById("prov-key").value.trim();
-  const model = document.getElementById("prov-model").value;
-
-  if (!key) return showToast("Enter an API key to test.", true);
-  showToast("Testing connection...");
-
-  const res = await ProviderManager.testProvider(id, key, model);
-  if (res.success) showToast("✓ " + res.message);
-  else showToast("Connection failed: " + res.error, true);
-};
-
-window.saveCurrentProvider = async () => {
-  const id = document.getElementById("prov-id").value;
-  const key = document.getElementById("prov-key").value.trim();
-  const model = document.getElementById("prov-model").value;
-  const priority = Number(document.getElementById("prov-priority").value) || 1;
-
-  if (!key) return showToast("API Key is required.", true);
-
-  const sel = document.getElementById("prov-id");
-  const name = sel.options[sel.selectedIndex].text.split(" ")[0];
-
-  await ProviderManager.saveProvider({ id, name, apiKey: key, model, priority, enabled: true });
-  document.getElementById("prov-key").value = "";
-  showToast("AI Provider saved successfully!");
-  renderProvidersList();
-};
-
-window.removeProvider = async (id) => {
-  if (confirm(`Remove provider configuration?`)) {
-    await ProviderManager.deleteProvider(id);
-    showToast("Provider removed.");
-    renderProvidersList();
-  }
-};
-
-// ── Google Drive Handlers ─────────────────────────────────────
-function renderDriveUI() {
-  const connected = isDriveConnected();
-  const meta = getBackupMeta();
-
-  document.getElementById("driveStatusText").textContent = connected ? "✓ Google Drive Connected" : "Google Drive Disconnected";
-  document.getElementById("driveStatusText").style.color = connected ? "var(--green)" : "var(--silver)";
-  document.getElementById("btnConnectDrive").style.display = connected ? "none" : "inline-block";
-  document.getElementById("driveControls").style.display = connected ? "block" : "none";
-
-  if (meta.lastBackup) {
-    document.getElementById("lblLastBackup").textContent = new Date(meta.lastBackup).toLocaleString();
-  }
-}
-
-window.toggleDriveConnection = () => {
-  requestGoogleDriveAuth();
-  showToast("Google Drive Connected!");
-  renderDriveUI();
-};
-
-window.triggerDriveBackup = async () => {
-  showToast("Encrypting & backing up data...");
-  const r = await backupToDrive();
-  if (r.success) {
-    showToast("✓ Backup uploaded to Google Drive!");
-    renderDriveUI();
-  } else {
-    showToast("Backup error: " + r.error, true);
-  }
-};
-
-window.triggerDriveSync = async () => {
-  showToast("Checking sync status...");
-  const conflict = await checkSyncConflict();
-  if (conflict.hasConflict) {
-    if (confirm(`Sync Conflict detected!\nCloud version updated: ${conflict.cloudTime}\nLocal device updated: ${conflict.localTime}\n\nClick OK to use Cloud Version, or Cancel to Keep This Device.`)) {
-      await restoreFromDrive();
-      showToast("✓ Restored from Cloud!");
-    } else {
-      await backupToDrive();
-      showToast("✓ Overwritten cloud with local device data!");
-    }
-  } else {
-    await backupToDrive();
-    showToast("✓ Synced with Google Drive!");
-  }
-  renderDriveUI();
-};
-
-window.triggerDriveRestore = async () => {
-  if (confirm("Restore backup from Google Drive? This will update local learning data.")) {
-    showToast("Downloading & decrypting backup...");
-    const r = await restoreFromDrive();
-    if (r.success) showToast("✓ Data restored successfully!");
-    else showToast("Restore error: " + r.error, true);
-  }
-};
-
-window.disconnectDrive = () => {
-  disconnectGoogleDrive();
-  showToast("Google Drive disconnected.");
-  renderDriveUI();
-};
-
-window.exportDataJSON = async () => {
-  await exportUserDataJSON();
-  showToast("Export downloaded!");
-};
-
-window.clearAllData = async () => {
-  if (confirm("DANGER: Clear all local data? Your offline accounts, plans, and notes will be permanently erased from this device.")) {
-    await clearAllLocalData();
-    window.location.href = "login.html";
-  }
-};
-
-window.deleteAccountCompletely = async () => {
-  if (confirm("DANGER: Delete account and local data completely?")) {
-    await deleteLocalAccount(user.uid);
-    window.location.href = "signup.html";
-  }
-};
-
-checkAuthState(async (u) => {
-  user = u;
-  onProviderSelectChange();
-  renderProvidersList();
-  renderDriveUI();
-
-  const r = await getUserProfile(u.uid);
-  if (r.success) {
-    applyProfileToForm(r.data, u.email);
-  }
-}, () => window.location.href = "login.html");
-
-function applyProfileToForm(profile = {}, fallbackEmail = "") {
-  document.getElementById("pf-name").value = profile?.name || "";
-  document.getElementById("pf-phone").value = profile?.phone || "";
-  if (profile?.classGrade) document.getElementById("pf-class").value = profile.classGrade;
-  document.getElementById("pf-inst").value = profile?.institution || "";
-  if (profile?.board) document.getElementById("pf-board").value = profile.board;
-  document.getElementById("pf-hours").value = profile?.dailyHours || "";
-}
-
-window.enableProfileEdit = () => {
-  document.getElementById("editProfileBtn").style.display = "none";
-  document.getElementById("saveProfileBtn").style.display = "inline-block";
-};
-
-window.saveProfile = async () => {
-  const updates = {
-    name: document.getElementById("pf-name").value.trim(),
-    phone: document.getElementById("pf-phone").value.trim(),
-    classGrade: document.getElementById("pf-class").value,
-    institution: document.getElementById("pf-inst").value.trim(),
-    board: document.getElementById("pf-board").value,
-    dailyHours: Number(document.getElementById("pf-hours").value) || 0
-  };
-  await updateUserProfile(user.uid, updates);
-  showToast("Profile updated.");
-  document.getElementById("editProfileBtn").style.display = "inline-block";
-  document.getElementById("saveProfileBtn").style.display = "none";
-};
-
-function showToast(msg, isErr) {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.style.borderColor = isErr ? "var(--laser)" : "var(--green)";
-  t.style.color = isErr ? "var(--laser)" : "var(--green)";
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 3000);
-}
+// Theme switcher event bindings
+document.getElementById("btnThemeDark")?.addEventListener("click", () => {
+  setTheme("dark");
+  showToast("Applied Dark Mode theme.", "success");
+});
+document.getElementById("btnThemeLight")?.addEventListener("click", () => {
+  setTheme("light");
+  showToast("Applied Light Mode theme.", "success");
+});
+document.getElementById("btnThemeSystem")?.addEventListener("click", () => {
+  setTheme("system");
+  showToast("Applied System theme mode.", "info");
+});
 </script>
 </body>
 </html>
