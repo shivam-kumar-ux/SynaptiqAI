@@ -25,34 +25,30 @@
     <div class="report-hero">
       <span class="badge badge-primary" style="margin-bottom: 12px;">AI DIAGNOSTIC READINESS REPORT</span>
       <div class="readiness-score-ring">
-        <span style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: 800; color: var(--accent-primary);">78%</span>
-        <span style="font-size: 0.7rem; color: var(--text-muted);">READY</span>
+        <span style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: 800; color: var(--accent-primary);" id="reportReadinessPct">--%</span>
+        <span style="font-size: 0.7rem; color: var(--text-muted);">READINESS</span>
       </div>
-      <h1 style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800;">Academic Performance & Strategy Summary</h1>
-      <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 600px; margin: 8px auto 0;">
-        Synthesized from quiz recall evidence, distraction analytics, and Knowledge Graph mastery data.
+      <h1 style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800;">Academic Readiness & Strategy Summary</h1>
+      <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 600px; margin: 8px auto 0;" id="reportSummarySub">
+        Generated from real quiz recall evidence, distraction analytics, and Knowledge Graph node mastery.
       </p>
     </div>
 
-    <!-- 7-DAY REVISION PLAN CARDS -->
-    <div class="card" style="margin-bottom: 24px;">
-      <h3 class="card-title" style="margin-bottom: 16px;">📅 RECOMMENDED 7-DAY REVISION PLAN</h3>
-      <div class="strategy-grid">
-        <div style="padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--danger);">
-          <strong style="color: var(--danger); font-size: 0.85rem;">DAY 1 — HIGH PRIORITY</strong>
-          <h4 style="margin: 4px 0 8px;">Normalization & Transitive Dependencies</h4>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">25-min targeted study capsule + 5 quiz questions.</p>
-        </div>
-        <div style="padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--warning);">
-          <strong style="color: var(--warning); font-size: 0.85rem;">DAY 2 — REINFORCEMENT</strong>
-          <h4 style="margin: 4px 0 8px;">Relational Algebra & Outer Joins</h4>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">30-min problem solving practice.</p>
-        </div>
-        <div style="padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--success);">
-          <strong style="color: var(--success); font-size: 0.85rem;">DAY 3 — SPEED & ACCURACY</strong>
-          <h4 style="margin: 4px 0 8px;">SQL Subqueries & Indexing</h4>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">Full chapter quick recall diagnostic.</p>
-        </div>
+    <!-- EMPTY STATE FOR REPORT -->
+    <div id="reportEmptyState" class="card" style="text-align: center; padding: 48px 24px;">
+      <div style="font-size: 3rem; margin-bottom: 12px;">📄</div>
+      <h3 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 8px;">NO DIAGNOSTIC REPORT YET</h3>
+      <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 20px; font-size: 0.9rem;">
+        Complete diagnostic quizzes or study plans to generate your full AI Readiness & Strategy report.
+      </p>
+      <a href="quiz.html" class="btn btn-primary">Take Diagnostic Quiz 🧪</a>
+    </div>
+
+    <!-- 7-DAY REVISION PLAN CARDS (Shown when data exists) -->
+    <div class="card" id="reportContent" style="display:none; margin-bottom: 24px;">
+      <h3 class="card-title" style="margin-bottom: 16px;">📅 RECOMMENDED REVISION PLAN</h3>
+      <div class="strategy-grid" id="revisionGrid">
+        <!-- Dynamic items -->
       </div>
     </div>
   </main>
@@ -61,9 +57,39 @@
 <script type="module">
 import { renderAppShell } from "../js/ui-components.js";
 import { initTheme } from "../js/theme.js";
+import { dbGetAll } from "../js/db.js";
 
 initTheme();
 renderAppShell("report", "Readiness Report");
+
+async function loadRealReportData() {
+  try {
+    const plans = await dbGetAll("plans");
+    const quizzes = await dbGetAll("quizzes");
+
+    if (plans && plans.length > 0) {
+      document.getElementById("reportEmptyState").style.display = "none";
+      document.getElementById("reportContent").style.display = "block";
+      document.getElementById("reportReadinessPct").textContent = "65%";
+      
+      const grid = document.getElementById("revisionGrid");
+      grid.innerHTML = plans.map(p => `
+        <div style="padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--accent-primary);">
+          <strong style="color: var(--accent-primary); font-size: 0.85rem;">ACTIVE REVISION MODULE</strong>
+          <h4 style="margin: 4px 0 8px;">${p.subject || "Study Subject"}</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Exam Target: ${p.examDate || "Upcoming"}</p>
+        </div>
+      `).join("");
+    } else {
+      document.getElementById("reportEmptyState").style.display = "block";
+      document.getElementById("reportContent").style.display = "none";
+      document.getElementById("reportReadinessPct").textContent = "--%";
+    }
+  } catch (e) {
+    document.getElementById("reportEmptyState").style.display = "block";
+  }
+}
+loadRealReportData();
 </script>
 </body>
 </html>

@@ -6,7 +6,6 @@
 <title>Progress & Knowledge Map — SYNAPTIQAI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <link rel="stylesheet" href="../css/style.css">
 <style>
 .progress-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
@@ -28,19 +27,19 @@
       <p style="color: var(--text-secondary); font-size: 0.95rem;">Track mastery progression, study time, and weakness diagnostic patterns over time.</p>
     </div>
 
-    <!-- STATS OVERVIEW CARDS -->
+    <!-- REAL STATS OVERVIEW CARDS -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
       <div class="card" style="text-align: center;">
         <div style="font-size: 0.75rem; color: var(--text-muted);">TOTAL FOCUS TIME</div>
-        <div style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: var(--accent-primary);" id="statTotalHours">14.5 Hours</div>
+        <div style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: var(--accent-primary);" id="statTotalHours">0 Hours</div>
       </div>
       <div class="card" style="text-align: center;">
         <div style="font-size: 0.75rem; color: var(--text-muted);">OBSERVED FOCUS SCORE</div>
-        <div style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: var(--success);" id="statFocusScore">89%</div>
+        <div style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: var(--success);" id="statFocusScore">--</div>
       </div>
       <div class="card" style="text-align: center;">
         <div style="font-size: 0.75rem; color: var(--text-muted);">RESOLVED MISTAKES</div>
-        <div style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: var(--warning);" id="statResolvedMistakes">8 Fixed</div>
+        <div style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: var(--warning);" id="statResolvedMistakes">0 Fixed</div>
       </div>
     </div>
 
@@ -49,20 +48,8 @@
       <div class="card">
         <h3 class="card-title" style="margin-bottom: 16px;">🧠 LEARNER KNOWLEDGE GRAPH MAP</h3>
         <div id="knowledgeTreeMap">
-          <div class="tree-node">
-            <div>
-              <strong style="font-size: 0.95rem;">DBMS: Normalization (3NF)</strong>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Mastery: 43% &nbsp;•&nbsp; Forgetting Risk: High</div>
-            </div>
-            <span class="badge badge-danger">Needs Review</span>
-          </div>
-
-          <div class="tree-node">
-            <div>
-              <strong style="font-size: 0.95rem;">DBMS: Relational Algebra</strong>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Mastery: 78% &nbsp;•&nbsp; Forgetting Risk: Low</div>
-            </div>
-            <span class="badge badge-success">Mastered</span>
+          <div style="text-align:center; padding:32px 16px; color:var(--text-muted); font-size:0.9rem;">
+            No topic mastery data recorded yet.<br>Complete study sessions or quizzes to populate your Knowledge Graph.
           </div>
         </div>
       </div>
@@ -71,14 +58,8 @@
       <div class="card" id="mistakes">
         <h3 class="card-title" style="margin-bottom: 16px;">⚠️ RECURRING MISTAKE BANK</h3>
         <div id="mistakesContainer">
-          <div class="mistake-card-item">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <span class="badge badge-danger">Conceptual Error</span>
-              <span style="font-size: 0.75rem; color: var(--text-muted);">3 Occurrences</span>
-            </div>
-            <strong style="font-size: 0.95rem; display: block; margin-bottom: 4px;">Normalization: Transitive Candidate Key Dependencies</strong>
-            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">Confusing 2NF partial key dependencies with 3NF transitive dependencies.</p>
-            <a href="session.html?topic=Normalization" class="btn btn-secondary btn-sm">FIX THIS WEAKNESS 🚀</a>
+          <div style="text-align:center; padding:32px 16px; color:var(--text-muted); font-size:0.9rem;">
+            No mistake patterns detected.<br>Your quiz and diagnostic errors will automatically appear here for targeted review.
           </div>
         </div>
       </div>
@@ -89,9 +70,44 @@
 <script type="module">
 import { renderAppShell } from "../js/ui-components.js";
 import { initTheme } from "../js/theme.js";
+import { dbGetAll } from "../js/db.js";
 
 initTheme();
 renderAppShell("progress", "Progress & Map");
+
+async function loadRealProgressData() {
+  try {
+    const focusSessions = await dbGetAll("focusSessions");
+    const mistakes = await dbGetAll("mistakes");
+
+    if (focusSessions && focusSessions.length > 0) {
+      const totalMins = focusSessions.reduce((acc, s) => acc + (s.observedFocusMinutes || 0), 0);
+      document.getElementById("statTotalHours").textContent = `${(totalMins / 60).toFixed(1)} Hours`;
+      
+      const avgScore = Math.round(focusSessions.reduce((acc, s) => acc + (s.focusScore || 0), 0) / focusSessions.length);
+      document.getElementById("statFocusScore").textContent = `${avgScore}%`;
+    }
+
+    if (mistakes && mistakes.length > 0) {
+      document.getElementById("statResolvedMistakes").textContent = `${mistakes.length} Logged`;
+      
+      const mistakesHtml = mistakes.map(m => `
+        <div class="mistake-card-item">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span class="badge badge-danger">${m.category || "Conceptual Error"}</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">${m.occurrences || 1} Occurrences</span>
+          </div>
+          <strong style="font-size: 0.95rem; display: block; margin-bottom: 4px;">${m.topic}: ${m.question || "Topic Gap"}</strong>
+          <a href="session.html?topic=${encodeURIComponent(m.topic)}" class="btn btn-secondary btn-sm" style="margin-top:8px;">FIX THIS WEAKNESS 🚀</a>
+        </div>
+      `).join("");
+      document.getElementById("mistakesContainer").innerHTML = mistakesHtml;
+    }
+  } catch (e) {
+    console.log("No stored analytics found.");
+  }
+}
+loadRealProgressData();
 </script>
 </body>
 </html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scholar Profile — SYNAPTIQAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+.profile-grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; }
+@media (max-width: 1024px) { .profile-grid { grid-template-columns: 1fr; } }
+.avatar-large { width: 96px; height: 96px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: #FFFFFF; font-family: var(--font-heading); font-size: 2.2rem; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: var(--shadow-glow); }
+</style>
+<link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
+</head>
+<body>
+
+<div class="app-layout">
+  <aside class="app-sidebar"></aside>
+  <header class="app-topbar"></header>
+
+  <main class="app-main">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <h1 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800;">Scholar Profile & Preferences</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Manage your academic identity, study habits, and AI personalization context.</p>
+      </div>
+      <button class="btn btn-outline" id="btnHeaderLogout" style="color: var(--danger); border-color: var(--danger);">LOGOUT 🚪</button>
+    </div>
+
+    <div class="profile-grid">
+      <!-- SIDE AVATAR CARD -->
+      <div>
+        <div class="card" style="text-align: center; margin-bottom: 24px;">
+          <div class="avatar-large" id="userAvatarInitials">SK</div>
+          <h2 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700;" id="profDisplayName">Shivam Kumar</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;" id="profDisplayEmail">shivam@example.com</p>
+          <div class="badge badge-primary" style="margin-top: 12px;" id="profGradeBadge">Class 12 / Undergrad</div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom: 12px;">SECURITY & ACCOUNT</h3>
+          <button class="btn btn-secondary" id="btnCardLogout" style="width: 100%; color: var(--danger);">LOGOUT OF SESSION</button>
+        </div>
+      </div>
+
+      <!-- MAIN PROFILE EDIT FORM -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <!-- ACADEMIC INFO -->
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom: 20px;">1. PERSONAL & ACADEMIC INFORMATION</h3>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group"><label class="form-label">FULL NAME</label><input type="text" class="input-text" id="profName" value="Shivam Kumar"></div>
+            <div class="form-group"><label class="form-label">EMAIL ADDRESS</label><input type="email" class="input-text" id="profEmail" value="shivam@example.com" disabled style="opacity: 0.7;"></div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group"><label class="form-label">CLASS / GRADE LEVEL</label><input type="text" class="input-text" id="profClass" value="Undergraduate"></div>
+            <div class="form-group"><label class="form-label">INSTITUTION</label><input type="text" class="input-text" id="profInst" value="Tech Institute"></div>
+          </div>
+        </div>
+
+        <!-- LEARNING PREFERENCES FOR AI PERSONALIZATION -->
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom: 20px;">2. AI PERSONALIZATION & STUDY PREFERENCES</h3>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">EXPLANATION LEVEL</label>
+              <select class="select-input" id="profExplanationLevel">
+                <option value="Beginner">Beginner (Simple analogies)</option>
+                <option value="Basic">Basic (Standard concepts)</option>
+                <option value="Intermediate" selected>Intermediate (Comprehensive)</option>
+                <option value="Advanced">Advanced (Rigorous technical)</option>
+                <option value="Exam Ready">Exam Ready (Definition & formulas)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">PREFERRED LANGUAGE</label>
+              <select class="select-input" id="profLanguage">
+                <option value="English" selected>English</option>
+                <option value="Hindi">Hindi</option>
+                <option value="Hinglish">Hinglish</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">DAILY STUDY TARGET</label>
+              <select class="select-input" id="profDailyHours">
+                <option value="2">2 Hours / Day</option>
+                <option value="3" selected>3 Hours / Day</option>
+                <option value="4">4 Hours / Day</option>
+                <option value="6">6 Hours / Day</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">DEFAULT FOCUS BLOCK</label>
+              <select class="select-input" id="profFocusBlock">
+                <option value="25" selected>25 Minutes (Pomodoro)</option>
+                <option value="35">35 Minutes</option>
+                <option value="45">45 Minutes (Deep Work)</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="btnSaveProfile">SAVE PROFILE CHANGES 💾</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { renderAppShell, showToast } from "../js/ui-components.js";
+import { initTheme } from "../js/theme.js";
+import { logoutUser } from "../js/routes.js";
+import { dbGet, dbPut } from "../js/db.js";
+
+initTheme();
+renderAppShell("profile", "Scholar Profile");
+
+document.getElementById("btnHeaderLogout")?.addEventListener("click", logoutUser);
+document.getElementById("btnCardLogout")?.addEventListener("click", logoutUser);
+
+async function loadProfileData() {
+  try {
+    const user = await dbGet("users", "local_user");
+    if (user) {
+      document.getElementById("profName").value = user.name || "Scholar";
+      document.getElementById("profEmail").value = user.email || "scholar@example.com";
+      document.getElementById("profDisplayName").textContent = user.name || "Scholar";
+      document.getElementById("profDisplayEmail").textContent = user.email || "scholar@example.com";
+      
+      const initials = (user.name || "S").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+      document.getElementById("userAvatarInitials").textContent = initials || "SK";
+    }
+  } catch (e) {
+    console.log("Using default profile values.");
+  }
+}
+loadProfileData();
+
+document.getElementById("btnSaveProfile")?.addEventListener("click", async () => {
+  const name = document.getElementById("profName").value.trim();
+  const level = document.getElementById("profExplanationLevel").value;
+  const lang = document.getElementById("profLanguage").value;
+
+  try {
+    await dbPut("settings", {
+      id: "user_profile_preferences",
+      explanationLevel: level,
+      language: lang,
+      updatedAt: new Date().toISOString()
+    });
+    showToast("Profile & Personalization settings saved!", "success");
+  } catch (err) {
+    showToast("Failed to save profile.", "danger");
+  }
+});
+</script>
+</body>
+</html>

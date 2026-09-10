@@ -1,40 +1,49 @@
-// js/ui-components.js — Shared Reusable UI Component Renderer for SYNAPTIQAI
+// js/ui-components.js — Shared App Shell, Header, Mobile Nav, and Toasts for SYNAPTIQAI
 
 import { globalCommandPalette } from "./command-palette.js";
+import { ROUTES, navigateTo, logoutUser } from "./routes.js";
 
 export function renderAppShell(activePage = "dashboard", breadcrumbTitle = "Dashboard") {
   const sidebarNavItems = [
-    { id: "dashboard", href: "/pages/dashboard.html", icon: "📊", label: "Dashboard" },
-    { id: "plan-new", href: "/pages/plan-new.html", icon: "➕", label: "New Plan" },
-    { id: "session", href: "/pages/session.html", icon: "🧠", label: "Study Mode" },
-    { id: "progress", href: "/pages/progress.html", icon: "📈", label: "Progress & Map" },
-    { id: "quiz", href: "/pages/quiz.html", icon: "🧪", label: "Quizzes" },
-    { id: "assessment", href: "/pages/assessment.html", icon: "📝", label: "Assessment" },
-    { id: "report", href: "/pages/report.html", icon: "📄", label: "Readiness Report" },
-    { id: "settings", href: "/pages/settings.html", icon: "⚙️", label: "Settings" }
+    { id: "dashboard", route: "dashboard", icon: "📊", label: "Dashboard" },
+    { id: "plan-new", route: "planNew", icon: "➕", label: "New Plan" },
+    { id: "session", route: "session", icon: "🧠", label: "Study Mode" },
+    { id: "progress", route: "progress", icon: "📈", label: "Progress & Map" },
+    { id: "quiz", route: "quiz", icon: "🧪", label: "Quizzes" },
+    { id: "assessment", route: "assessment", icon: "📝", label: "Assessment" },
+    { id: "report", route: "report", icon: "📄", label: "Readiness Report" },
+    { id: "ai-provider", route: "aiProvider", icon: "🤖", label: "AI Providers" },
+    { id: "profile", route: "profile", icon: "👤", label: "Scholar Profile" },
+    { id: "settings", route: "settings", icon: "⚙️", label: "Settings" }
   ];
 
   // 1. Render Sidebar
   const sidebarEl = document.querySelector(".app-sidebar");
   if (sidebarEl) {
     sidebarEl.innerHTML = `
-      <div class="sidebar-brand">
-        <img src="/img/synaptiq_logo_removebg.png" alt="SYNAPTIQ Logo">
+      <div class="sidebar-brand" style="cursor:pointer" id="brandLogoHome">
+        <img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ Logo" onerror="this.src='/img/synaptiq_logo_removebg.png'">
         <span>SYNAPTIQ</span>
       </div>
       <nav class="sidebar-nav">
         ${sidebarNavItems.map(item => `
-          <a href="${item.href}" class="nav-link ${item.id === activePage ? 'active' : ''}">
+          <a href="${ROUTES[item.route]}" class="nav-link ${item.id === activePage ? 'active' : ''}">
             <span style="font-size:1.1rem">${item.icon}</span>
             <span>${item.label}</span>
           </a>
         `).join('')}
       </nav>
-      <div style="padding: 16px 20px; border-top: 1px solid var(--border);">
-        <div style="font-size: 0.85rem; font-weight: 600;" id="shellUserName">Student</div>
-        <div style="font-size: 0.75rem; color: var(--text-muted);">Local-First Session</div>
+      <div style="padding: 16px 20px; border-top: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size: 0.85rem; font-weight: 600;" id="shellUserName">Scholar</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Local-First Session</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="sidebarLogoutBtn" title="Logout" style="color:var(--danger)">🚪</button>
       </div>
     `;
+
+    document.getElementById("brandLogoHome")?.addEventListener("click", () => navigateTo("dashboard"));
+    document.getElementById("sidebarLogoutBtn")?.addEventListener("click", logoutUser);
   }
 
   // 2. Render Topbar Header
@@ -54,7 +63,9 @@ export function renderAppShell(activePage = "dashboard", breadcrumbTitle = "Dash
           <span class="kbd-badge">Ctrl K</span>
         </button>
 
-        <a href="/pages/settings.html" class="btn btn-ghost btn-sm" title="Settings">⚙️</a>
+        <a href="${ROUTES.aiProvider}" class="btn btn-ghost btn-sm" title="AI Provider Setup">🤖</a>
+        <a href="${ROUTES.profile}" class="btn btn-ghost btn-sm" title="Profile">👤</a>
+        <a href="${ROUTES.settings}" class="btn btn-ghost btn-sm" title="Settings">⚙️</a>
       </div>
     `;
 
@@ -72,25 +83,25 @@ export function renderAppShell(activePage = "dashboard", breadcrumbTitle = "Dash
   }
 
   mobileNav.innerHTML = `
-    <a href="/pages/dashboard.html" class="mobile-nav-item ${activePage === 'dashboard' ? 'active' : ''}">
+    <a href="${ROUTES.dashboard}" class="mobile-nav-item ${activePage === 'dashboard' ? 'active' : ''}">
       <span style="font-size:1.2rem">📊</span>
       <span>Home</span>
     </a>
-    <a href="/pages/session.html" class="mobile-nav-item ${activePage === 'session' ? 'active' : ''}">
+    <a href="${ROUTES.session}" class="mobile-nav-item ${activePage === 'session' ? 'active' : ''}">
       <span style="font-size:1.2rem">🧠</span>
       <span>Learn</span>
     </a>
-    <a href="/pages/plan-new.html" class="mobile-nav-item ${activePage === 'plan-new' ? 'active' : ''}">
+    <a href="${ROUTES.planNew}" class="mobile-nav-item ${activePage === 'plan-new' ? 'active' : ''}">
       <span style="font-size:1.2rem">➕</span>
       <span>Plan</span>
     </a>
-    <a href="/pages/progress.html" class="mobile-nav-item ${activePage === 'progress' ? 'active' : ''}">
+    <a href="${ROUTES.progress}" class="mobile-nav-item ${activePage === 'progress' ? 'active' : ''}">
       <span style="font-size:1.2rem">📈</span>
       <span>Progress</span>
     </a>
-    <a href="/pages/settings.html" class="mobile-nav-item ${activePage === 'settings' ? 'active' : ''}">
-      <span style="font-size:1.2rem">⚙️</span>
-      <span>More</span>
+    <a href="${ROUTES.profile}" class="mobile-nav-item ${activePage === 'profile' ? 'active' : ''}">
+      <span style="font-size:1.2rem">👤</span>
+      <span>Profile</span>
     </a>
   `;
 }
@@ -128,22 +139,4 @@ export function showToast(message, type = "info") {
     toast.style.transition = "opacity 0.3s ease";
     setTimeout(() => toast.remove(), 300);
   }, 3500);
-}
-
-export function renderEmptyState(containerId, title, description, buttonText = null, buttonAction = null) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-
-  el.innerHTML = `
-    <div style="text-align: center; padding: 48px 20px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg);">
-      <div style="font-size: 3rem; margin-bottom: 12px;">📁</div>
-      <h3 style="font-family: var(--font-heading); font-size: 1.1rem; color: var(--text-primary); margin-bottom: 8px;">${title}</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); max-width: 400px; margin: 0 auto 20px; line-height: 1.5;">${description}</p>
-      ${buttonText ? `<button class="btn btn-primary" id="emptyStateBtn">${buttonText}</button>` : ''}
-    </div>
-  `;
-
-  if (buttonText && buttonAction) {
-    document.getElementById("emptyStateBtn")?.addEventListener("click", buttonAction);
-  }
 }
