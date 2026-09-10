@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Settings - SYNAPTIQ</title>
+<title>Settings & AI Providers - SYNAPTIQ</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -26,15 +26,14 @@ nav{flex:1;padding:16px 0}
 .field{margin-bottom:16px}
 label{display:block;font-size:.7rem;letter-spacing:1.5px;color:var(--dim);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-input[type=text],input[type=email],input[type=tel],input[type=number],select{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--silver);padding:10px 14px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;transition:.2s}
-input[type=text]:focus,input[type=email]:focus,input[type=tel]:focus,input[type=number]:focus,select:focus{border-color:var(--neon);box-shadow:0 0 10px rgba(0,245,255,0.15)}
+input[type=text],input[type=password],input[type=email],input[type=tel],input[type=number],select{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--silver);padding:10px 14px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none;transition:.2s}
+input:focus,select:focus{border-color:var(--neon);box-shadow:0 0 10px rgba(0,245,255,0.15)}
 select option{background:var(--panel)}
 .readonly-field{opacity:.75;cursor:not-allowed}
-.btn-save-profile{padding:11px 28px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;border:none;border-radius:6px;cursor:pointer;transition:.2s;margin-top:8px}
-.btn-save-profile:hover{box-shadow:0 0 20px rgba(0,245,255,0.4)}
-.btn-edit-profile{padding:11px 28px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;border-radius:6px;cursor:pointer;transition:.2s;margin-top:8px}
-.btn-edit-profile:hover{background:rgba(0,245,255,0.08)}
-.danger-card{background:rgba(255,45,120,0.04);border:1px solid rgba(255,45,120,0.2);border-radius:10px;padding:20px}
+.btn-primary{padding:11px 24px;background:linear-gradient(135deg,var(--neon),var(--plasma));color:var(--void);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;border:none;border-radius:6px;cursor:pointer;transition:.2s}
+.btn-primary:hover{box-shadow:0 0 20px rgba(0,245,255,0.4)}
+.btn-outline{padding:10px 20px;background:transparent;border:1px solid var(--neon);color:var(--neon);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:2px;border-radius:6px;cursor:pointer;transition:.2s}
+.btn-outline:hover{background:rgba(0,245,255,0.08)}
 .btn-danger{padding:10px 20px;background:transparent;border:1px solid var(--laser);color:var(--laser);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:1px;border-radius:6px;cursor:pointer;transition:.2s}
 .btn-danger:hover{background:rgba(255,45,120,0.1)}
 .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -42,10 +41,15 @@ select option{background:var(--panel)}
 .profile-item .k{font-size:.62rem;color:var(--dim);font-family:'JetBrains Mono',monospace;letter-spacing:1px;margin-bottom:5px}
 .profile-item .v{font-size:.95rem;color:var(--silver);word-break:break-word}
 .profile-item.full{grid-column:1 / -1}
-.btn-logout{padding:10px 20px;background:transparent;border:1px solid var(--amber);color:var(--amber);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:1px;border-radius:6px;cursor:pointer;transition:.2s}
-.btn-logout:hover{background:rgba(255,179,0,0.1)}
 .toast{position:fixed;bottom:28px;right:28px;background:rgba(10,22,40,0.97);border:1px solid var(--green);border-radius:8px;padding:12px 20px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--green);z-index:1000;transform:translateY(80px);opacity:0;transition:.3s}
 .toast.show{transform:none;opacity:1}
+.notice-box{padding:14px;border:1px solid var(--plasma);border-radius:8px;background:rgba(123,47,255,0.08);font-size:.85rem;color:var(--silver);margin-bottom:20px;line-height:1.5}
+.provider-card{border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;background:var(--panel);display:flex;align-items:center;justify-content:space-between}
+.provider-title{font-family:'Orbitron',monospace;font-size:.85rem;color:var(--neon)}
+.provider-sub{font-size:.75rem;color:var(--dim);margin-top:4px}
+.badge-status{padding:4px 10px;border-radius:99px;font-size:.65rem;font-family:'JetBrains Mono',monospace}
+.badge-active{border:1px solid var(--green);color:var(--green);background:rgba(0,255,157,0.1)}
+.badge-inactive{border:1px solid var(--dim);color:var(--dim)}
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.field-row{grid-template-columns:1fr}}
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
@@ -65,8 +69,107 @@ select option{background:var(--panel)}
 
 <div class="main">
   <div class="page-title">SYSTEM SETTINGS</div>
-  <div class="page-sub">Manage your profile and account data for SYNAPTIQ.</div>
+  <div class="page-sub">Manage your AI providers, local data, profile, and Google Drive backup.</div>
 
+  <!-- AI PROVIDER MANAGER -->
+  <div class="section">
+    <div class="section-head">AI PROVIDER MANAGER</div>
+    <div class="card">
+      <div class="notice-box">
+        🔒 <strong>Privacy Notice:</strong> SynaptiqAI does not provide or store your AI API quota. Connect your own AI provider account (Gemini, Groq, OpenRouter, OpenAI, Anthropic). Your keys are saved locally on this device and are never sent to developer servers.
+      </div>
+
+      <div id="providersList"></div>
+
+      <div style="border-top:1px solid var(--border);padding-top:20px;margin-top:20px">
+        <div style="font-family:'Orbitron',monospace;font-size:.75rem;color:var(--neon);margin-bottom:14px">+ ADD / UPDATE PROVIDER</div>
+        <div class="field-row">
+          <div class="field">
+            <label>PROVIDER</label>
+            <select id="prov-id" onchange="onProviderSelectChange()">
+              <option value="gemini">Google Gemini (Recommended)</option>
+              <option value="groq">Groq</option>
+              <option value="openrouter">OpenRouter</option>
+              <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>MODEL</label>
+            <select id="prov-model"></select>
+          </div>
+        </div>
+        <div class="field">
+          <label>API KEY</label>
+          <input type="password" id="prov-key" placeholder="Paste your API key here">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>PRIORITY (1 = Primary)</label>
+            <input type="number" id="prov-priority" value="1" min="1" max="5">
+          </div>
+          <div class="field">
+            <label>STORAGE OPTION</label>
+            <select id="prov-storage">
+              <option value="device">This device (Local IndexedDB)</option>
+              <option value="session">Session only (Clears on close)</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn-outline" onclick="testCurrentProviderConnection()">TEST CONNECTION</button>
+          <button class="btn-primary" onclick="saveCurrentProvider()">SAVE PROVIDER</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOOGLE DRIVE BACKUP & SYNC -->
+  <div class="section">
+    <div class="section-head">ENCRYPTED GOOGLE DRIVE BACKUP & SYNC</div>
+    <div class="card">
+      <div class="field-row" style="align-items:center;margin-bottom:16px">
+        <div>
+          <div style="font-family:'Orbitron',monospace;font-size:.85rem;color:var(--silver)" id="driveStatusText">Google Drive Disconnected</div>
+          <div style="font-size:.75rem;color:var(--dim)" id="driveSubText">Connect your Google Drive to sync encrypted learning data across devices.</div>
+        </div>
+        <div style="text-align:right">
+          <button class="btn-primary" id="btnConnectDrive" onclick="toggleDriveConnection()">CONNECT GOOGLE DRIVE</button>
+        </div>
+      </div>
+
+      <div id="driveControls" style="display:none;border-top:1px solid var(--border);padding-top:16px">
+        <div class="field-row" style="margin-bottom:14px">
+          <div class="profile-item"><div class="k">LAST BACKUP</div><div class="v" id="lblLastBackup">Never</div></div>
+          <div class="profile-item"><div class="k">ENCRYPTION STATUS</div><div class="v" style="color:var(--green)">AES-GCM 256-bit Active</div></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn-outline" onclick="triggerDriveBackup()">BACKUP NOW</button>
+          <button class="btn-outline" onclick="triggerDriveSync()">SYNC NOW</button>
+          <button class="btn-outline" onclick="triggerDriveRestore()">RESTORE BACKUP</button>
+          <button class="btn-danger" onclick="disconnectDrive()">DISCONNECT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIVACY CENTER & DATA EXPORT -->
+  <div class="section">
+    <div class="section-head">PRIVACY & DATA CENTER</div>
+    <div class="card">
+      <div class="profile-grid" style="margin-bottom:16px">
+        <div class="profile-item"><div class="k">DATA STORAGE</div><div class="v">100% Local IndexedDB</div></div>
+        <div class="profile-item"><div class="k">AI QUOTA</div><div class="v">User-Owned Provider Keys</div></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn-outline" onclick="exportDataJSON()">EXPORT MY DATA (JSON)</button>
+        <button class="btn-danger" onclick="clearAllData()">DELETE LOCAL DATA</button>
+        <button class="btn-danger" onclick="deleteAccountCompletely()">DELETE ACCOUNT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER PROFILE -->
   <div class="section">
     <div class="section-head">YOUR PROFILE</div>
     <div class="card">
@@ -92,46 +195,9 @@ select option{background:var(--panel)}
         </div>
         <div class="field"><label>DAILY HOURS</label><input type="number" id="pf-hours" placeholder="e.g. 4"></div>
       </div>
-      <div class="field-row">
-        <div class="field"><label>CITY</label><input type="text" id="pf-city" placeholder="Your city"></div>
-        <div class="field"><label>STATE</label><input type="text" id="pf-state" placeholder="Your state"></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>EXAM TYPES</label><input type="text" id="pf-exams" placeholder="Comma separated"></div>
-        <div class="field"><label>STUDY DAYS</label><input type="text" id="pf-days" placeholder="e.g. Mon, Tue"></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>STRONG SUBJECTS</label><input type="text" id="pf-strong" placeholder="Comma separated"></div>
-        <div class="field"><label>WEAK SUBJECTS</label><input type="text" id="pf-weak" placeholder="Comma separated"></div>
-      </div>
-      <div class="field">
-        <label>STUDY TIME</label>
-        <select id="pf-time">
-          <option value="">Select...</option>
-          <option>Morning</option><option>Afternoon</option><option>Evening</option><option>Late Night</option>
-        </select>
-      </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn-edit-profile" id="editProfileBtn" onclick="enableProfileEdit()">EDIT PROFILE</button>
-        <button class="btn-save-profile" id="saveProfileBtn" onclick="saveProfile()" style="display:none">SAVE PROFILE</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-head">PROFILE SNAPSHOT</div>
-    <div class="card">
-      <div class="profile-grid" id="profileSnapshot"></div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-head">DANGER ZONE</div>
-    <div class="danger-card">
-      <div style="font-size:.9rem;color:var(--dim);margin-bottom:14px">Clearing all local data removes cached plan state and session progress from this device. Your Firebase account remains intact.</div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn-danger" onclick="clearLocalData()">CLEAR LOCAL DATA</button>
-        <button class="btn-logout" onclick="performLogout()">LOGOUT</button>
+        <button class="btn-outline" id="editProfileBtn" onclick="enableProfileEdit()">EDIT PROFILE</button>
+        <button class="btn-primary" id="saveProfileBtn" onclick="saveProfile()" style="display:none">SAVE PROFILE</button>
       </div>
     </div>
   </div>
@@ -140,23 +206,185 @@ select option{background:var(--panel)}
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { checkAuthState, logout } from "../js/auth.js";
+import { checkAuthState, logout, deleteLocalAccount } from "../js/auth.js";
 import { getUserProfile, updateUserProfile } from "../js/storage.js";
+import { ProviderManager, GeminiProvider, GroqProvider, OpenRouterProvider, OpenAIProvider, AnthropicProvider, maskApiKey } from "../js/ai-providers.js";
+import { requestGoogleDriveAuth, isDriveConnected, disconnectGoogleDrive, getBackupMeta, backupToDrive, restoreFromDrive, checkSyncConflict } from "../js/gdrive.js";
+import { exportUserDataJSON, clearAllLocalData } from "../js/privacy.js";
 
 let user = null;
 let profileEditMode = false;
 
-function setProfileEditMode(enabled) {
-  profileEditMode = !!enabled;
-  const ids = ["pf-name", "pf-phone", "pf-class", "pf-inst", "pf-board", "pf-hours", "pf-city", "pf-state", "pf-exams", "pf-days", "pf-strong", "pf-weak", "pf-time"];
-  ids.forEach((id) => {
-    const el = document.getElementById(id);
-    el.disabled = !profileEditMode;
-    el.classList.toggle("readonly-field", !profileEditMode);
-  });
-  document.getElementById("editProfileBtn").style.display = profileEditMode ? "none" : "inline-block";
-  document.getElementById("saveProfileBtn").style.display = profileEditMode ? "inline-block" : "none";
+const MODELS_MAP = {
+  gemini: GeminiProvider.availableModels,
+  groq: GroqProvider.availableModels,
+  openrouter: OpenRouterProvider.availableModels,
+  openai: OpenAIProvider.availableModels,
+  anthropic: AnthropicProvider.availableModels
+};
+
+window.onProviderSelectChange = () => {
+  const id = document.getElementById("prov-id").value;
+  const models = MODELS_MAP[id] || [];
+  const sel = document.getElementById("prov-model");
+  sel.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join("");
+};
+
+async function renderProvidersList() {
+  const list = await ProviderManager.getConfiguredProviders();
+  const root = document.getElementById("providersList");
+
+  if (list.length === 0) {
+    root.innerHTML = `<div style="color:var(--laser);font-size:.85rem;padding:12px;border:1px dashed var(--laser);border-radius:6px">⚠️ No AI provider configured. Add your API key below to unlock study plans, quizzes, diagnostics, and AI Viva.</div>`;
+    return;
+  }
+
+  root.innerHTML = list.map(p => `
+    <div class="provider-card">
+      <div>
+        <div class="provider-title">${p.name} <span class="badge-status badge-active">Priority ${p.priority}</span></div>
+        <div class="provider-sub">Model: ${p.model} &nbsp;·&nbsp; Key: ${maskApiKey(p.apiKey)}</div>
+      </div>
+      <div>
+        <button class="btn-danger" style="padding:6px 12px;font-size:.6rem" onclick="removeProvider('${p.id}')">REMOVE</button>
+      </div>
+    </div>
+  `).join("");
 }
+
+window.testCurrentProviderConnection = async () => {
+  const id = document.getElementById("prov-id").value;
+  const key = document.getElementById("prov-key").value.trim();
+  const model = document.getElementById("prov-model").value;
+
+  if (!key) return showToast("Enter an API key to test.", true);
+  showToast("Testing connection...");
+
+  const res = await ProviderManager.testProvider(id, key, model);
+  if (res.success) showToast("✓ " + res.message);
+  else showToast("Connection failed: " + res.error, true);
+};
+
+window.saveCurrentProvider = async () => {
+  const id = document.getElementById("prov-id").value;
+  const key = document.getElementById("prov-key").value.trim();
+  const model = document.getElementById("prov-model").value;
+  const priority = Number(document.getElementById("prov-priority").value) || 1;
+
+  if (!key) return showToast("API Key is required.", true);
+
+  const sel = document.getElementById("prov-id");
+  const name = sel.options[sel.selectedIndex].text.split(" ")[0];
+
+  await ProviderManager.saveProvider({ id, name, apiKey: key, model, priority, enabled: true });
+  document.getElementById("prov-key").value = "";
+  showToast("AI Provider saved successfully!");
+  renderProvidersList();
+};
+
+window.removeProvider = async (id) => {
+  if (confirm(`Remove provider configuration?`)) {
+    await ProviderManager.deleteProvider(id);
+    showToast("Provider removed.");
+    renderProvidersList();
+  }
+};
+
+// ── Google Drive Handlers ─────────────────────────────────────
+function renderDriveUI() {
+  const connected = isDriveConnected();
+  const meta = getBackupMeta();
+
+  document.getElementById("driveStatusText").textContent = connected ? "✓ Google Drive Connected" : "Google Drive Disconnected";
+  document.getElementById("driveStatusText").style.color = connected ? "var(--green)" : "var(--silver)";
+  document.getElementById("btnConnectDrive").style.display = connected ? "none" : "inline-block";
+  document.getElementById("driveControls").style.display = connected ? "block" : "none";
+
+  if (meta.lastBackup) {
+    document.getElementById("lblLastBackup").textContent = new Date(meta.lastBackup).toLocaleString();
+  }
+}
+
+window.toggleDriveConnection = () => {
+  requestGoogleDriveAuth();
+  showToast("Google Drive Connected!");
+  renderDriveUI();
+};
+
+window.triggerDriveBackup = async () => {
+  showToast("Encrypting & backing up data...");
+  const r = await backupToDrive();
+  if (r.success) {
+    showToast("✓ Backup uploaded to Google Drive!");
+    renderDriveUI();
+  } else {
+    showToast("Backup error: " + r.error, true);
+  }
+};
+
+window.triggerDriveSync = async () => {
+  showToast("Checking sync status...");
+  const conflict = await checkSyncConflict();
+  if (conflict.hasConflict) {
+    if (confirm(`Sync Conflict detected!\nCloud version updated: ${conflict.cloudTime}\nLocal device updated: ${conflict.localTime}\n\nClick OK to use Cloud Version, or Cancel to Keep This Device.`)) {
+      await restoreFromDrive();
+      showToast("✓ Restored from Cloud!");
+    } else {
+      await backupToDrive();
+      showToast("✓ Overwritten cloud with local device data!");
+    }
+  } else {
+    await backupToDrive();
+    showToast("✓ Synced with Google Drive!");
+  }
+  renderDriveUI();
+};
+
+window.triggerDriveRestore = async () => {
+  if (confirm("Restore backup from Google Drive? This will update local learning data.")) {
+    showToast("Downloading & decrypting backup...");
+    const r = await restoreFromDrive();
+    if (r.success) showToast("✓ Data restored successfully!");
+    else showToast("Restore error: " + r.error, true);
+  }
+};
+
+window.disconnectDrive = () => {
+  disconnectGoogleDrive();
+  showToast("Google Drive disconnected.");
+  renderDriveUI();
+};
+
+window.exportDataJSON = async () => {
+  await exportUserDataJSON();
+  showToast("Export downloaded!");
+};
+
+window.clearAllData = async () => {
+  if (confirm("DANGER: Clear all local data? Your offline accounts, plans, and notes will be permanently erased from this device.")) {
+    await clearAllLocalData();
+    window.location.href = "login.html";
+  }
+};
+
+window.deleteAccountCompletely = async () => {
+  if (confirm("DANGER: Delete account and local data completely?")) {
+    await deleteLocalAccount(user.uid);
+    window.location.href = "signup.html";
+  }
+};
+
+checkAuthState(async (u) => {
+  user = u;
+  onProviderSelectChange();
+  renderProvidersList();
+  renderDriveUI();
+
+  const r = await getUserProfile(u.uid);
+  if (r.success) {
+    applyProfileToForm(r.data, u.email);
+  }
+}, () => window.location.href = "login.html");
 
 function applyProfileToForm(profile = {}, fallbackEmail = "") {
   document.getElementById("pf-name").value = profile?.name || "";
@@ -164,123 +392,28 @@ function applyProfileToForm(profile = {}, fallbackEmail = "") {
   if (profile?.classGrade) document.getElementById("pf-class").value = profile.classGrade;
   document.getElementById("pf-inst").value = profile?.institution || "";
   if (profile?.board) document.getElementById("pf-board").value = profile.board;
-  document.getElementById("pf-city").value = profile?.city || "";
-  document.getElementById("pf-state").value = profile?.state || "";
   document.getElementById("pf-hours").value = profile?.dailyHours || "";
-  document.getElementById("pf-exams").value = (profile?.examTypes || []).join(", ");
-  document.getElementById("pf-days").value = (profile?.studyDays || []).join(", ");
-  document.getElementById("pf-strong").value = (profile?.strongSubjects || []).join(", ");
-  document.getElementById("pf-weak").value = (profile?.weakSubjects || []).join(", ");
-  if (profile?.studyTime) document.getElementById("pf-time").value = profile.studyTime;
-
-  renderProfileSnapshot(profile, fallbackEmail);
-  setProfileEditMode(false);
 }
 
-checkAuthState(async (u) => {
-  user = u;
-
-  // Instant prefill from locally cached signup/auth profile.
-  try {
-    const cached = JSON.parse(localStorage.getItem("currentUser") || "{}");
-    if (cached && typeof cached === "object") {
-      applyProfileToForm(cached, u.email);
-    }
-  } catch {
-    // ignore cache parse issues
-  }
-
-  const r = await getUserProfile(u.uid);
-  if (r.success) {
-    const p = r.data || {};
-    applyProfileToForm(p, u.email);
-  } else {
-    renderProfileSnapshot({ name: "", phone: "", classGrade: "", institution: "" }, u.email);
-  }
-}, () => window.location.href = "login.html");
+window.enableProfileEdit = () => {
+  document.getElementById("editProfileBtn").style.display = "none";
+  document.getElementById("saveProfileBtn").style.display = "inline-block";
+};
 
 window.saveProfile = async () => {
-  if (!profileEditMode) return;
-  const parseList = (str) => str.split(",").map(s => s.trim()).filter(Boolean);
   const updates = {
     name: document.getElementById("pf-name").value.trim(),
     phone: document.getElementById("pf-phone").value.trim(),
     classGrade: document.getElementById("pf-class").value,
     institution: document.getElementById("pf-inst").value.trim(),
     board: document.getElementById("pf-board").value,
-    city: document.getElementById("pf-city").value.trim(),
-    state: document.getElementById("pf-state").value.trim(),
-    dailyHours: Number(document.getElementById("pf-hours").value) || 0,
-    examTypes: parseList(document.getElementById("pf-exams").value),
-    studyDays: parseList(document.getElementById("pf-days").value),
-    strongSubjects: parseList(document.getElementById("pf-strong").value),
-    weakSubjects: parseList(document.getElementById("pf-weak").value),
-    studyTime: document.getElementById("pf-time").value
+    dailyHours: Number(document.getElementById("pf-hours").value) || 0
   };
-  const r = await updateUserProfile(user.uid, updates);
-  if (r.success) {
-    const current = {
-      uid: user.uid,
-      email: user.email,
-      ...updates
-    };
-    localStorage.setItem("currentUser", JSON.stringify(current));
-    renderProfileSnapshot(current, user.email);
-    showToast("Profile updated.");
-    setProfileEditMode(false);
-  }
-  else showToast("Error: " + r.error, true);
+  await updateUserProfile(user.uid, updates);
+  showToast("Profile updated.");
+  document.getElementById("editProfileBtn").style.display = "inline-block";
+  document.getElementById("saveProfileBtn").style.display = "none";
 };
-
-window.enableProfileEdit = () => {
-  setProfileEditMode(true);
-};
-
-window.clearLocalData = () => {
-  if (confirm("Clear all local data? This cannot be undone.")) {
-    [
-      "timerState","currentSession","cachedPlan","pendingQuiz","currentPlanId","pendingPlan",
-      "currentTopic","flaggedTopics","latestReport"
-    ].forEach((key) => localStorage.removeItem(key));
-    showToast("Local data cleared.");
-  }
-};
-
-window.performLogout = async () => {
-  try {
-    await logout();
-  } catch (error) {
-    showToast("Logout failed: " + (error?.message || "try again"), true);
-  }
-};
-
-function renderProfileSnapshot(profile, fallbackEmail) {
-  const cleanList = (arr) => Array.isArray(arr) && arr.length ? arr.join(", ") : "—";
-  const items = [
-    ["Full Name", profile?.name || "—"],
-    ["Email", profile?.email || fallbackEmail || "—"],
-    ["Phone", profile?.phone || "—"],
-    ["Class / Grade", profile?.classGrade || "—"],
-    ["Board / University", profile?.board || "—"],
-    ["Institution", profile?.institution || "—"],
-    ["City", profile?.city || "—"],
-    ["State", profile?.state || "—"],
-    ["Exam Types", cleanList(profile?.examTypes)],
-    ["Study Time", profile?.studyTime || "—"],
-    ["Study Days", cleanList(profile?.studyDays)],
-    ["Daily Hours", profile?.dailyHours ? `${profile.dailyHours}h` : "—"],
-    ["Strong Subjects", cleanList(profile?.strongSubjects)],
-    ["Weak Subjects", cleanList(profile?.weakSubjects)]
-  ];
-
-  const root = document.getElementById("profileSnapshot");
-  root.innerHTML = items.map(([k, v], idx) => `
-    <div class="profile-item ${idx >= 12 ? "full" : ""}">
-      <div class="k">${k}</div>
-      <div class="v">${v}</div>
-    </div>
-  `).join("");
-}
 
 function showToast(msg, isErr) {
   const t = document.getElementById("toast");

@@ -1,6 +1,7 @@
-// Secure Gemini-only AI client for SYNAPTIQ.
+// js/ai.js — SynaptiqAI Provider-Agnostic Client
 
-const GEMINI_ENDPOINT = "/api/gemini";
+import { ProviderManager } from "./ai-providers.js";
+
 const AI_CACHE_PREFIX = "synaptiq_ai_cache_";
 const MAX_SYLLABUS_CHARS = 8000;
 const MAX_SYLLABUS_JSON_CHARS = 10000;
@@ -36,60 +37,7 @@ function setCachedValue(cacheKey, value) {
       AI_CACHE_PREFIX + cacheKey,
       JSON.stringify({ value, ts: Date.now() })
     );
-  } catch {
-    // ignore cache write errors (quota/private mode)
-  }
-}
-
-function buildGeminiError(message, status) {
-  const raw = String(message || "").trim();
-  const lower = raw.toLowerCase();
-  const isQuota =
-    status === 429 ||
-    lower.includes("quota") ||
-    lower.includes("resource exhausted") ||
-    lower.includes("rate limit") ||
-    lower.includes("too many requests");
-
-  const isConfig =
-    lower.includes("api key") ||
-    lower.includes("server configuration is incomplete") ||
-    lower.includes("no compatible gemini model/version found");
-
-  let userMessage = raw || "Gemini service is currently unavailable.";
-  if (isQuota) {
-    userMessage =
-      "Gemini quota limit reached. Please retry later or upgrade API billing. SYNAPTIQ will use fallback generation when possible.";
-  } else if (isConfig) {
-    userMessage =
-      "Gemini backend is not configured correctly. Verify GEMINI_API_KEY and model settings in deployment.";
-  }
-
-  const error = new Error(userMessage);
-  error.rawMessage = raw;
-  error.statusCode = status || 0;
-  error.isQuotaError = isQuota;
-  error.isGeminiConfigError = isConfig;
-  return error;
-}
-
-async function postGemini(payload) {
-  const res = await fetch(GEMINI_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw buildGeminiError(data.error || `Gemini request failed (${res.status})`, res.status);
-  }
-
-  if (typeof data.text !== "string" || !data.text.trim()) {
-    throw buildGeminiError("Gemini returned an empty response.", res.status);
-  }
-
-  return data.text;
+  } catch {}
 }
 
 export function safeParseJSON(text) {
@@ -113,23 +61,29 @@ export function safeParseJSON(text) {
   return JSON.parse(cleaned);
 }
 
-export async function callGemini(prompt, options = {}) {
-  const payload = {
-    prompt,
-    temperature: options.temperature ?? 0.35,
-    maxOutputTokens: options.maxOutputTokens ?? 900
-  };
-
+export async function callAI(prompt, options = {}) {
   const cached = getCachedValue(options.cacheKey, options.cacheMinutes ?? 30);
   if (cached) return cached;
 
-  const value = await postGemini(payload);
-  setCachedValue(options.cacheKey, value);
-  return value;
+  try {
+    const res = await ProviderManager.generate(prompt, options);
+    setCachedValue(options.cacheKey, res.text);
+    return res.text;
+  } catch (e) {
+    if (e.isConfigRequired) {
+      throw new Error("Connect your own AI provider to use AI-powered features.");
+    }
+    throw e;
+  }
+}
+
+// Backwards-compatible alias for existing imports
+export async function callGemini(prompt, options = {}) {
+  return await callAI(prompt, options);
 }
 
 export async function testGeminiConnection() {
-  const raw = await callGemini("Reply with exactly: OK", {
+  const raw = await callAI("Reply with exactly: OK", {
     temperature: 0,
     maxOutputTokens: 16,
     cacheKey: "test_connection_ok",
@@ -166,7 +120,7 @@ SYLLABUS:
 ${trimmedSyllabus}`;
 
   const cacheKey = `parse_${hashString([subject, classGrade, examType, trimmedSyllabus].join("|"))}`;
-  const raw = await callGemini(prompt, {
+  const raw = await callAI(prompt, {
     maxOutputTokens: 1400,
     cacheKey,
     cacheMinutes: 180
@@ -244,7 +198,7 @@ Rules:
     notes: profile.notes,
     syllabus: syllabusStr
   }))}`;
-  const raw = await callGemini(prompt, {
+  const raw = await callAI(prompt, {
     maxOutputTokens: 1800,
     cacheKey: planCacheKey,
     cacheMinutes: 240
@@ -284,7 +238,7 @@ Rules:
 - Difficulty split: 3 easy, 5 medium, 2 hard.
 - Keep explanations very short (one line).`;
 
-  const raw = await callGemini(prompt, {
+  const raw = await callAI(prompt, {
     maxOutputTokens: 1500,
     cacheKey: `quiz_${hashString([classGrade, examType, topicsStudied.join("|")].join("|"))}`,
     cacheMinutes: 120
@@ -311,7 +265,7 @@ Shape:
   {
     "question_number": 1,
     "section": "conceptual" | "application" | "analytical",
-    "ai_source": "gemini",
+    "ai_source": "user_ai",
     "type": "mcq" | "true_false" | "fill_blank",
     "question": "Question text",
     "options": {"A":"...", "B":"...", "C":"...", "D":"..."},
@@ -328,11 +282,10 @@ Rules:
 - Keep section counts exact.
 - Application and analytical questions should be harder than conceptual ones.
 - Use believable distractors.
-- Mix question styles naturally, but most can be mcq.
-- Set ai_source to "gemini" for every question.
+- Mix question styles naturally.
 - Keep explanations short.`;
 
-  const raw = await callGemini(prompt, {
+  const raw = await callAI(prompt, {
     maxOutputTokens: 2000,
     cacheKey: `assessment_${hashString([subject, classGrade, examType, allTopics.join("|")].join("|"))}`,
     cacheMinutes: 120
@@ -340,7 +293,7 @@ Rules:
   return safeParseJSON(raw).map((question, index) => ({
     ...question,
     question_number: index + 1,
-    ai_source: "gemini"
+    ai_source: "user_ai"
   }));
 }
 
@@ -413,7 +366,7 @@ Return valid JSON only in this shape:
 
 Be realistic, specific, and concise.`;
 
-  const raw = await callGemini(prompt, {
+  const raw = await callAI(prompt, {
     maxOutputTokens: 1200,
     cacheKey: `report_${hashString(JSON.stringify({
       answerSheet,
