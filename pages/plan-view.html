@@ -22,75 +22,60 @@
   <header class="app-topbar"></header>
 
   <main class="app-main">
-    <!-- ADAPTIVE PLAN MODIFICATION BANNER -->
-    <div id="planAdaptiveBanner" class="card" style="background: var(--info-bg); border-color: var(--info); margin-bottom: 24px; display:none;">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <span style="font-size: 1.4rem;">🔄</span>
-        <div>
-          <strong style="color: var(--info);">ADAPTIVE PLAN UPDATED BY SYNAPTIQ</strong>
-          <p style="font-size: 0.85rem; color: var(--text-secondary);" id="planAdaptiveReason">Today's schedule was automatically adjusted to reinforce low-mastery nodes before your upcoming diagnostic.</p>
-        </div>
-      </div>
+    <!-- EMPTY / INVALID PLAN STATE -->
+    <div id="planEmptyState" class="card" style="display:none; text-align:center; max-width:600px; margin:0 auto; padding:48px 24px;">
+      <div style="font-size: 3rem; margin-bottom: 12px;">📁</div>
+      <h2 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 8px;">NO STUDY PLAN FOUND</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px;">
+        You have not selected an active plan or the plan ID is invalid. Create your first study plan to get started.
+      </p>
+      <a href="plan-new.html" class="btn btn-primary">+ Create New Study Plan</a>
     </div>
 
-    <!-- PLAN HEADER -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
-      <div>
-        <h1 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800;" id="planSubjectTitle">DBMS Study Plan</h1>
-        <p style="color: var(--text-secondary); font-size: 0.9rem;" id="planMetaSub">Target Exam: 2026-10-15 &nbsp;•&nbsp; Total Modules: 5</p>
-      </div>
-      <div style="display: flex; gap: 12px;">
-        <a href="session.html" class="btn btn-primary" id="btnStartPlanSession">START FOCUS SESSION 🎯</a>
-      </div>
-    </div>
-
-    <div class="view-grid">
-      <!-- SCHEDULE DAYS -->
-      <div>
-        <h3 class="card-title" style="margin-bottom: 16px;">SCHEDULED STUDY DAYS & TOPICS</h3>
-        <div id="daysContainer">
-          <div class="day-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <span class="badge badge-primary">DAY 1: FOCUS MODULE</span>
-              <span style="font-size: 0.8rem; color: var(--text-muted);">Est. 45 Mins</span>
-            </div>
-
-            <div class="topic-item">
-              <div>
-                <div style="font-weight: 600; font-size: 0.95rem;">Database Architecture & ER Modeling</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">Priority: HIGH &nbsp;•&nbsp; Initial Mastery: 50%</div>
-              </div>
-              <a href="session.html?topic=Database Architecture" class="btn btn-secondary btn-sm">Study Topic</a>
-            </div>
-
-            <div class="topic-item">
-              <div>
-                <div style="font-weight: 600; font-size: 0.95rem;">Relational Algebra & Keys</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">Priority: MEDIUM &nbsp;•&nbsp; Initial Mastery: 60%</div>
-              </div>
-              <a href="session.html?topic=Relational Algebra" class="btn btn-secondary btn-sm">Study Topic</a>
-            </div>
+    <!-- ACTIVE PLAN VIEW WORKSPACE -->
+    <div id="activePlanWorkspace" style="display:none;">
+      <!-- ADAPTIVE PLAN MODIFICATION BANNER -->
+      <div id="planAdaptiveBanner" class="card" style="background: var(--info-bg); border-color: var(--info); margin-bottom: 24px; display:none;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 1.4rem;">🔄</span>
+          <div>
+            <strong style="color: var(--info);">ADAPTIVE PLAN UPDATED BY SYNAPTIQ</strong>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);" id="planAdaptiveReason">Today's schedule was automatically adjusted to reinforce low-mastery nodes.</p>
           </div>
         </div>
       </div>
 
-      <!-- SIDE METRICS -->
-      <div>
-        <div class="card">
-          <h3 class="card-title" style="margin-bottom: 16px;">PLAN PROGRESS ANALYTICS</h3>
-          <div style="display: flex; flex-direction: column; gap: 14px;">
-            <div>
-              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
-                <span>Plan Completion</span>
-                <span>40%</span>
-              </div>
-              <div class="progress-bar-track"><div class="progress-bar-fill" style="width: 40%;"></div></div>
-            </div>
+      <!-- PLAN HEADER -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h1 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800;" id="planSubjectTitle">Study Plan</h1>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;" id="planMetaSub">Target Exam: Upcoming</p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <a href="session.html" class="btn btn-primary" id="btnStartPlanSession">START FOCUS SESSION 🎯</a>
+        </div>
+      </div>
 
-            <div>
-              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
-                <span>Topics Mastered</span>
-                <span>4 / 10 Topics</span>
+      <div class="view-grid">
+        <!-- SCHEDULE DAYS -->
+        <div>
+          <h3 class="card-title" style="margin-bottom: 16px;">SCHEDULED STUDY DAYS & TOPICS</h3>
+          <div id="daysContainer">
+            <!-- Dynamic days rendered here -->
+          </div>
+        </div>
+
+        <!-- SIDE METRICS -->
+        <div>
+          <div class="card">
+            <h3 class="card-title" style="margin-bottom: 16px;">PLAN PROGRESS ANALYTICS</h3>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                  <span>Plan Completion</span>
+                  <span id="valCompletion">0%</span>
+                </div>
+                <div class="progress-bar-track"><div class="progress-bar-fill" id="barCompletion" style="width: 0%;"></div></div>
               </div>
             </div>
           </div>
@@ -106,25 +91,57 @@ import { initTheme } from "../js/theme.js";
 import { dbGet } from "../js/db.js";
 
 initTheme();
-renderAppShell("dashboard", "Plan Details");
+renderAppShell("plan-new", "Plan Details");
 
 const params = new URLSearchParams(window.location.search);
 const planId = params.get("id");
 
 async function loadPlanDetails() {
-  if (!planId) return;
+  if (!planId) {
+    document.getElementById("planEmptyState").style.display = "block";
+    document.getElementById("activePlanWorkspace").style.display = "none";
+    return;
+  }
+
   try {
     const plan = await dbGet("plans", planId);
     if (plan) {
-      document.getElementById("planSubjectTitle").textContent = plan.subject || plan.plan_name;
-      if (plan.wasAdapted) {
-        document.getElementById("planAdaptiveBanner").style.display = "block";
-      }
+      document.getElementById("planEmptyState").style.display = "none";
+      document.getElementById("activePlanWorkspace").style.display = "block";
+
+      document.getElementById("planSubjectTitle").textContent = plan.subject || plan.plan_name || "Study Plan";
+      document.getElementById("planMetaSub").textContent = `Target Exam: ${plan.examDate || "Upcoming"} • Created: ${plan.createdAt ? plan.createdAt.split('T')[0] : 'Recent'}`;
+      
+      const container = document.getElementById("daysContainer");
+      const days = plan.schedule || plan.days || [
+        { dayNum: 1, topic: plan.subject || "Core Concepts", duration: "30 mins", priority: "HIGH" }
+      ];
+
+      container.innerHTML = days.map((d, idx) => `
+        <div class="day-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span class="badge badge-primary">DAY ${d.dayNum || idx + 1}: STUDY MODULE</span>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">${d.duration || "25 mins"}</span>
+          </div>
+          <div class="topic-item">
+            <div>
+              <div style="font-weight: 600; font-size: 0.95rem;">${d.topic || plan.subject}</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Priority: ${d.priority || "MEDIUM"}</div>
+            </div>
+            <a href="session.html?topic=${encodeURIComponent(d.topic || plan.subject)}" class="btn btn-secondary btn-sm">Study Topic</a>
+          </div>
+        </div>
+      `).join("");
+    } else {
+      document.getElementById("planEmptyState").style.display = "block";
+      document.getElementById("activePlanWorkspace").style.display = "none";
     }
   } catch (e) {
-    console.log("Error loading plan details:", e);
+    document.getElementById("planEmptyState").style.display = "block";
+    document.getElementById("activePlanWorkspace").style.display = "none";
   }
 }
+
 loadPlanDetails();
 </script>
 </body>

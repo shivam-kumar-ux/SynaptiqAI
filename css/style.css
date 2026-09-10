@@ -1,76 +1,68 @@
 /* ==========================================================================
-   SYNAPTIQAI — CENTRALIZED DESIGN SYSTEM & MASTER STYLESHEET
-   Deep Space / Intelligent Learning Theme (Dark, Light, & System Modes)
+   SYNAPTIQAI — MINIMALIST DESIGN SYSTEM & MASTER STYLESHEET
+   Clean, Distraction-Free Intelligent Learning Platform
    ========================================================================== */
 
-/* ── 1. DESIGN TOKENS & VARIABLE DECLARATION ──────────────────────────── */
+/* ── 1. DESIGN TOKENS ─────────────────────────────────────────────────── */
 :root {
-  /* Colors - Dark Theme (Default) */
-  --bg-primary: #070B14;
-  --bg-secondary: #0B1120;
-  --bg-surface: #111827;
-  --bg-elevated: #182235;
-  --bg-glass: rgba(17, 24, 39, 0.85);
+  /* Dark Theme (Default) */
+  --bg-primary: #0A0F1D;
+  --bg-secondary: #111827;
+  --bg-surface: #162032;
+  --bg-elevated: #1F293D;
+  --bg-glass: rgba(22, 32, 50, 0.92);
 
-  --text-primary: #F1F5F9;
+  --text-primary: #F8FAFC;
   --text-secondary: #94A3B8;
   --text-muted: #64748B;
   --text-inverse: #0F172A;
 
-  --accent-primary: #00F5FF;
-  --accent-primary-hover: #33F7FF;
-  --accent-glow: rgba(0, 245, 255, 0.2);
-  --accent-secondary: #7B2FFF;
-  --accent-secondary-hover: #914DFF;
+  --accent-primary: #0284C7;
+  --accent-primary-hover: #38BDF8;
+  --accent-glow: rgba(2, 132, 199, 0.15);
+  --accent-secondary: #6366F1;
 
   --success: #10B981;
-  --success-bg: rgba(16, 185, 129, 0.15);
+  --success-bg: rgba(16, 185, 129, 0.12);
   --warning: #F59E0B;
-  --warning-bg: rgba(245, 158, 11, 0.15);
+  --warning-bg: rgba(245, 158, 11, 0.12);
   --danger: #EF4444;
-  --danger-bg: rgba(239, 68, 68, 0.15);
+  --danger-bg: rgba(239, 68, 68, 0.12);
   --info: #3B82F6;
-  --info-bg: rgba(59, 130, 246, 0.15);
+  --info-bg: rgba(59, 130, 246, 0.12);
 
   --border: #1E293B;
   --border-hover: #334155;
-  --border-accent: rgba(0, 245, 255, 0.4);
+  --border-accent: rgba(2, 132, 199, 0.4);
 
-  /* Typography */
-  --font-heading: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Spacing & Radius */
   --radius-sm: 6px;
   --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
-  /* Elevation & Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(0, 245, 255, 0.15);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
 
-  /* Transitions */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
 
-  /* Shell Dimensions */
-  --sidebar-width: 260px;
-  --topbar-height: 64px;
+  --sidebar-width: 250px;
+  --topbar-height: 60px;
 }
 
-/* Light Mode Overrides (Explicit High Contrast Legibility) */
+/* Light Theme Overrides */
 [data-theme="light"] {
   --bg-primary: #F8FAFC;
   --bg-secondary: #F1F5F9;
   --bg-surface: #FFFFFF;
   --bg-elevated: #F8FAFC;
-  --bg-glass: rgba(255, 255, 255, 0.92);
+  --bg-glass: rgba(255, 255, 255, 0.95);
 
   --text-primary: #0F172A;
   --text-secondary: #334155;
@@ -79,9 +71,8 @@
 
   --accent-primary: #0284C7;
   --accent-primary-hover: #0369A1;
-  --accent-glow: rgba(2, 132, 199, 0.12);
-  --accent-secondary: #6D28D9;
-  --accent-secondary-hover: #5B21B6;
+  --accent-glow: rgba(2, 132, 199, 0.1);
+  --accent-secondary: #4F46E5;
 
   --success: #059669;
   --success-bg: #D1FAE5;
@@ -92,17 +83,16 @@
   --info: #2563EB;
   --info-bg: #DBEAFE;
 
-  --border: #CBD5E1;
-  --border-hover: #94A3B8;
-  --border-accent: rgba(2, 132, 199, 0.5);
+  --border: #E2E8F0;
+  --border-hover: #CBD5E1;
+  --border-accent: rgba(2, 132, 199, 0.4);
 
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-glow: 0 0 20px rgba(2, 132, 199, 0.15);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
 }
 
-/* ── 2. GLOBAL RESET & BASE STYLES ────────────────────────────────────── */
+/* ── 2. GLOBAL BASE ────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -141,15 +131,13 @@ button, input, select, textarea {
   outline-offset: 2px;
 }
 
-/* ── 3. REUSABLE UI COMPONENTS ───────────────────────────────────────── */
-
-/* Buttons */
+/* ── 3. BUTTONS & UI COMPONENTS ───────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 20px;
+  padding: 10px 18px;
   font-family: var(--font-heading);
   font-size: 0.875rem;
   font-weight: 600;
@@ -162,15 +150,14 @@ button, input, select, textarea {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  background: var(--accent-primary);
   color: #FFFFFF;
-  font-weight: 700;
+  font-weight: 600;
   box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
-  filter: brightness(1.1);
-  box-shadow: var(--shadow-glow);
+  background: var(--accent-primary-hover);
   transform: translateY(-1px);
 }
 
@@ -194,7 +181,6 @@ button, input, select, textarea {
 
 .btn-outline:hover {
   background: var(--accent-glow);
-  border-color: var(--accent-primary);
 }
 
 .btn-ghost {
@@ -208,17 +194,15 @@ button, input, select, textarea {
 }
 
 .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
-.btn-lg { padding: 14px 28px; font-size: 1rem; }
+.btn-lg { padding: 12px 24px; font-size: 0.95rem; }
 
-/* Cards & Containers */
+/* Cards */
 .card {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 24px;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-  position: relative;
-  overflow: hidden;
+  transition: border-color var(--transition-fast);
 }
 
 .card-header {
@@ -230,12 +214,12 @@ button, input, select, textarea {
 
 .card-title {
   font-family: var(--font-heading);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
-/* Badges & Pills */
+/* Badges */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -245,19 +229,18 @@ button, input, select, textarea {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.5px;
 }
 
 .badge-primary { background: var(--accent-glow); color: var(--accent-primary); border: 1px solid var(--border-accent); }
-.badge-success { background: var(--success-bg); color: var(--success); border: 1px solid var(--success); }
-.badge-warning { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning); }
-.badge-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); }
-.badge-info { background: var(--info-bg); color: var(--info); border: 1px solid var(--info); }
+.badge-success { background: var(--success-bg); color: var(--success); }
+.badge-warning { background: var(--warning-bg); color: var(--warning); }
+.badge-danger { background: var(--danger-bg); color: var(--danger); }
+.badge-info { background: var(--info-bg); color: var(--info); }
 
 /* Progress Bars */
 .progress-bar-track {
   width: 100%;
-  height: 8px;
+  height: 6px;
   background: var(--bg-secondary);
   border-radius: var(--radius-full);
   overflow: hidden;
@@ -266,21 +249,21 @@ button, input, select, textarea {
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  background: var(--accent-primary);
   border-radius: var(--radius-full);
-  transition: width var(--transition-slow);
+  transition: width var(--transition-normal);
 }
 
 /* Form Controls */
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: 6px;
+  margin-bottom: 18px;
 }
 
 .form-label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-secondary);
   font-family: var(--font-mono);
@@ -288,7 +271,7 @@ button, input, select, textarea {
 
 .input-text, .select-input, .textarea-input {
   width: 100%;
-  padding: 12px 16px;
+  padding: 10px 14px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -302,24 +285,13 @@ button, input, select, textarea {
   box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
-/* Empty States */
-.empty-state-card {
-  text-align: center;
-  padding: 48px 24px;
-  background: var(--bg-surface);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-lg);
-}
-
 /* ── 4. APP SHELL LAYOUT ──────────────────────────────────────────────── */
 .app-layout {
   display: flex;
   min-height: 100vh;
   position: relative;
-  z-index: 1;
 }
 
-/* Sidebar */
 .app-sidebar {
   position: fixed;
   top: 0;
@@ -331,7 +303,6 @@ button, input, select, textarea {
   display: flex;
   flex-direction: column;
   z-index: 40;
-  transition: transform var(--transition-normal);
 }
 
 .sidebar-brand {
@@ -339,24 +310,24 @@ button, input, select, textarea {
   padding: 0 20px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   border-bottom: 1px solid var(--border);
   font-family: var(--font-heading);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: var(--accent-primary);
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 .sidebar-brand img {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: 16px 12px;
+  padding: 14px 10px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -366,11 +337,11 @@ button, input, select, textarea {
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
+  gap: 10px;
+  padding: 9px 12px;
   border-radius: var(--radius-md);
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 500;
   transition: all var(--transition-fast);
 }
@@ -386,7 +357,6 @@ button, input, select, textarea {
   font-weight: 600;
 }
 
-/* Topbar Header */
 .app-topbar {
   position: fixed;
   top: 0;
@@ -394,20 +364,20 @@ button, input, select, textarea {
   right: 0;
   height: var(--topbar-height);
   background: var(--bg-glass);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
+  padding: 0 24px;
   z-index: 30;
 }
 
 .breadcrumb-path {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.875rem;
+  gap: 6px;
+  font-size: 0.85rem;
   color: var(--text-secondary);
 }
 
@@ -419,21 +389,20 @@ button, input, select, textarea {
 .topbar-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .cmd-k-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 14px;
+  gap: 8px;
+  padding: 6px 12px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   color: var(--text-secondary);
   font-size: 0.8rem;
   cursor: pointer;
-  transition: border-color var(--transition-fast);
 }
 
 .cmd-k-btn:hover {
@@ -450,27 +419,24 @@ button, input, select, textarea {
   font-size: 0.7rem;
 }
 
-/* Main Area */
 .app-main {
   margin-left: var(--sidebar-width);
   margin-top: var(--topbar-height);
   flex: 1;
-  padding: 32px;
+  padding: 28px;
   min-height: calc(100vh - var(--topbar-height));
   position: relative;
-  z-index: 1;
 }
 
-/* Mobile Bottom Navigation */
 .mobile-bottom-nav {
   display: none;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 64px;
+  height: 60px;
   background: var(--bg-glass);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(12px);
   border-top: 1px solid var(--border);
   z-index: 50;
   justify-content: space-around;
@@ -495,6 +461,6 @@ button, input, select, textarea {
   :root { --sidebar-width: 0px; }
   .app-sidebar { transform: translateX(-100%); }
   .app-topbar { left: 0; }
-  .app-main { margin-left: 0; padding: 20px; padding-bottom: 80px; }
+  .app-main { margin-left: 0; padding: 20px; padding-bottom: 75px; }
   .mobile-bottom-nav { display: flex; }
 }

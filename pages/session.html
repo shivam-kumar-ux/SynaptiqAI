@@ -8,13 +8,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <style>
-.study-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; min-height: calc(100vh - var(--topbar-height) - 64px); }
+.study-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
 @media (max-width: 1024px) { .study-layout { grid-template-columns: 1fr; } }
 .level-pill { padding: 6px 14px; border-radius: var(--radius-full); border: 1px solid var(--border); font-size: 0.8rem; cursor: pointer; background: var(--bg-secondary); }
 .level-pill.active { border-color: var(--accent-primary); background: var(--accent-glow); color: var(--accent-primary); font-weight: 600; }
 .notes-container { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; line-height: 1.7; font-size: 0.95rem; color: var(--text-primary); }
 .coach-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; display: flex; flex-direction: column; gap: 16px; height: 100%; }
-.coach-chat-box { flex: 1; min-height: 300px; max-height: 450px; overflow-y: auto; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.coach-chat-box { flex: 1; min-height: 280px; max-height: 400px; overflow-y: auto; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 .coach-msg { padding: 10px 14px; border-radius: var(--radius-md); font-size: 0.875rem; line-height: 1.5; }
 .coach-msg.user { background: var(--accent-glow); border: 1px solid var(--border-accent); color: var(--accent-primary); align-self: flex-end; }
 .coach-msg.ai { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); align-self: flex-start; }
@@ -28,98 +28,81 @@
   <header class="app-topbar"></header>
 
   <main class="app-main">
-    <!-- STUDY HEADER & TOPIC SELECTOR -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
-      <div>
-        <div class="badge badge-primary" style="margin-bottom: 6px;">🧠 ACTIVE FOCUS STUDY MODE</div>
-        <h1 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800;" id="studyTopicTitle">Normalization (3NF & BCNF)</h1>
+    <!-- EMPTY STATE / TOPIC SELECTION (Shown if no topic passed) -->
+    <div id="sessionSetupState" class="card" style="display:none; text-align:center; max-width:600px; margin:0 auto; padding:36px;">
+      <div style="font-size: 2.5rem; margin-bottom: 12px;">🧠</div>
+      <h2 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 8px;">START FOCUS STUDY SESSION</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px;">
+        Choose a topic from your created study plans to initiate a distraction-aware study session.
+      </p>
+
+      <div class="form-group" style="text-align: left; max-width: 440px; margin: 0 auto 20px;">
+        <label class="form-label">SELECT STUDY TOPIC</label>
+        <select class="select-input" id="sessionTopicSelect">
+          <option value="">Loading your topics...</option>
+        </select>
       </div>
-      <div style="display: flex; gap: 12px;">
-        <button class="btn btn-primary" id="btnTriggerTimer">● START FLOATING TIMER</button>
-        <button class="btn btn-secondary" id="btnToggleVideo">🎥 VIDEO MODE</button>
-      </div>
+
+      <button class="btn btn-primary" id="btnStartSessionNow">BEGIN STUDY SESSION 🚀</button>
     </div>
 
-    <!-- MAIN STUDY WORKSPACE GRID -->
-    <div class="study-layout">
-      <!-- LEFT CONTENT: INTERACTIVE NOTES & VIDEO -->
-      <div>
-        <!-- 5-LEVEL EXPLANATION SELECTOR -->
-        <div class="card" style="margin-bottom: 20px; padding: 16px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">EXPLANATION LEVEL:</span>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <div class="level-pill" data-level="Beginner">Beginner</div>
-              <div class="level-pill" data-level="Basic">Basic</div>
-              <div class="level-pill active" data-level="Intermediate">Intermediate</div>
-              <div class="level-pill" data-level="Advanced">Advanced</div>
-              <div class="level-pill" data-level="Exam Ready">Exam Ready</div>
-            </div>
-          </div>
+    <!-- ACTIVE STUDY SESSION WORKSPACE -->
+    <div id="activeSessionWrapper" style="display:none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <span class="badge badge-primary" style="margin-bottom: 6px;">🧠 ACTIVE FOCUS STUDY MODE</span>
+          <h1 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800;" id="studyTopicTitle">Study Topic</h1>
         </div>
-
-        <!-- VIDEO LEARNING DIAGNOSTIC PREVIEW -->
-        <div id="videoContainer" class="card" style="display:none; margin-bottom: 20px; border-color: var(--accent-primary);">
-          <div class="badge badge-warning" style="margin-bottom: 8px;">WHY THIS VIDEO?</div>
-          <p style="font-size: 0.875rem; color: var(--text-primary); margin-bottom: 14px;">
-            "You had 3 conceptual errors in functional dependencies. This 8-minute module specifically addresses 3NF candidate key transitive dependencies."
-          </p>
-          <iframe id="videoIframe" width="100%" height="320" style="border-radius: var(--radius-md); border:none;" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
-          
-          <div style="margin-top: 16px; padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-md);">
-            <strong style="font-size: 0.85rem; color: var(--accent-primary);">QUICK CHECK AFTER VIDEO:</strong>
-            <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 6px 0 10px;">What condition violates Third Normal Form (3NF)?</p>
-            <button class="btn btn-secondary btn-sm" onclick="alert('Correct! Non-prime attributes cannot determine non-prime attributes.')">A) Transitive Dependency</button>
-            <button class="btn btn-secondary btn-sm" onclick="alert('Incorrect. Partial dependencies relate to 2NF.')">B) Partial Dependency</button>
-          </div>
-        </div>
-
-        <!-- INTERACTIVE NOTES READER -->
-        <div class="notes-container" id="notesText">
-          <h2>1. WHAT YOU NEED TO KNOW</h2>
-          <p>Database Normalization is the process of structuring a relational database in accordance with a series of normal forms in order to reduce data redundancy and improve data integrity.</p>
-
-          <h2 style="margin-top: 20px;">2. EXPLAINED SIMPLY</h2>
-          <p>Imagine a school register where student addresses are written next to every subject grade. If a student moves houses, you would have to update 10 different rows! Normalization splits this into two tables: one for Students and one for Grades, connected by a unique Student ID.</p>
-
-          <h2 style="margin-top: 20px;">3. EXAM DEFINITION</h2>
-          <blockquote style="border-left: 3px solid var(--accent-primary); padding-left: 14px; margin: 10px 0; color: var(--text-secondary);">
-            "A relation R is in 3NF if for every functional dependency X → Y, either X is a superkey or Y is a prime attribute."
-          </blockquote>
-        </div>
-
-        <!-- NOTE QUICK ACTION BUTTONS -->
-        <div style="display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap;">
-          <button class="btn btn-secondary btn-sm" id="btnExplainSimpler">💡 Explain Simpler</button>
-          <button class="btn btn-secondary btn-sm" id="btnGiveExample">📝 Give Real Example</button>
-          <button class="btn btn-secondary btn-sm" id="btnMemoryTrick">🧠 Memory Trick</button>
-          <a href="quiz.html?topic=Normalization" class="btn btn-primary btn-sm">TEST ME WITH QUIZ 🧪</a>
+        <div style="display: flex; gap: 12px;">
+          <button class="btn btn-primary" id="btnTriggerTimer">● START FLOATING TIMER</button>
+          <a href="quiz.html" class="btn btn-secondary" id="btnTakeQuiz">TEST ME WITH QUIZ 🧪</a>
         </div>
       </div>
 
-      <!-- RIGHT CONTENT: SYNAPTIQ COACH AI ASSISTANT -->
-      <div>
-        <div class="coach-panel">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <h3 class="card-title">🤖 SYNAPTIQ COACH</h3>
-            <span class="badge badge-success">Context Aware</span>
-          </div>
-
-          <div class="coach-chat-box" id="coachChat">
-            <div class="coach-msg ai">
-              Hello! I am your Synaptiq Coach. Ask me anything about <strong>Normalization</strong> or click one of the quick prompts below!
+      <div class="study-layout">
+        <!-- LEFT: EXPLANATION & NOTES -->
+        <div>
+          <!-- 5-LEVEL EXPLANATION SELECTOR -->
+          <div class="card" style="margin-bottom: 20px; padding: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+              <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">EXPLANATION LEVEL:</span>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <div class="level-pill" data-level="Beginner">Beginner</div>
+                <div class="level-pill" data-level="Basic">Basic</div>
+                <div class="level-pill active" data-level="Intermediate">Intermediate</div>
+                <div class="level-pill" data-level="Advanced">Advanced</div>
+                <div class="level-pill" data-level="Exam Ready">Exam Ready</div>
+              </div>
             </div>
           </div>
 
-          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-            <button class="btn btn-ghost btn-sm" style="font-size:0.75rem; border:1px solid var(--border);" onclick="sendCoachPrompt('Explain 3NF simply')">Explain 3NF</button>
-            <button class="btn btn-ghost btn-sm" style="font-size:0.75rem; border:1px solid var(--border);" onclick="sendCoachPrompt('What is BCNF?')">What is BCNF?</button>
-            <button class="btn btn-ghost btn-sm" style="font-size:0.75rem; border:1px solid var(--border);" onclick="sendCoachPrompt('Give an exam question')">Exam Q</button>
+          <!-- INTERACTIVE NOTES READER -->
+          <div class="notes-container" id="notesText">
+            <h2 style="font-family: var(--font-heading); font-size: 1.1rem; color: var(--accent-primary); margin-bottom: 12px;">CORE CONCEPTS & SUMMARY</h2>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7;" id="notesContent">
+              Loading notes for topic... Connect your AI provider in Settings to generate 5-level adaptive study notes.
+            </p>
           </div>
+        </div>
 
-          <div style="display: flex; gap: 8px;">
-            <input type="text" class="input-text" id="coachInput" placeholder="Ask Synaptiq Coach..." style="flex:1;">
-            <button class="btn btn-primary" id="btnCoachSend">Send</button>
+        <!-- RIGHT: SYNAPTIQ COACH AI PANEL -->
+        <div>
+          <div class="coach-panel">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <h3 class="card-title">🤖 SYNAPTIQ COACH</h3>
+              <span class="badge badge-success">Context Aware</span>
+            </div>
+
+            <div class="coach-chat-box" id="coachChat">
+              <div class="coach-msg ai">
+                Hello! I am your Synaptiq Coach. Ask me anything about this topic!
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+              <input type="text" class="input-text" id="coachInput" placeholder="Ask Coach..." style="flex:1;">
+              <button class="btn btn-primary btn-sm" id="btnCoachSend">Send</button>
+            </div>
           </div>
         </div>
       </div>
@@ -128,53 +111,102 @@
 </div>
 
 <script type="module">
-import { renderAppShell } from "../js/ui-components.js";
+import { renderAppShell, showToast } from "../js/ui-components.js";
 import { initTheme } from "../js/theme.js";
 import { autoStartTimerForActivity } from "../js/timer-floating.js";
-import { generateCoachResponse } from "../js/coach.js";
+import { dbGetAll } from "../js/db.js";
+import { generateStudyNotes } from "../js/notes.js";
 
 initTheme();
 renderAppShell("session", "Study Mode");
 
 const params = new URLSearchParams(window.location.search);
-const topic = params.get("topic") || "Normalization";
-document.getElementById("studyTopicTitle").textContent = topic;
+const topicParam = params.get("topic");
 
-// Auto-start floating timer upon entering Study Mode
-autoStartTimerForActivity(topic, 25);
+async function initSessionPage() {
+  const plans = await dbGetAll("plans");
+  const topicSelect = document.getElementById("sessionTopicSelect");
 
-document.getElementById("btnTriggerTimer")?.addEventListener("click", () => {
-  autoStartTimerForActivity(topic, 25);
-});
+  let topics = [];
+  if (plans && plans.length > 0) {
+    plans.forEach(p => {
+      if (p.subject) topics.push(p.subject);
+    });
+  }
 
-document.getElementById("btnToggleVideo")?.addEventListener("click", () => {
-  const v = document.getElementById("videoContainer");
-  v.style.display = v.style.display === "none" ? "block" : "none";
-});
+  if (topics.length === 0) {
+    topics = ["Database Systems", "Software Engineering", "Computer Networks"];
+  }
 
-// Coach Assistant functionality
-window.sendCoachPrompt = async (txt) => {
-  const chat = document.getElementById("coachChat");
-  chat.innerHTML += `<div class="coach-msg user">${txt}</div>`;
-  chat.scrollTop = chat.scrollHeight;
+  topicSelect.innerHTML = topics.map(t => `<option value="${t}">${t}</option>`).join("");
+
+  if (topicParam) {
+    startStudySession(topicParam);
+  } else {
+    document.getElementById("sessionSetupState").style.display = "block";
+    document.getElementById("activeSessionWrapper").style.display = "none";
+  }
+}
+
+async function startStudySession(topicName) {
+  document.getElementById("sessionSetupState").style.display = "none";
+  document.getElementById("activeSessionWrapper").style.display = "block";
+  document.getElementById("studyTopicTitle").textContent = topicName;
+  document.getElementById("btnTakeQuiz").href = `quiz.html?topic=${encodeURIComponent(topicName)}`;
+
+  autoStartTimerForActivity(topicName, 25);
 
   try {
-    const resp = await generateCoachResponse(txt, { topic });
-    chat.innerHTML += `<div class="coach-msg ai">${resp}</div>`;
+    const notes = await generateStudyNotes(topicName, "Intermediate");
+    if (notes && notes.summary) {
+      document.getElementById("notesContent").innerHTML = `
+        <h3 style="color:var(--accent-primary); margin-bottom:8px;">1. SUMMARY</h3>
+        <p>${notes.summary}</p>
+        <h3 style="color:var(--accent-primary); margin:16px 0 8px;">2. KEY EXAM POINTS</h3>
+        <p>${notes.examDefinition || notes.keyPoints || "Study main formulas and candidate key properties."}</p>
+      `;
+    } else {
+      renderFallbackNotes(topicName);
+    }
   } catch (e) {
-    chat.innerHTML += `<div class="coach-msg ai">3NF ensures no non-prime attribute depends transitively on a primary key.</div>`;
+    renderFallbackNotes(topicName);
   }
-  chat.scrollTop = chat.scrollHeight;
-};
+}
+
+function renderFallbackNotes(topicName) {
+  document.getElementById("notesContent").innerHTML = `
+    <h3 style="color:var(--accent-primary); margin-bottom:8px;">OVERVIEW: ${topicName.toUpperCase()}</h3>
+    <p>This module covers key principles, structural definitions, and application methods for <strong>${topicName}</strong>.</p>
+    <blockquote style="border-left:3px solid var(--accent-primary); padding-left:12px; margin:14px 0; color:var(--text-secondary);">
+      "Focus on understanding foundational definitions and solving sample problems."
+    </blockquote>
+  `;
+}
+
+document.getElementById("btnStartSessionNow")?.addEventListener("click", () => {
+  const selected = document.getElementById("sessionTopicSelect").value;
+  if (selected) startStudySession(selected);
+});
+
+document.getElementById("btnTriggerTimer")?.addEventListener("click", () => {
+  const t = document.getElementById("studyTopicTitle").textContent;
+  autoStartTimerForActivity(t, 25);
+  showToast("Floating timer started!", "info");
+});
 
 document.getElementById("btnCoachSend")?.addEventListener("click", () => {
   const inp = document.getElementById("coachInput");
   const txt = inp.value.trim();
   if (txt) {
-    window.sendCoachPrompt(txt);
+    const chat = document.getElementById("coachChat");
+    chat.innerHTML += `<div class="coach-msg user">${txt}</div>`;
+    chat.innerHTML += `<div class="coach-msg ai">Focus on core principles of ${document.getElementById("studyTopicTitle").textContent}.</div>`;
     inp.value = "";
+    chat.scrollTop = chat.scrollHeight;
   }
 });
+
+initSessionPage();
 </script>
 </body>
 </html>

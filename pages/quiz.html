@@ -8,8 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <style>
-.quiz-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 32px; max-width: 680px; margin: 0 auto; box-shadow: var(--shadow-lg); }
-.option-card { background: var(--bg-secondary); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 14px 18px; cursor: pointer; transition: all var(--transition-fast); display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+.quiz-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 32px; max-width: 660px; margin: 0 auto; }
+.option-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 18px; cursor: pointer; transition: all var(--transition-fast); display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
 .option-card:hover { border-color: var(--border-accent); background: var(--accent-glow); }
 .option-card.selected { border-color: var(--accent-primary); background: var(--accent-glow); }
 .option-card.correct { border-color: var(--success); background: var(--success-bg); }
@@ -24,52 +24,53 @@
   <header class="app-topbar"></header>
 
   <main class="app-main">
-    <!-- QUIZ PROGRESS BAR HEADER -->
-    <div style="max-width: 680px; margin: 0 auto 24px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <span class="badge badge-primary" id="quizTopicTag">NORMALIZATION DIAGNOSTIC</span>
-        <span style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-secondary);" id="questionProgressText">Question 1 of 5</span>
+    <!-- EMPTY STATE / TOPIC SELECTOR (Shown if no active quiz loaded) -->
+    <div id="quizSetupState" class="quiz-card" style="display:none; text-align:center;">
+      <div style="font-size: 2.5rem; margin-bottom: 12px;">🧪</div>
+      <h2 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 8px;">DIAGNOSTIC QUIZ GENERATOR</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px;">
+        No active quiz in progress. Select one of your study topics to generate a dynamic diagnostic check.
+      </p>
+
+      <div class="form-group" style="text-align: left; max-width: 440px; margin: 0 auto 20px;">
+        <label class="form-label">SELECT STUDY TOPIC</label>
+        <select class="select-input" id="quizTopicSelect">
+          <option value="">Loading your study topics...</option>
+        </select>
       </div>
-      <div class="progress-bar-track"><div class="progress-bar-fill" id="quizProgressFill" style="width: 20%;"></div></div>
+
+      <button class="btn btn-primary" id="btnStartTopicQuiz">GENERATE DIAGNOSTIC QUIZ 🚀</button>
     </div>
 
-    <!-- QUESTION CARD CONTAINER -->
-    <div class="quiz-card" id="quizCard">
-      <div style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 8px;">CONCEPTUAL QUESTION</div>
-      <h2 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; line-height: 1.5; margin-bottom: 24px;" id="qText">
-        Which normal form requires that all non-prime attributes are fully functionally dependent on the entire primary key (no partial dependencies)?
-      </h2>
-
-      <div id="optionsContainer">
-        <div class="option-card" onclick="selectOption(this, 0)">
-          <div style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border-accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--accent-primary);">A</div>
-          <div style="font-size: 0.95rem;">First Normal Form (1NF)</div>
+    <!-- ACTIVE QUIZ CARD CONTAINER -->
+    <div id="activeQuizWrapper" style="display:none;">
+      <div style="max-width: 660px; margin: 0 auto 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span class="badge badge-primary" id="quizTopicTag">DIAGNOSTIC QUIZ</span>
+          <span style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-secondary);" id="questionProgressText">Question 1 of 3</span>
         </div>
-        <div class="option-card" onclick="selectOption(this, 1)">
-          <div style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border-accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--accent-primary);">B</div>
-          <div style="font-size: 0.95rem;">Second Normal Form (2NF)</div>
-        </div>
-        <div class="option-card" onclick="selectOption(this, 2)">
-          <div style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border-accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--accent-primary);">C</div>
-          <div style="font-size: 0.95rem;">Third Normal Form (3NF)</div>
-        </div>
-        <div class="option-card" onclick="selectOption(this, 3)">
-          <div style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border-accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--accent-primary);">D</div>
-          <div style="font-size: 0.95rem;">Boyce-Codd Normal Form (BCNF)</div>
-        </div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="quizProgressFill" style="width: 33%;"></div></div>
       </div>
 
-      <!-- FEEDBACK & EXPLANATION PANEL -->
-      <div id="explanationPanel" style="display:none; margin-top: 20px; padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--accent-primary);">
-        <strong style="color: var(--accent-primary); font-size: 0.85rem; display: block; margin-bottom: 4px;">WHY THIS IS CORRECT:</strong>
-        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;" id="explanationText">
-          2NF removes partial functional dependencies where a non-prime attribute depends on only part of a composite primary key.
-        </p>
-      </div>
+      <div class="quiz-card" id="quizCard">
+        <div style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 8px;">CONCEPT RECALL</div>
+        <h2 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-bottom: 20px;" id="qText">
+          Loading question...
+        </h2>
 
-      <div style="display: flex; justify-content: space-between; margin-top: 28px;">
-        <button class="btn btn-secondary" id="btnPrevQ" disabled>← Previous</button>
-        <button class="btn btn-primary" id="btnNextQ">Submit Answer →</button>
+        <div id="optionsContainer">
+          <!-- Dynamic options rendered here -->
+        </div>
+
+        <div id="explanationPanel" style="display:none; margin-top: 16px; padding: 14px; background: var(--bg-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--accent-primary);">
+          <strong style="color: var(--accent-primary); font-size: 0.85rem; display: block; margin-bottom: 4px;">EXPLANATION:</strong>
+          <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5;" id="explanationText"></p>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 24px;">
+          <button class="btn btn-secondary" id="btnPrevQ" disabled>← Previous</button>
+          <button class="btn btn-primary" id="btnNextQ">Submit Answer →</button>
+        </div>
       </div>
     </div>
   </main>
@@ -78,32 +79,147 @@
 <script type="module">
 import { renderAppShell, showToast } from "../js/ui-components.js";
 import { initTheme } from "../js/theme.js";
+import { dbGetAll, dbPut } from "../js/db.js";
+import { generateQuizQuestions } from "../js/ai.js";
 
 initTheme();
 renderAppShell("quiz", "Diagnostic Quiz");
 
+let currentQuizQuestions = [];
+let currentQIdx = 0;
 let selectedIdx = null;
 
-window.selectOption = (el, idx) => {
-  document.querySelectorAll(".option-card").forEach(o => o.classList.remove("selected"));
-  el.classList.add("selected");
-  selectedIdx = idx;
-};
+const params = new URLSearchParams(window.location.search);
+const topicParam = params.get("topic");
 
-document.getElementById("btnNextQ")?.addEventListener("click", () => {
+async function initQuizPage() {
+  const plans = await dbGetAll("plans");
+  const topicSelect = document.getElementById("quizTopicSelect");
+
+  let availableTopics = [];
+  if (plans && plans.length > 0) {
+    plans.forEach(p => {
+      if (p.subject) availableTopics.push(p.subject);
+    });
+  }
+
+  if (availableTopics.length === 0) {
+    availableTopics = ["Database Systems", "Software Engineering", "Computer Networks"];
+  }
+
+  topicSelect.innerHTML = availableTopics.map(t => `<option value="${t}">${t}</option>`).join("");
+
+  if (topicParam) {
+    startQuizForTopic(topicParam);
+  } else {
+    document.getElementById("quizSetupState").style.display = "block";
+    document.getElementById("activeQuizWrapper").style.display = "none";
+  }
+}
+
+async function startQuizForTopic(topicName) {
+  document.getElementById("quizSetupState").style.display = "none";
+  document.getElementById("activeQuizWrapper").style.display = "block";
+  document.getElementById("quizTopicTag").textContent = topicName.toUpperCase();
+
+  try {
+    const qData = await generateQuizQuestions(topicName, 3);
+    currentQuizQuestions = qData || getFallbackQuestions(topicName);
+  } catch (e) {
+    currentQuizQuestions = getFallbackQuestions(topicName);
+  }
+  currentQIdx = 0;
+  renderCurrentQuestion();
+}
+
+function getFallbackQuestions(topicName) {
+  return [
+    {
+      question: `What is the primary objective of studying ${topicName}?`,
+      options: ["Systematic problem solving", "Random trial and error", "Ignoring constraints", "Manual duplication"],
+      correctIndex: 0,
+      explanation: `${topicName} focuses on structured, efficient methodology.`
+    },
+    {
+      question: `Which metric is critical when evaluating ${topicName}?`,
+      options: ["Consistency and correctness", "Arbitrary file size", "Color scheme", "Network latency alone"],
+      correctIndex: 0,
+      explanation: "Correctness and structural consistency are fundamental metrics."
+    }
+  ];
+}
+
+function renderCurrentQuestion() {
+  selectedIdx = null;
+  document.getElementById("explanationPanel").style.display = "none";
+
+  const q = currentQuizQuestions[currentQIdx];
+  document.getElementById("questionProgressText").textContent = `Question ${currentQIdx + 1} of ${currentQuizQuestions.length}`;
+  document.getElementById("quizProgressFill").style.width = `${((currentQIdx + 1) / currentQuizQuestions.length) * 100}%`;
+  document.getElementById("qText").textContent = q.question;
+
+  const optContainer = document.getElementById("optionsContainer");
+  const letters = ["A", "B", "C", "D"];
+  optContainer.innerHTML = q.options.map((opt, idx) => `
+    <div class="option-card" data-idx="${idx}">
+      <div style="width:26px; height:26px; border-radius:50%; border:1px solid var(--border-accent); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:0.8rem; font-weight:700; color:var(--accent-primary);">${letters[idx]}</div>
+      <div style="font-size:0.9rem;">${opt}</div>
+    </div>
+  `).join("");
+
+  optContainer.querySelectorAll(".option-card").forEach(el => {
+    el.addEventListener("click", () => {
+      optContainer.querySelectorAll(".option-card").forEach(o => o.classList.remove("selected"));
+      el.classList.add("selected");
+      selectedIdx = parseInt(el.dataset.idx);
+    });
+  });
+}
+
+document.getElementById("btnStartTopicQuiz")?.addEventListener("click", () => {
+  const selectedTopic = document.getElementById("quizTopicSelect").value;
+  if (selectedTopic) startQuizForTopic(selectedTopic);
+});
+
+document.getElementById("btnNextQ")?.addEventListener("click", async () => {
   if (selectedIdx === null) return showToast("Please select an answer option.", "warning");
 
+  const q = currentQuizQuestions[currentQIdx];
   const options = document.querySelectorAll(".option-card");
-  if (selectedIdx === 1) { // Correct (2NF)
+
+  if (selectedIdx === q.correctIndex) {
     options[selectedIdx].classList.add("correct");
-    showToast("Correct! +10 Mastery Evidence", "success");
+    showToast("Correct Answer! +10 Mastery Evidence", "success");
   } else {
     options[selectedIdx].classList.add("wrong");
-    options[1].classList.add("correct");
-    showToast("Incorrect. Synaptiq added this conceptual gap to your Mistake Bank.", "danger");
+    options[q.correctIndex].classList.add("correct");
+    showToast("Incorrect answer logged.", "danger");
+
+    // Save mistake to IndexedDB
+    await dbPut("mistakes", {
+      id: "mist_" + Date.now(),
+      topic: document.getElementById("quizTopicTag").textContent,
+      question: q.question,
+      category: "Conceptual Error",
+      occurrences: 1,
+      createdAt: new Date().toISOString()
+    });
   }
+
+  document.getElementById("explanationText").textContent = q.explanation || "No explanation provided.";
   document.getElementById("explanationPanel").style.display = "block";
+
+  setTimeout(() => {
+    if (currentQIdx < currentQuizQuestions.length - 1) {
+      currentQIdx++;
+      renderCurrentQuestion();
+    } else {
+      showToast("Quiz Complete!", "success");
+    }
+  }, 2000);
 });
+
+initQuizPage();
 </script>
 </body>
 </html>
