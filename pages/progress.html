@@ -8,10 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <style>
-.progress-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.progress-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 @media (max-width: 1024px) { .progress-grid { grid-template-columns: 1fr; } }
-.tree-node { padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
-.mistake-card-item { background: var(--bg-surface); border: 1px solid var(--border); border-left: 4px solid var(--danger); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; }
+.mistake-card-item { background: var(--bg-surface); border: 1px solid var(--border); border-left: 3px solid var(--danger); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px; }
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
 </head>
@@ -22,44 +21,44 @@
   <header class="app-topbar"></header>
 
   <main class="app-main">
-    <div style="margin-bottom: 28px;">
-      <h1 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800;">Analytics & Learner Knowledge Map</h1>
-      <p style="color: var(--text-secondary); font-size: 0.95rem;">Track mastery progression, study time, and weakness diagnostic patterns over time.</p>
+    <div style="margin-bottom: 20px;">
+      <h1 style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 700;">Progress & Knowledge Map</h1>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">Track your study metrics, mastery progression, and weakness patterns.</p>
     </div>
 
-    <!-- REAL STATS OVERVIEW CARDS -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+    <!-- STATS OVERVIEW CARDS -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
       <div class="card" style="text-align: center;">
         <div style="font-size: 0.75rem; color: var(--text-muted);">TOTAL FOCUS TIME</div>
-        <div style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: var(--accent-primary);" id="statTotalHours">0 Hours</div>
+        <div style="font-family: var(--font-mono); font-size: 1.6rem; font-weight: 700; color: var(--accent-primary);" id="statTotalHours">0 Hours</div>
       </div>
       <div class="card" style="text-align: center;">
         <div style="font-size: 0.75rem; color: var(--text-muted);">OBSERVED FOCUS SCORE</div>
-        <div style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: var(--success);" id="statFocusScore">--</div>
+        <div style="font-family: var(--font-mono); font-size: 1.6rem; font-weight: 700; color: var(--success);" id="statFocusScore">--</div>
       </div>
       <div class="card" style="text-align: center;">
-        <div style="font-size: 0.75rem; color: var(--text-muted);">RESOLVED MISTAKES</div>
-        <div style="font-family: var(--font-mono); font-size: 1.8rem; font-weight: 800; color: var(--warning);" id="statResolvedMistakes">0 Fixed</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted);">LOGGED MISTAKES</div>
+        <div style="font-family: var(--font-mono); font-size: 1.6rem; font-weight: 700; color: var(--warning);" id="statResolvedMistakes">0 Logged</div>
       </div>
     </div>
 
-    <div class="progress-grid" style="margin-bottom: 24px;">
-      <!-- KNOWLEDGE MAP TREE VIEW -->
+    <div class="progress-grid" style="margin-bottom: 20px;">
+      <!-- KNOWLEDGE MAP -->
       <div class="card">
-        <h3 class="card-title" style="margin-bottom: 16px;">🧠 LEARNER KNOWLEDGE GRAPH MAP</h3>
+        <h3 class="card-title" style="margin-bottom: 14px;">🧠 KNOWLEDGE GRAPH MAP</h3>
         <div id="knowledgeTreeMap">
-          <div style="text-align:center; padding:32px 16px; color:var(--text-muted); font-size:0.9rem;">
+          <div style="text-align:center; padding:28px 12px; color:var(--text-muted); font-size:0.875rem;">
             No topic mastery data recorded yet.<br>Complete study sessions or quizzes to populate your Knowledge Graph.
           </div>
         </div>
       </div>
 
-      <!-- RECURRING MISTAKE BANK -->
+      <!-- MISTAKE BANK -->
       <div class="card" id="mistakes">
-        <h3 class="card-title" style="margin-bottom: 16px;">⚠️ RECURRING MISTAKE BANK</h3>
+        <h3 class="card-title" style="margin-bottom: 14px;">⚠️ RECURRING MISTAKE BANK</h3>
         <div id="mistakesContainer">
-          <div style="text-align:center; padding:32px 16px; color:var(--text-muted); font-size:0.9rem;">
-            No mistake patterns detected.<br>Your quiz and diagnostic errors will automatically appear here for targeted review.
+          <div style="text-align:center; padding:28px 12px; color:var(--text-muted); font-size:0.875rem;">
+            No mistake patterns detected.<br>Your quiz and diagnostic errors will automatically appear here.
           </div>
         </div>
       </div>
@@ -93,12 +92,12 @@ async function loadRealProgressData() {
       
       const mistakesHtml = mistakes.map(m => `
         <div class="mistake-card-item">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
             <span class="badge badge-danger">${m.category || "Conceptual Error"}</span>
             <span style="font-size: 0.75rem; color: var(--text-muted);">${m.occurrences || 1} Occurrences</span>
           </div>
-          <strong style="font-size: 0.95rem; display: block; margin-bottom: 4px;">${m.topic}: ${m.question || "Topic Gap"}</strong>
-          <a href="session.html?topic=${encodeURIComponent(m.topic)}" class="btn btn-secondary btn-sm" style="margin-top:8px;">FIX THIS WEAKNESS 🚀</a>
+          <strong style="font-size: 0.875rem; display: block; margin-bottom: 6px;">${m.topic}: ${m.question || "Topic Gap"}</strong>
+          <a href="session.html?topic=${encodeURIComponent(m.topic)}" class="btn btn-secondary btn-sm">Review Topic 🚀</a>
         </div>
       `).join("");
       document.getElementById("mistakesContainer").innerHTML = mistakesHtml;

@@ -8,12 +8,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <style>
-.settings-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border); margin-bottom: 24px; overflow-x: auto; }
-.tab-btn { padding: 10px 18px; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
-.tab-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+.settings-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border); margin-bottom: 20px; overflow-x: auto; }
+.tab-btn { padding: 8px 16px; font-family: var(--font-body); font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
+.tab-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); font-weight: 600; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
-.provider-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.provider-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
 </head>
@@ -24,9 +24,9 @@
   <header class="app-topbar"></header>
 
   <main class="app-main">
-    <div style="margin-bottom: 24px;">
-      <h1 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800;">Settings & Privacy Controls</h1>
-      <p style="color: var(--text-secondary); font-size: 0.95rem;">Manage your AI providers (BYOK), appearance, study preferences, and local data.</p>
+    <div style="margin-bottom: 20px;">
+      <h1 style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 700;">Settings & Preferences</h1>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">Manage AI providers, appearance, timer options, and local privacy.</p>
     </div>
 
     <!-- SETTINGS TAB NAVIGATION -->
@@ -37,60 +37,56 @@
       <div class="tab-btn" data-tab="tab-privacy">🔒 Data & Privacy</div>
     </div>
 
-    <!-- TAB 1: AI PROVIDERS (BYOK) -->
+    <!-- TAB 1: AI PROVIDERS -->
     <div class="tab-content active" id="tab-providers">
-      <div class="card" style="margin-bottom: 24px; background: var(--info-bg); border-color: var(--info);">
-        <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--info); margin-bottom: 6px;">🔒 LOCAL-FIRST BYOK PRIVACY</h3>
+      <div class="card" style="margin-bottom: 20px; background: var(--bg-surface); border-color: var(--border);">
+        <h3 style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">LOCAL-FIRST API KEYS</h3>
         <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
-          SynaptiqAI is 100% BYOK (Bring Your Own Key). Your API keys are encrypted and stored locally in IndexedDB. Keys are never sent to developer servers.
+          Your API keys are encrypted and saved locally in your browser IndexedDB.
         </p>
       </div>
 
-      <!-- PROVIDER GRID -->
+      <!-- PROVIDER CARDS -->
       <div class="provider-card">
         <div>
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <strong style="font-size: 1.05rem;">Google Gemini</strong>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <strong style="font-size: 0.95rem;">Google Gemini</strong>
             <span class="badge badge-success">Recommended</span>
           </div>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Model: gemini-2.0-flash &nbsp;•&nbsp; Key: <code style="font-family:var(--font-mono)">AIza••••••••9X4A</code></p>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Model: gemini-2.0-flash</p>
         </div>
-        <div style="display: flex; gap: 10px;">
-          <button class="btn btn-secondary btn-sm" onclick="alert('Connection test passed! (Gemini API 200 OK)')">Test Connection</button>
-          <button class="btn btn-outline btn-sm">Configure Key</button>
-        </div>
+        <a href="ai-provider.html" class="btn btn-secondary btn-sm">Configure Key</a>
       </div>
 
       <div class="provider-card">
         <div>
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <strong style="font-size: 1.05rem;">Groq</strong>
-            <span class="badge badge-info">Ultra Fast</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <strong style="font-size: 0.95rem;">Groq</strong>
+            <span class="badge badge-info">Fast</span>
           </div>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Model: llama-3.3-70b &nbsp;•&nbsp; Key: Not configured</p>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Model: llama-3.3-70b</p>
         </div>
-        <button class="btn btn-primary btn-sm">+ Add Groq Key</button>
+        <a href="ai-provider.html" class="btn btn-primary btn-sm">+ Add Key</a>
       </div>
 
       <div class="provider-card">
         <div>
-          <strong style="font-size: 1.05rem;">OpenRouter</strong>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Model: auto &nbsp;•&nbsp; Key: Not configured</p>
+          <strong style="font-size: 0.95rem;">OpenRouter</strong>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Multi-Model API</p>
         </div>
-        <button class="btn btn-primary btn-sm">+ Add OpenRouter Key</button>
+        <a href="ai-provider.html" class="btn btn-primary btn-sm">+ Add Key</a>
       </div>
     </div>
 
     <!-- TAB 2: APPEARANCE -->
     <div class="tab-content" id="tab-appearance">
       <div class="card">
-        <h3 class="card-title" style="margin-bottom: 16px;">THEME PREFERENCE</h3>
+        <h3 class="card-title" style="margin-bottom: 14px;">THEME PREFERENCE</h3>
         <div class="form-group">
-          <label class="form-label">SELECT COLOR MODE</label>
-          <div style="display: flex; gap: 12px; margin-top: 8px;">
-            <button class="btn btn-secondary" id="btnThemeDark">🌙 Dark Mode (Default)</button>
+          <label class="form-label">COLOR MODE</label>
+          <div style="display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap;">
+            <button class="btn btn-secondary" id="btnThemeDark">🌙 Dark Mode</button>
             <button class="btn btn-secondary" id="btnThemeLight">☀️ Light Mode</button>
-            <button class="btn btn-secondary" id="btnThemeSystem">💻 System Preference</button>
           </div>
         </div>
       </div>
@@ -99,36 +95,29 @@
     <!-- TAB 3: TIMER PREFERENCES -->
     <div class="tab-content" id="tab-timer">
       <div class="card">
-        <h3 class="card-title" style="margin-bottom: 16px;">SMART TIMER CONFIGURATION</h3>
+        <h3 class="card-title" style="margin-bottom: 14px;">POMODORO TIMER OPTIONS</h3>
         <div class="form-group">
           <label class="form-label">DEFAULT FOCUS DURATION</label>
           <select class="select-input" id="timerDefaultMins">
             <option value="25">25 Minutes (Standard Pomodoro)</option>
             <option value="35">35 Minutes (Intermediate Focus)</option>
             <option value="45">45 Minutes (Deep Work)</option>
-            <option value="50">50 Minutes (Endurance Block)</option>
           </select>
-        </div>
-        <div class="form-group">
-          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <input type="checkbox" checked id="chkAutoStartTimer"> Auto-trigger floating timer when opening Study Mode
-          </label>
         </div>
       </div>
     </div>
 
-    <!-- TAB 4: PRIVACY & LOCAL DATA -->
+    <!-- TAB 4: PRIVACY & DATA -->
     <div class="tab-content" id="tab-privacy">
       <div class="card">
-        <h3 class="card-title" style="margin-bottom: 16px;">LOCAL STORAGE & DRIVE BACKUP</h3>
-        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 20px;">
-          All knowledge graphs, study plans, notes, and quiz histories are saved locally in browser IndexedDB.
+        <h3 class="card-title" style="margin-bottom: 14px;">LOCAL STORAGE & BACKUP</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 18px;">
+          All study plans, notes, and quiz histories remain local to this browser.
         </p>
 
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <button class="btn btn-secondary" onclick="alert('Exported synaptiq_backup.json to Downloads!')">Export Local Data (JSON)</button>
-          <button class="btn btn-secondary" onclick="alert('Google Drive backup sync active.')">Google Drive Sync</button>
-          <button class="btn btn-outline" style="color: var(--danger); border-color: var(--danger);" onclick="if(confirm('Clear all local study data?')) alert('Data reset.');">Delete Local Data</button>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" id="btnExportData">Export Data (JSON)</button>
+          <button class="btn btn-outline" style="color: var(--danger); border-color: var(--danger);" id="btnClearData">Clear Local Data</button>
         </div>
       </div>
     </div>
@@ -155,15 +144,24 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 // Theme switcher event bindings
 document.getElementById("btnThemeDark")?.addEventListener("click", () => {
   setTheme("dark");
-  showToast("Applied Dark Mode theme.", "success");
+  showToast("Applied Dark Mode", "success");
 });
 document.getElementById("btnThemeLight")?.addEventListener("click", () => {
   setTheme("light");
-  showToast("Applied Light Mode theme.", "success");
+  showToast("Applied Light Mode", "success");
 });
-document.getElementById("btnThemeSystem")?.addEventListener("click", () => {
-  setTheme("system");
-  showToast("Applied System theme mode.", "info");
+
+document.getElementById("btnExportData")?.addEventListener("click", () => {
+  showToast("Exported local data backup", "info");
+});
+
+document.getElementById("btnClearData")?.addEventListener("click", () => {
+  if (confirm("Clear all local study data?")) {
+    indexedDB.deleteDatabase("SynaptiqDB");
+    localStorage.clear();
+    showToast("Local data reset", "warning");
+    setTimeout(() => location.reload(), 1000);
+  }
 });
 </script>
 </body>

@@ -378,3 +378,38 @@ Be realistic, specific, and concise.`;
   });
   return safeParseJSON(raw);
 }
+
+export async function generateQuizQuestions(topicName, count = 3) {
+  try {
+    const questions = await generateDailyQuiz([topicName], "Standard", "General Exam");
+    if (Array.isArray(questions) && questions.length > 0) {
+      return questions.slice(0, count).map(q => {
+        let opts = [];
+        if (Array.isArray(q.options)) {
+          opts = q.options;
+        } else if (q.options && typeof q.options === "object") {
+          opts = Object.values(q.options);
+        }
+        let correctIdx = 0;
+        if (typeof q.correct_answer === "string") {
+          const letter = q.correct_answer.trim().toUpperCase();
+          if (letter === "B") correctIdx = 1;
+          else if (letter === "C") correctIdx = 2;
+          else if (letter === "D") correctIdx = 3;
+        } else if (typeof q.correctIndex === "number") {
+          correctIdx = q.correctIndex;
+        }
+        return {
+          question: q.question || `What is a primary concept in ${topicName}?`,
+          options: opts.length >= 2 ? opts : ["Structured Methodology", "Trial and Error", "Unconstrained System", "Manual Overhead"],
+          correctIndex: correctIdx,
+          explanation: q.explanation || `Core concept principles for ${topicName}.`
+        };
+      });
+    }
+  } catch (e) {
+    console.warn("Using fallback quiz questions:", e);
+  }
+  return null;
+}
+

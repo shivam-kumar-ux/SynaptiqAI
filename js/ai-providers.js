@@ -390,6 +390,16 @@ export class ProviderManager {
       }
     }
 
-    throw new Error(`AI Request Failed. ${errors.join(" | ")}`);
+    const firstErr = errors[0] || "AI request failed. Please check your AI provider configuration.";
+    throw new Error(firstErr);
   }
 }
+
+export async function saveUserKey(providerId, apiKey, model) {
+  return await ProviderManager.saveProvider({ id: providerId, name: providerId, apiKey, model, enabled: true });
+}
+
+export async function testProviderConnection(providerId, apiKey, model) {
+  return await ProviderManager.testProvider(providerId, apiKey, model);
+}
+

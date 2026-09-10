@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <style>
-.assess-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 36px; max-width: 680px; margin: 0 auto; box-shadow: var(--shadow-lg); }
+.assess-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; max-width: 620px; margin: 20px auto; }
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
 </head>
@@ -20,32 +20,35 @@
 
   <main class="app-main">
     <div class="assess-card">
-      <div class="badge badge-warning" style="margin-bottom: 12px;">⚠️ SERIOUS EXAMINATION MODE</div>
-      <h1 style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800; margin-bottom: 12px;">COMPREHENSIVE ADAPTIVE ASSESSMENT</h1>
-      <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;">
-        This 15-minute diagnostic evaluates your conceptual understanding, application ability, and recall speed across all active subjects.
+      <span class="badge badge-warning" style="margin-bottom: 10px;">EXAMINATION MODE</span>
+      <h1 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; margin-bottom: 10px;">Diagnostic Assessment</h1>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
+        Evaluates conceptual understanding, application ability, and recall speed across active subjects.
       </p>
 
-      <div style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 24px;">
-        <h3 style="font-size: 0.9rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 10px;">ASSESSMENT RULES</h3>
-        <ul style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.8; padding-left: 20px;">
-          <li>Once initiated, the session timer cannot be paused.</li>
-          <li>Page visibility transitions are tracked as focus indicators.</li>
-          <li>Your Knowledge Graph mastery scores will be dynamically recalculated post-test.</li>
+      <div style="background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px;">
+        <h3 style="font-size: 0.85rem; font-weight: 600; color: var(--accent-primary); margin-bottom: 8px;">ASSESSMENT RULES</h3>
+        <ul style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.7; padding-left: 18px;">
+          <li>Once initiated, the test session timer runs continuously.</li>
+          <li>Knowledge Graph scores adapt dynamically based on your answers.</li>
         </ul>
       </div>
 
-      <button class="btn btn-primary btn-lg" style="width: 100%;" onclick="alert('Diagnostic Assessment mode initiated!')">INITIATE ASSESSMENT 📝</button>
+      <button class="btn btn-primary btn-lg" style="width: 100%;" id="btnStartAssess">Initiate Assessment 📝</button>
     </div>
   </main>
 </div>
 
 <script type="module">
-import { renderAppShell } from "../js/ui-components.js";
+import { renderAppShell, showToast } from "../js/ui-components.js";
 import { initTheme } from "../js/theme.js";
 
 initTheme();
 renderAppShell("assessment", "Assessment");
+
+document.getElementById("btnStartAssess")?.addEventListener("click", () => {
+  showToast("Diagnostic Assessment initiated!", "info");
+});
 </script>
 </body>
 </html>

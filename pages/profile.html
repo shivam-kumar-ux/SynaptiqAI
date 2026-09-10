@@ -8,9 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <style>
-.profile-grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; }
+.profile-grid { display: grid; grid-template-columns: 260px 1fr; gap: 20px; }
 @media (max-width: 1024px) { .profile-grid { grid-template-columns: 1fr; } }
-.avatar-large { width: 96px; height: 96px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: #FFFFFF; font-family: var(--font-heading); font-size: 2.2rem; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: var(--shadow-glow); }
+.avatar-large { width: 80px; height: 80px; border-radius: 50%; background: var(--bg-elevated); color: var(--accent-primary); font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; border: 1px solid var(--border); }
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
 </head>
@@ -21,95 +21,66 @@
   <header class="app-topbar"></header>
 
   <main class="app-main">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
       <div>
-        <h1 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800;">Scholar Profile & Preferences</h1>
-        <p style="color: var(--text-secondary); font-size: 0.95rem;">Manage your academic identity, study habits, and AI personalization context.</p>
+        <h1 style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 700;">Scholar Profile</h1>
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">Manage your profile and learning preferences.</p>
       </div>
-      <button class="btn btn-outline" id="btnHeaderLogout" style="color: var(--danger); border-color: var(--danger);">LOGOUT 🚪</button>
+      <button class="btn btn-outline" id="btnHeaderLogout" style="color: var(--danger); border-color: var(--danger);">Logout 🚪</button>
     </div>
 
     <div class="profile-grid">
       <!-- SIDE AVATAR CARD -->
       <div>
-        <div class="card" style="text-align: center; margin-bottom: 24px;">
+        <div class="card" style="text-align: center; margin-bottom: 16px;">
           <div class="avatar-large" id="userAvatarInitials">SK</div>
-          <h2 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700;" id="profDisplayName">Shivam Kumar</h2>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;" id="profDisplayEmail">shivam@example.com</p>
-          <div class="badge badge-primary" style="margin-top: 12px;" id="profGradeBadge">Class 12 / Undergrad</div>
+          <h2 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 600;" id="profDisplayName">Shivam Kumar</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;" id="profDisplayEmail">shivam@example.com</p>
         </div>
 
         <div class="card">
-          <h3 class="card-title" style="margin-bottom: 12px;">SECURITY & ACCOUNT</h3>
-          <button class="btn btn-secondary" id="btnCardLogout" style="width: 100%; color: var(--danger);">LOGOUT OF SESSION</button>
+          <h3 class="card-title" style="margin-bottom: 10px;">SESSION</h3>
+          <button class="btn btn-secondary btn-sm" id="btnCardLogout" style="width: 100%; color: var(--danger);">Logout of Session</button>
         </div>
       </div>
 
       <!-- MAIN PROFILE EDIT FORM -->
-      <div style="display: flex; flex-direction: column; gap: 24px;">
-        <!-- ACADEMIC INFO -->
+      <div style="display: flex; flex-direction: column; gap: 16px;">
         <div class="card">
-          <h3 class="card-title" style="margin-bottom: 20px;">1. PERSONAL & ACADEMIC INFORMATION</h3>
+          <h3 class="card-title" style="margin-bottom: 16px;">PERSONAL & ACADEMIC INFORMATION</h3>
           
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
             <div class="form-group"><label class="form-label">FULL NAME</label><input type="text" class="input-text" id="profName" value="Shivam Kumar"></div>
             <div class="form-group"><label class="form-label">EMAIL ADDRESS</label><input type="email" class="input-text" id="profEmail" value="shivam@example.com" disabled style="opacity: 0.7;"></div>
           </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            <div class="form-group"><label class="form-label">CLASS / GRADE LEVEL</label><input type="text" class="input-text" id="profClass" value="Undergraduate"></div>
-            <div class="form-group"><label class="form-label">INSTITUTION</label><input type="text" class="input-text" id="profInst" value="Tech Institute"></div>
-          </div>
         </div>
 
-        <!-- LEARNING PREFERENCES FOR AI PERSONALIZATION -->
         <div class="card">
-          <h3 class="card-title" style="margin-bottom: 20px;">2. AI PERSONALIZATION & STUDY PREFERENCES</h3>
+          <h3 class="card-title" style="margin-bottom: 16px;">STUDY PREFERENCES</h3>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
             <div class="form-group">
               <label class="form-label">EXPLANATION LEVEL</label>
               <select class="select-input" id="profExplanationLevel">
-                <option value="Beginner">Beginner (Simple analogies)</option>
-                <option value="Basic">Basic (Standard concepts)</option>
-                <option value="Intermediate" selected>Intermediate (Comprehensive)</option>
-                <option value="Advanced">Advanced (Rigorous technical)</option>
-                <option value="Exam Ready">Exam Ready (Definition & formulas)</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Basic">Basic</option>
+                <option value="Intermediate" selected>Intermediate</option>
+                <option value="Advanced">Advanced</option>
+                <option value="Exam Ready">Exam Ready</option>
               </select>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">PREFERRED LANGUAGE</label>
-              <select class="select-input" id="profLanguage">
-                <option value="English" selected>English</option>
-                <option value="Hindi">Hindi</option>
-                <option value="Hinglish">Hinglish</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
               <label class="form-label">DAILY STUDY TARGET</label>
               <select class="select-input" id="profDailyHours">
                 <option value="2">2 Hours / Day</option>
                 <option value="3" selected>3 Hours / Day</option>
                 <option value="4">4 Hours / Day</option>
-                <option value="6">6 Hours / Day</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">DEFAULT FOCUS BLOCK</label>
-              <select class="select-input" id="profFocusBlock">
-                <option value="25" selected>25 Minutes (Pomodoro)</option>
-                <option value="35">35 Minutes</option>
-                <option value="45">45 Minutes (Deep Work)</option>
               </select>
             </div>
           </div>
 
-          <button class="btn btn-primary" id="btnSaveProfile">SAVE PROFILE CHANGES 💾</button>
+          <button class="btn btn-primary" id="btnSaveProfile">Save Profile Changes 💾</button>
         </div>
       </div>
     </div>
@@ -117,7 +88,7 @@
 </div>
 
 <script type="module">
-import { renderAppShell, showToast } from "../js/ui-components.js";
+import { renderAppShell, showToast, formatErrorMessage } from "../js/ui-components.js";
 import { initTheme } from "../js/theme.js";
 import { logoutUser } from "../js/routes.js";
 import { dbGet, dbPut } from "../js/db.js";
@@ -149,18 +120,16 @@ loadProfileData();
 document.getElementById("btnSaveProfile")?.addEventListener("click", async () => {
   const name = document.getElementById("profName").value.trim();
   const level = document.getElementById("profExplanationLevel").value;
-  const lang = document.getElementById("profLanguage").value;
 
   try {
     await dbPut("settings", {
       id: "user_profile_preferences",
       explanationLevel: level,
-      language: lang,
       updatedAt: new Date().toISOString()
     });
-    showToast("Profile & Personalization settings saved!", "success");
+    showToast("Profile preferences saved!", "success");
   } catch (err) {
-    showToast("Failed to save profile.", "danger");
+    showToast(formatErrorMessage(err), "danger");
   }
 });
 </script>

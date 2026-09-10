@@ -1,7 +1,36 @@
-// js/ui-components.js — Shared App Shell, Header, Mobile Nav, and Toasts for SYNAPTIQAI
+// js/ui-components.js — Shared App Shell, Header, Mobile Nav, Toasts, & Error Formatting for SYNAPTIQAI
 
 import { globalCommandPalette } from "./command-palette.js";
 import { ROUTES, navigateTo, logoutUser, getRoute } from "./routes.js";
+
+/**
+ * Format raw exceptions into clean, concise, human-readable error messages.
+ */
+export function formatErrorMessage(err) {
+  if (!err) return "An unexpected error occurred. Please try again.";
+  const msg = typeof err === "string" ? err : (err.message || String(err));
+
+  if (err.isConfigRequired || msg.toLowerCase().includes("connect your own ai")) {
+    return "No AI provider connected. Please add your API key in AI Providers.";
+  }
+  if (msg.includes("401") || msg.toLowerCase().includes("invalid api key") || msg.toLowerCase().includes("unauthorized")) {
+    return "Invalid API key. Please check your provider key in AI Providers.";
+  }
+  if (msg.includes("429") || msg.toLowerCase().includes("quota") || msg.toLowerCase().includes("rate limit")) {
+    return "AI rate limit reached. Please wait a moment or switch provider.";
+  }
+  if (msg.toLowerCase().includes("failed to fetch") || msg.toLowerCase().includes("networkerror")) {
+    return "Network error. Unable to reach AI service.";
+  }
+  
+  // Clean up any "AI Request Failed. Provider: Message" dumps
+  if (msg.startsWith("AI Request Failed.")) {
+    const parts = msg.split(":");
+    return parts.length > 1 ? parts.slice(1).join(":").trim() : msg;
+  }
+
+  return msg || "An unexpected error occurred.";
+}
 
 export function renderAppShell(activePage = "dashboard", breadcrumbTitle = "Dashboard") {
   const sidebarNavItems = [
@@ -28,12 +57,12 @@ export function renderAppShell(activePage = "dashboard", breadcrumbTitle = "Dash
       <nav class="sidebar-nav">
         ${sidebarNavItems.map(item => `
           <a href="${getRoute(item.route)}" class="nav-link ${item.id === activePage ? 'active' : ''}">
-            <span style="font-size:1.1rem">${item.icon}</span>
+            <span style="font-size:1.05rem">${item.icon}</span>
             <span>${item.label}</span>
           </a>
         `).join('')}
       </nav>
-      <div style="padding: 16px 20px; border-top: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+      <div style="padding: 12px 16px; border-top: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
         <div>
           <div style="font-size: 0.85rem; font-weight: 600;" id="shellUserName">Scholar</div>
           <div style="font-size: 0.75rem; color: var(--text-muted);">Local-First Session</div>
@@ -84,23 +113,23 @@ export function renderAppShell(activePage = "dashboard", breadcrumbTitle = "Dash
 
   mobileNav.innerHTML = `
     <a href="${getRoute('dashboard')}" class="mobile-nav-item ${activePage === 'dashboard' ? 'active' : ''}">
-      <span style="font-size:1.2rem">📊</span>
+      <span style="font-size:1.1rem">📊</span>
       <span>Home</span>
     </a>
     <a href="${getRoute('session')}" class="mobile-nav-item ${activePage === 'session' ? 'active' : ''}">
-      <span style="font-size:1.2rem">🧠</span>
+      <span style="font-size:1.1rem">🧠</span>
       <span>Learn</span>
     </a>
     <a href="${getRoute('planNew')}" class="mobile-nav-item ${activePage === 'plan-new' ? 'active' : ''}">
-      <span style="font-size:1.2rem">➕</span>
+      <span style="font-size:1.1rem">➕</span>
       <span>Plan</span>
     </a>
     <a href="${getRoute('progress')}" class="mobile-nav-item ${activePage === 'progress' ? 'active' : ''}">
-      <span style="font-size:1.2rem">📈</span>
+      <span style="font-size:1.1rem">📈</span>
       <span>Progress</span>
     </a>
     <a href="${getRoute('profile')}" class="mobile-nav-item ${activePage === 'profile' ? 'active' : ''}">
-      <span style="font-size:1.2rem">👤</span>
+      <span style="font-size:1.1rem">👤</span>
       <span>Profile</span>
     </a>
   `;
@@ -112,31 +141,33 @@ export function showToast(message, type = "info") {
     toastContainer = document.createElement("div");
     toastContainer.id = "synaptiq-toast-container";
     toastContainer.style.cssText = `
-      position: fixed; bottom: 24px; right: 24px; z-index: 10000;
-      display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+      position: fixed; bottom: 20px; right: 20px; z-index: 10000;
+      display: flex; flex-direction: column; gap: 8px; pointer-events: none;
     `;
     document.body.appendChild(toastContainer);
   }
 
+  const cleanMsg = typeof message === "object" ? formatErrorMessage(message) : message;
+
   const toast = document.createElement("div");
   toast.style.cssText = `
-    background: var(--bg-surface, #111827);
-    border: 1px solid var(--border-accent, rgba(0, 245, 255, 0.4));
-    border-radius: var(--radius-md, 10px);
-    padding: 12px 20px; color: var(--text-primary, #F1F5F9);
-    font-size: 0.875rem; font-weight: 500;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    display: flex; align-items: center; gap: 10px;
-    animation: toastIn 0.3s ease; pointer-events: auto;
+    background: var(--bg-surface, #1E293B);
+    border: 1px solid var(--border, #334155);
+    border-radius: var(--radius-md, 8px);
+    padding: 10px 16px; color: var(--text-primary, #F8FAFC);
+    font-size: 0.85rem; font-weight: 500;
+    box-shadow: var(--shadow-md);
+    display: flex; align-items: center; gap: 8px;
+    animation: toastIn 0.2s ease; pointer-events: auto;
   `;
 
   const icons = { info: "ℹ️", success: "✅", warning: "⚠️", danger: "🚨" };
-  toast.innerHTML = `<span>${icons[type] || "ℹ️"}</span><span>${message}</span>`;
+  toast.innerHTML = `<span>${icons[type] || "ℹ️"}</span><span>${cleanMsg}</span>`;
   toastContainer.appendChild(toast);
 
   setTimeout(() => {
     toast.style.opacity = "0";
-    toast.style.transition = "opacity 0.3s ease";
-    setTimeout(() => toast.remove(), 300);
+    toast.style.transition = "opacity 0.2s ease";
+    setTimeout(() => toast.remove(), 200);
   }, 3500);
 }

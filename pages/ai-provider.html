@@ -8,9 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <style>
-body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; background: var(--bg-primary); }
-.ai-setup-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 40px; width: 100%; max-width: 640px; box-shadow: var(--shadow-lg); }
-.provider-option { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-secondary); }
+body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: var(--bg-primary); }
+.ai-setup-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; width: 100%; max-width: 580px; box-shadow: var(--shadow-md); }
+.provider-option { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-primary); transition: all 0.15s ease; }
+.provider-option:hover { border-color: var(--border-hover); background: var(--bg-secondary); }
 .provider-option.selected { border-color: var(--accent-primary); background: var(--accent-glow); }
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
@@ -19,16 +20,16 @@ body { display: flex; align-items: center; justify-content: center; min-height: 
 
 <div class="ai-setup-card">
   <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-    <img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ Logo" style="width: 44px; height: 44px;">
+    <img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ Logo" style="width: 36px; height: 36px;">
     <div>
-      <h1 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: var(--accent-primary);">CONNECT YOUR AI PROVIDER</h1>
-      <p style="font-size: 0.85rem; color: var(--text-muted);">Step 1 of 2: Configure your personal AI key for local-first intelligence</p>
+      <h1 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--text-primary);">Connect AI Provider</h1>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Add your personal API key to unlock adaptive learning features</p>
     </div>
   </div>
 
-  <div class="card" style="background: var(--info-bg); border-color: var(--info); margin-bottom: 24px; padding: 16px;">
+  <div class="card" style="background: var(--bg-primary); border-color: var(--border); margin-bottom: 20px; padding: 14px;">
     <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
-      🔒 <strong>Local-First Privacy:</strong> SynaptiqAI uses AI to analyze your syllabus, personalize study plans, generate diagnostics, and explain concepts. Your API keys are encrypted locally and never sent to developer servers.
+      🔒 <strong>Privacy First:</strong> API keys are stored locally on your device in IndexedDB and used directly from your browser.
     </p>
   </div>
 
@@ -37,49 +38,49 @@ body { display: flex; align-items: center; justify-content: center; min-height: 
     <div id="providerList">
       <div class="provider-option selected" data-provider="gemini">
         <div>
-          <strong style="font-size: 0.95rem;">Google Gemini</strong>
-          <span class="badge badge-success" style="margin-left: 8px;">Recommended (Free Tier)</span>
+          <strong style="font-size: 0.9rem;">Google Gemini</strong>
+          <span class="badge badge-success" style="margin-left: 6px;">Recommended</span>
         </div>
-        <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">gemini-2.0-flash</span>
+        <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">gemini-2.0-flash</span>
       </div>
 
       <div class="provider-option" data-provider="groq">
         <div>
-          <strong style="font-size: 0.95rem;">Groq</strong>
-          <span class="badge badge-info" style="margin-left: 8px;">Ultra Fast</span>
+          <strong style="font-size: 0.9rem;">Groq</strong>
+          <span class="badge badge-info" style="margin-left: 6px;">Fast</span>
         </div>
-        <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">llama-3.3-70b</span>
+        <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">llama-3.3-70b</span>
       </div>
 
       <div class="provider-option" data-provider="openrouter">
         <div>
-          <strong style="font-size: 0.95rem;">OpenRouter</strong>
+          <strong style="font-size: 0.9rem;">OpenRouter</strong>
         </div>
-        <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">Multi-Model</span>
+        <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">Multi-Model</span>
       </div>
 
       <div class="provider-option" data-provider="openai">
         <div>
-          <strong style="font-size: 0.95rem;">OpenAI</strong>
+          <strong style="font-size: 0.9rem;">OpenAI</strong>
         </div>
-        <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">gpt-4o-mini</span>
+        <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">gpt-4o-mini</span>
       </div>
     </div>
   </div>
 
   <div class="form-group">
-    <label class="form-label">PASTE API KEY</label>
-    <input type="password" class="input-text" id="inpApiKey" placeholder="e.g. AIzaSy..." required>
+    <label class="form-label">API KEY</label>
+    <input type="password" class="input-text" id="inpApiKey" placeholder="Paste your API key here..." required>
   </div>
 
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <div id="connectionStatus" class="badge badge-info">Status: NOT CONNECTED</div>
-    <button class="btn btn-secondary btn-sm" id="btnTestConn">Test API Connection</button>
+    <button class="btn btn-secondary btn-sm" id="btnTestConn">Test Connection</button>
   </div>
 
-  <div style="display: flex; gap: 12px;">
+  <div style="display: flex; gap: 10px;">
     <button class="btn btn-ghost" id="btnSkipForNow">Skip for now</button>
-    <button class="btn btn-primary" id="btnSaveAndContinue" style="flex:1;">SAVE KEY & CREATE FIRST PLAN →</button>
+    <button class="btn btn-primary" id="btnSaveAndContinue" style="flex:1;">Save Key & Continue →</button>
   </div>
 </div>
 
@@ -87,6 +88,7 @@ body { display: flex; align-items: center; justify-content: center; min-height: 
 import { initTheme } from "../js/theme.js";
 import { saveUserKey, testProviderConnection } from "../js/ai-providers.js";
 import { ROUTES, navigateTo } from "../js/routes.js";
+import { showToast, formatErrorMessage } from "../js/ui-components.js";
 
 initTheme();
 
@@ -110,21 +112,24 @@ document.getElementById("btnTestConn")?.addEventListener("click", async () => {
     return;
   }
 
-  statusEl.textContent = "Status: CONNECTING...";
+  statusEl.textContent = "Status: TESTING...";
   statusEl.className = "badge badge-info";
 
   try {
     const res = await testProviderConnection(selectedProvider, key);
     if (res.success) {
-      statusEl.textContent = "Status: CONNECTED (200 OK)";
+      statusEl.textContent = "Status: CONNECTED";
       statusEl.className = "badge badge-success";
+      showToast("AI provider connected successfully!", "success");
     } else {
       statusEl.textContent = `Status: FAILED (${res.error || "Invalid Key"})`;
       statusEl.className = "badge badge-danger";
+      showToast(res.error || "Connection failed. Check API key.", "danger");
     }
   } catch (err) {
     statusEl.textContent = "Status: CONNECTION ERROR";
     statusEl.className = "badge badge-danger";
+    showToast(formatErrorMessage(err), "danger");
   }
 });
 
@@ -132,8 +137,9 @@ document.getElementById("btnSaveAndContinue")?.addEventListener("click", async (
   const key = document.getElementById("inpApiKey").value.trim();
   if (key) {
     await saveUserKey(selectedProvider, key);
+    showToast("API Key saved!", "success");
   }
-  navigateTo("planNew");
+  navigateTo("dashboard");
 });
 
 document.getElementById("btnSkipForNow")?.addEventListener("click", () => {

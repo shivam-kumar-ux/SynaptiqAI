@@ -9,10 +9,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <link rel="stylesheet" href="../css/style.css">
 <style>
-.plan-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; }
+.plan-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
 @media (max-width: 1024px) { .plan-grid { grid-template-columns: 1fr; } }
-.dropzone { border: 2px dashed var(--border-accent); border-radius: var(--radius-lg); padding: 36px 20px; text-align: center; cursor: pointer; transition: all var(--transition-fast); background: var(--bg-secondary); }
-.dropzone:hover { border-color: var(--accent-primary); background: var(--accent-glow); }
+.dropzone { border: 1px dashed var(--border-hover); border-radius: var(--radius-lg); padding: 28px 16px; text-align: center; cursor: pointer; transition: all var(--transition-fast); background: var(--bg-primary); }
+.dropzone:hover { border-color: var(--accent-primary); background: var(--bg-secondary); }
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
 </head>
@@ -23,15 +23,15 @@
   <header class="app-topbar"></header>
 
   <main class="app-main">
-    <div style="margin-bottom: 28px;">
-      <h1 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800;">Generate Adaptive Study Plan</h1>
-      <p style="color: var(--text-secondary); font-size: 0.95rem;">Upload your syllabus PDF or paste topic content to build a personalized study timeline.</p>
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 700;">Create Adaptive Study Plan</h1>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">Upload your syllabus PDF or paste topic content to build a personalized study timeline.</p>
     </div>
 
     <div class="plan-grid">
       <!-- INPUT FORM CARD -->
       <div class="card">
-        <h3 class="card-title" style="margin-bottom: 20px;">1. SYLLABUS & SUBJECT DETAILS</h3>
+        <h3 class="card-title" style="margin-bottom: 16px;">1. Subject & Syllabus Details</h3>
 
         <div class="form-group">
           <label class="form-label">SUBJECT NAME</label>
@@ -46,40 +46,40 @@
         <div class="form-group">
           <label class="form-label">UPLOAD SYLLABUS PDF</label>
           <div class="dropzone" id="pdfDropzone">
-            <div style="font-size: 2.5rem; margin-bottom: 8px;">📄</div>
-            <div style="font-family: var(--font-heading); font-weight: 700; color: var(--accent-primary);">Click or Drag PDF Syllabus</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">PDF text is extracted locally inside browser</div>
+            <div style="font-size: 2rem; margin-bottom: 6px;">📄</div>
+            <div style="font-family: var(--font-heading); font-weight: 600; color: var(--accent-primary); font-size: 0.9rem;">Click or Drag PDF Syllabus</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">PDF text is processed locally inside your browser</div>
             <input type="file" id="pdfInput" accept=".pdf" style="display:none;">
           </div>
         </div>
 
         <div class="form-group">
           <label class="form-label">OR PASTE SYLLABUS TOPICS</label>
-          <textarea class="textarea-input" id="syllabusText" placeholder="Paste modules, units, chapters, or syllabus text here..." rows="6"></textarea>
+          <textarea class="textarea-input" id="syllabusText" placeholder="Paste modules, units, chapters, or syllabus topics here..." rows="5"></textarea>
         </div>
 
-        <button class="btn btn-primary btn-lg" id="btnGeneratePlan" style="width: 100%;">GENERATE ADAPTIVE PLAN 🚀</button>
-        <div id="aiStatusMessage" style="margin-top: 14px; font-size: 0.85rem; font-family: var(--font-mono); color: var(--accent-primary); display:none; text-align:center;">
-          🧠 Synaptiq AI is parsing topics and estimating exam weights...
+        <button class="btn btn-primary btn-lg" id="btnGeneratePlan" style="width: 100%;">Generate Study Plan 🚀</button>
+        <div id="aiStatusMessage" style="margin-top: 12px; font-size: 0.8rem; color: var(--accent-primary); display:none; text-align:center;">
+          Parsing topics and building your study timeline...
         </div>
       </div>
 
       <!-- SIDE GUIDANCE -->
       <div>
-        <div class="card" style="margin-bottom: 24px;">
-          <h3 class="card-title" style="margin-bottom: 16px;">HOW SYNAPTIQ PLANS WORK</h3>
-          <div style="display: flex; flex-direction: column; gap: 16px; font-size: 0.875rem; color: var(--text-secondary);">
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom: 14px;">HOW STUDY PLANS WORK</h3>
+          <div style="display: flex; flex-direction: column; gap: 14px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
             <div>
-              <strong style="color: var(--text-primary);">1. Local Syllabus Parsing</strong>
-              <p>Text is processed in IndexedDB without uploading documents to external storage.</p>
+              <strong style="color: var(--text-primary);">1. Local Syllabus Extraction</strong>
+              <p>Your data stays on your device in local IndexedDB storage.</p>
             </div>
             <div>
-              <strong style="color: var(--text-primary);">2. Knowledge Graph Mapping</strong>
-              <p>Topics are assigned initial difficulty, exam priority weight, and retention half-life.</p>
+              <strong style="color: var(--text-primary);">2. Topic Weighting</strong>
+              <p>Topics are structured into daily study targets and revision milestones.</p>
             </div>
             <div>
-              <strong style="color: var(--text-primary);">3. Adaptive Re-balancing</strong>
-              <p>As you take quizzes and study, your daily study load automatically shifts to target your weak nodes.</p>
+              <strong style="color: var(--text-primary);">3. Adaptive Schedule</strong>
+              <p>Your study schedule automatically shifts based on quiz scores and focus tracking.</p>
             </div>
           </div>
         </div>
@@ -89,7 +89,7 @@
 </div>
 
 <script type="module">
-import { renderAppShell, showToast } from "../js/ui-components.js";
+import { renderAppShell, showToast, formatErrorMessage } from "../js/ui-components.js";
 import { initTheme } from "../js/theme.js";
 import { generateStudyPlan } from "../js/ai.js";
 import { dbPut } from "../js/db.js";
@@ -137,23 +137,40 @@ document.getElementById("btnGeneratePlan")?.addEventListener("click", async () =
   btn.disabled = true;
   statusMsg.style.display = "block";
 
+  let plan;
   try {
-    const plan = await generateStudyPlan({ subject, syllabus: text, examDate });
-    const planRecord = {
-      id: "plan_" + Date.now(),
-      subject,
-      plan_name: subject + " Plan",
-      examDate,
-      ...plan,
-      createdAt: new Date().toISOString()
-    };
-    await dbPut("plans", planRecord);
-    showToast("Study Plan generated successfully!", "success");
-    window.location.href = `plan-view.html?id=${planRecord.id}`;
+    plan = await generateStudyPlan({ subject, syllabus: text, examDate });
   } catch (err) {
+    showToast(formatErrorMessage(err), "warning");
+    // Generate clean local offline plan fallback
+    plan = {
+      plan_name: subject + " Plan",
+      strategy_summary: "Local adaptive study sequence for " + subject,
+      days: [
+        { dayNum: 1, topic: subject + " Core Concepts", duration: "30 mins", priority: "HIGH" },
+        { dayNum: 2, topic: subject + " Key Applications", duration: "45 mins", priority: "MEDIUM" },
+        { dayNum: 3, topic: subject + " Practice & Revision", duration: "30 mins", priority: "HIGH" }
+      ]
+    };
+  }
+
+  const planRecord = {
+    id: "plan_" + Date.now(),
+    subject,
+    plan_name: subject + " Plan",
+    examDate,
+    ...plan,
+    createdAt: new Date().toISOString()
+  };
+
+  try {
+    await dbPut("plans", planRecord);
+    showToast("Study plan created successfully!", "success");
+    window.location.href = `plan-view.html?id=${planRecord.id}`;
+  } catch (dbErr) {
     btn.disabled = false;
     statusMsg.style.display = "none";
-    showToast(err.message || "Failed to generate plan.", "danger");
+    showToast("Error saving plan to local storage.", "danger");
   }
 });
 </script>

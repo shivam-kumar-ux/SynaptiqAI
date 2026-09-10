@@ -8,12 +8,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
 <style>
-.quiz-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 32px; max-width: 660px; margin: 0 auto; }
-.option-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 18px; cursor: pointer; transition: all var(--transition-fast); display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
-.option-card:hover { border-color: var(--border-accent); background: var(--accent-glow); }
+.quiz-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; max-width: 620px; margin: 0 auto; }
+.option-card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; cursor: pointer; transition: all var(--transition-fast); display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.option-card:hover { border-color: var(--border-hover); background: var(--bg-secondary); }
 .option-card.selected { border-color: var(--accent-primary); background: var(--accent-glow); }
-.option-card.correct { border-color: var(--success); background: var(--success-bg); }
-.option-card.wrong { border-color: var(--danger); background: var(--danger-bg); }
+.option-card.correct { border-color: var(--success); background: var(--success-bg); color: var(--success); }
+.option-card.wrong { border-color: var(--danger); background: var(--danger-bg); color: var(--danger); }
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
 </head>
@@ -26,35 +26,35 @@
   <main class="app-main">
     <!-- EMPTY STATE / TOPIC SELECTOR (Shown if no active quiz loaded) -->
     <div id="quizSetupState" class="quiz-card" style="display:none; text-align:center;">
-      <div style="font-size: 2.5rem; margin-bottom: 12px;">🧪</div>
-      <h2 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 8px;">DIAGNOSTIC QUIZ GENERATOR</h2>
-      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px;">
-        No active quiz in progress. Select one of your study topics to generate a dynamic diagnostic check.
+      <div style="font-size: 2.2rem; margin-bottom: 12px;">🧪</div>
+      <h2 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Diagnostic Quiz Generator</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+        Select a study topic to initiate a diagnostic knowledge check.
       </p>
 
-      <div class="form-group" style="text-align: left; max-width: 440px; margin: 0 auto 20px;">
+      <div class="form-group" style="text-align: left; max-width: 400px; margin: 0 auto 20px;">
         <label class="form-label">SELECT STUDY TOPIC</label>
         <select class="select-input" id="quizTopicSelect">
-          <option value="">Loading your study topics...</option>
+          <option value="">Loading topics...</option>
         </select>
       </div>
 
-      <button class="btn btn-primary" id="btnStartTopicQuiz">GENERATE DIAGNOSTIC QUIZ 🚀</button>
+      <button class="btn btn-primary" id="btnStartTopicQuiz" style="width: 100%; max-width: 400px;">Generate Quiz 🚀</button>
     </div>
 
     <!-- ACTIVE QUIZ CARD CONTAINER -->
     <div id="activeQuizWrapper" style="display:none;">
-      <div style="max-width: 660px; margin: 0 auto 20px;">
+      <div style="max-width: 620px; margin: 0 auto 16px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <span class="badge badge-primary" id="quizTopicTag">DIAGNOSTIC QUIZ</span>
-          <span style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-secondary);" id="questionProgressText">Question 1 of 3</span>
+          <span style="font-size: 0.85rem; color: var(--text-secondary);" id="questionProgressText">Question 1 of 3</span>
         </div>
         <div class="progress-bar-track"><div class="progress-bar-fill" id="quizProgressFill" style="width: 33%;"></div></div>
       </div>
 
       <div class="quiz-card" id="quizCard">
-        <div style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 8px;">CONCEPT RECALL</div>
-        <h2 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-bottom: 20px;" id="qText">
+        <div style="font-size: 0.75rem; font-weight: 500; color: var(--text-muted); margin-bottom: 6px;">CONCEPT RECALL</div>
+        <h2 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin-bottom: 18px;" id="qText">
           Loading question...
         </h2>
 
@@ -62,13 +62,12 @@
           <!-- Dynamic options rendered here -->
         </div>
 
-        <div id="explanationPanel" style="display:none; margin-top: 16px; padding: 14px; background: var(--bg-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--accent-primary);">
-          <strong style="color: var(--accent-primary); font-size: 0.85rem; display: block; margin-bottom: 4px;">EXPLANATION:</strong>
-          <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5;" id="explanationText"></p>
+        <div id="explanationPanel" style="display:none; margin-top: 16px; padding: 12px 16px; background: var(--bg-primary); border-radius: var(--radius-md); border-left: 3px solid var(--accent-primary);">
+          <strong style="color: var(--accent-primary); font-size: 0.8rem; display: block; margin-bottom: 4px;">EXPLANATION:</strong>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;" id="explanationText"></p>
         </div>
 
-        <div style="display: flex; justify-content: space-between; margin-top: 24px;">
-          <button class="btn btn-secondary" id="btnPrevQ" disabled>← Previous</button>
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
           <button class="btn btn-primary" id="btnNextQ">Submit Answer →</button>
         </div>
       </div>
@@ -77,7 +76,7 @@
 </div>
 
 <script type="module">
-import { renderAppShell, showToast } from "../js/ui-components.js";
+import { renderAppShell, showToast, formatErrorMessage } from "../js/ui-components.js";
 import { initTheme } from "../js/theme.js";
 import { dbGetAll, dbPut } from "../js/db.js";
 import { generateQuizQuestions } from "../js/ai.js";
@@ -93,27 +92,31 @@ const params = new URLSearchParams(window.location.search);
 const topicParam = params.get("topic");
 
 async function initQuizPage() {
-  const plans = await dbGetAll("plans");
-  const topicSelect = document.getElementById("quizTopicSelect");
+  try {
+    const plans = await dbGetAll("plans");
+    const topicSelect = document.getElementById("quizTopicSelect");
 
-  let availableTopics = [];
-  if (plans && plans.length > 0) {
-    plans.forEach(p => {
-      if (p.subject) availableTopics.push(p.subject);
-    });
-  }
+    let availableTopics = [];
+    if (plans && plans.length > 0) {
+      plans.forEach(p => {
+        if (p.subject) availableTopics.push(p.subject);
+      });
+    }
 
-  if (availableTopics.length === 0) {
-    availableTopics = ["Database Systems", "Software Engineering", "Computer Networks"];
-  }
+    if (availableTopics.length === 0) {
+      availableTopics = ["Database Systems", "Software Engineering", "Computer Networks"];
+    }
 
-  topicSelect.innerHTML = availableTopics.map(t => `<option value="${t}">${t}</option>`).join("");
+    topicSelect.innerHTML = availableTopics.map(t => `<option value="${t}">${t}</option>`).join("");
 
-  if (topicParam) {
-    startQuizForTopic(topicParam);
-  } else {
-    document.getElementById("quizSetupState").style.display = "block";
-    document.getElementById("activeQuizWrapper").style.display = "none";
+    if (topicParam) {
+      startQuizForTopic(topicParam);
+    } else {
+      document.getElementById("quizSetupState").style.display = "block";
+      document.getElementById("activeQuizWrapper").style.display = "none";
+    }
+  } catch (err) {
+    showToast(formatErrorMessage(err), "danger");
   }
 }
 
@@ -124,7 +127,7 @@ async function startQuizForTopic(topicName) {
 
   try {
     const qData = await generateQuizQuestions(topicName, 3);
-    currentQuizQuestions = qData || getFallbackQuestions(topicName);
+    currentQuizQuestions = (qData && qData.length > 0) ? qData : getFallbackQuestions(topicName);
   } catch (e) {
     currentQuizQuestions = getFallbackQuestions(topicName);
   }
@@ -152,6 +155,7 @@ function getFallbackQuestions(topicName) {
 function renderCurrentQuestion() {
   selectedIdx = null;
   document.getElementById("explanationPanel").style.display = "none";
+  document.getElementById("btnNextQ").textContent = currentQIdx === currentQuizQuestions.length - 1 ? "Submit & Finish" : "Submit Answer →";
 
   const q = currentQuizQuestions[currentQIdx];
   document.getElementById("questionProgressText").textContent = `Question ${currentQIdx + 1} of ${currentQuizQuestions.length}`;
@@ -162,8 +166,8 @@ function renderCurrentQuestion() {
   const letters = ["A", "B", "C", "D"];
   optContainer.innerHTML = q.options.map((opt, idx) => `
     <div class="option-card" data-idx="${idx}">
-      <div style="width:26px; height:26px; border-radius:50%; border:1px solid var(--border-accent); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:0.8rem; font-weight:700; color:var(--accent-primary);">${letters[idx]}</div>
-      <div style="font-size:0.9rem;">${opt}</div>
+      <div style="width:24px; height:24px; border-radius:50%; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:0.75rem; font-weight:600; color:var(--text-secondary);">${letters[idx]}</div>
+      <div style="font-size:0.875rem;">${opt}</div>
     </div>
   `).join("");
 
@@ -189,21 +193,22 @@ document.getElementById("btnNextQ")?.addEventListener("click", async () => {
 
   if (selectedIdx === q.correctIndex) {
     options[selectedIdx].classList.add("correct");
-    showToast("Correct Answer! +10 Mastery Evidence", "success");
+    showToast("Correct Answer!", "success");
   } else {
     options[selectedIdx].classList.add("wrong");
-    options[q.correctIndex].classList.add("correct");
+    if (options[q.correctIndex]) options[q.correctIndex].classList.add("correct");
     showToast("Incorrect answer logged.", "danger");
 
-    // Save mistake to IndexedDB
-    await dbPut("mistakes", {
-      id: "mist_" + Date.now(),
-      topic: document.getElementById("quizTopicTag").textContent,
-      question: q.question,
-      category: "Conceptual Error",
-      occurrences: 1,
-      createdAt: new Date().toISOString()
-    });
+    try {
+      await dbPut("mistakes", {
+        id: "mist_" + Date.now(),
+        topic: document.getElementById("quizTopicTag").textContent,
+        question: q.question,
+        category: "Conceptual Error",
+        occurrences: 1,
+        createdAt: new Date().toISOString()
+      });
+    } catch (e) {}
   }
 
   document.getElementById("explanationText").textContent = q.explanation || "No explanation provided.";
@@ -215,8 +220,12 @@ document.getElementById("btnNextQ")?.addEventListener("click", async () => {
       renderCurrentQuestion();
     } else {
       showToast("Quiz Complete!", "success");
+      setTimeout(() => {
+        document.getElementById("quizSetupState").style.display = "block";
+        document.getElementById("activeQuizWrapper").style.display = "none";
+      }, 1500);
     }
-  }, 2000);
+  }, 1800);
 });
 
 initQuizPage();

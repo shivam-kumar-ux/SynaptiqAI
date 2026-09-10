@@ -91,3 +91,18 @@ export async function getUserNotesForTopic(userId, topicName) {
     return [];
   }
 }
+
+export async function generateStudyNotes(topicName, level = "Intermediate") {
+  const noteObj = await generatePersonalizedNote("local_user", topicName, level);
+  if (noteObj && noteObj.content) {
+    return {
+      summary: noteObj.content.simple_explanation || noteObj.content.key_concept,
+      examDefinition: noteObj.content.exam_definition,
+      example: noteObj.content.example,
+      commonMistake: noteObj.content.common_mistake,
+      practiceQuestions: noteObj.content.practice_questions
+    };
+  }
+  return null;
+}
+
