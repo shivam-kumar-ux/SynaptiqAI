@@ -2,8 +2,34 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>SYNAPTIQAI — Local-First AI Learning Operating System</title>
+
+<!-- PWA Meta Tags -->
+<meta name="application-name" content="SYNAPTIQAI">
+<meta name="description" content="Local-first, privacy-preserving adaptive AI learning system. Study smarter with your own AI keys.">
+<meta name="theme-color" content="#0EA5E9" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0284C7" media="(prefers-color-scheme: light)">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Apple PWA Meta Tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SYNAPTIQAI">
+<link rel="apple-touch-icon" href="img/synaptiq_logo_removebg.png">
+<link rel="apple-touch-startup-image" href="img/synaptiq_logo_removebg.png">
+
+<!-- Windows/MS Meta Tags -->
+<meta name="msapplication-TileColor" content="#050B18">
+<meta name="msapplication-TileImage" content="img/synaptiq_logo_removebg.png">
+<meta name="msapplication-tap-highlight" content="no">
+
+<!-- Open Graph / Social Sharing -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="SYNAPTIQAI — AI Learning OS">
+<meta property="og:description" content="Local-first adaptive learning with your own AI keys. Privacy-first study plans.">
+<meta property="og:image" content="img/synaptiq_logo_removebg.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -80,15 +106,27 @@ footer { border-top: 1px solid var(--border); text-align: center; padding: 24px;
   </section>
 </div>
 
-<footer>SYNAPTIQ © 2026 &nbsp;·&nbsp; LOCAL-FIRST ADAPTIVE LEARNING OS</footer>
+<footer>
+  <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+    <div id="pwa-install-container"></div>
+    <div>SYNAPTIQ © 2026 &nbsp;·&nbsp; LOCAL-FIRST ADAPTIVE LEARNING OS</div>
+  </div>
+</footer>
 
 <script type="module">
   import { isAuthenticated } from "./js/auth.js";
   import { initTheme } from "./js/theme.js";
+  import { registerPWA, captureInstallPrompt, renderInstallButton } from "./js/pwa.js";
+
   initTheme();
-  
+  registerPWA();
+  captureInstallPrompt();
+
   if (isAuthenticated()) {
     window.location.href = "pages/dashboard.html";
+  } else {
+    // Render install button on landing page after potential prompt capture
+    setTimeout(() => renderInstallButton("pwa-install-container"), 1500);
   }
 </script>
 </body>

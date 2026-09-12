@@ -1,8 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="application-name" content="SYNAPTIQAI">
+<meta name="theme-color" content="#0EA5E9">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SYNAPTIQAI">
 <title>Settings — SYNAPTIQAI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -16,6 +22,7 @@
 .provider-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
+<link rel="manifest" href="../manifest.json">
 </head>
 <body>
 
@@ -120,13 +127,31 @@
           <button class="btn btn-outline" style="color: var(--danger); border-color: var(--danger);" id="btnClearData">Clear Local Data</button>
         </div>
       </div>
+
+      <div class="card" style="margin-top: 20px;">
+        <h3 class="card-title" style="margin-bottom: 14px;">GOOGLE DRIVE SYNC</h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 18px;">
+          Automatically backup your local encrypted data to your personal Google Drive (AppData folder).
+        </p>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;">
+          <button class="btn btn-primary" id="btnConnectDrive">Connect Google Drive</button>
+          <button class="btn btn-secondary" id="btnSyncDrive" style="display: none;">Sync Now</button>
+          <button class="btn btn-outline" id="btnDisconnectDrive" style="display: none; color: var(--danger); border-color: var(--danger);">Disconnect</button>
+        </div>
+        
+        <div id="driveSyncStatus" style="font-size: 0.8rem; color: var(--text-muted);">Status: Disconnected</div>
+      </div>
     </div>
   </main>
 </div>
 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 <script type="module">
 import { renderAppShell, showToast } from "../js/ui-components.js";
 import { initTheme, setTheme } from "../js/theme.js";
+import { initGoogleOAuth, requestGoogleDriveAuth, isDriveConnected, disconnectGoogleDrive, getBackupMeta, backupToDrive } from "../js/gdrive.js";
 
 initTheme();
 renderAppShell("settings", "Settings");
@@ -163,6 +188,82 @@ document.getElementById("btnClearData")?.addEventListener("click", () => {
     setTimeout(() => location.reload(), 1000);
   }
 });
+
+// Google Drive Sync Logic
+const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE"; // User must replace this
+let isGisLoaded = false;
+
+function updateDriveUI() {
+  const connected = isDriveConnected();
+  document.getElementById("btnConnectDrive").style.display = connected ? "none" : "block";
+  document.getElementById("btnSyncDrive").style.display = connected ? "block" : "none";
+  document.getElementById("btnDisconnectDrive").style.display = connected ? "block" : "none";
+  
+  const meta = getBackupMeta();
+  if (connected) {
+    let statusText = "Status: Connected";
+    if (meta.lastBackup) {
+      statusText += ` (Last Backup: ${new Date(meta.lastBackup).toLocaleString()})`;
+    }
+    document.getElementById("driveSyncStatus").textContent = statusText;
+  } else {
+    document.getElementById("driveSyncStatus").textContent = "Status: Disconnected";
+  }
+}
+
+// Ensure GIS is loaded before initializing
+const checkGisInterval = setInterval(() => {
+  if (typeof google !== "undefined" && google.accounts && google.accounts.oauth2) {
+    clearInterval(checkGisInterval);
+    isGisLoaded = true;
+    initGoogleOAuth(GOOGLE_CLIENT_ID, (res) => {
+      if (res.success) {
+        showToast("Google Drive Connected!", "success");
+        updateDriveUI();
+      } else {
+        showToast("Drive connection failed: " + res.error, "danger");
+      }
+    });
+  }
+}, 500);
+
+updateDriveUI();
+
+document.getElementById("btnConnectDrive")?.addEventListener("click", () => {
+  if (!isGisLoaded) {
+    showToast("Google libraries are still loading. Please try again in a moment.", "warning");
+    return;
+  }
+  requestGoogleDriveAuth();
+});
+
+document.getElementById("btnDisconnectDrive")?.addEventListener("click", () => {
+  disconnectGoogleDrive();
+  updateDriveUI();
+  showToast("Google Drive disconnected.", "info");
+});
+
+document.getElementById("btnSyncDrive")?.addEventListener("click", async () => {
+  const btn = document.getElementById("btnSyncDrive");
+  btn.textContent = "Syncing...";
+  btn.disabled = true;
+  
+  const res = await backupToDrive();
+  if (res.success) {
+    showToast("Successfully backed up to Google Drive", "success");
+  } else {
+    showToast("Backup failed: " + res.error, "danger");
+  }
+  
+  updateDriveUI();
+  btn.textContent = "Sync Now";
+  btn.disabled = false;
+});
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
 </script>
 </body>
 </html>

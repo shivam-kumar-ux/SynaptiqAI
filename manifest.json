@@ -1,18 +1,89 @@
 {
-  "name": "SYNAPTIQAI - Personal AI Learning OS",
+  "name": "SYNAPTIQAI — AI Learning OS",
   "short_name": "SYNAPTIQAI",
-  "description": "Privacy-First, Local-First, Adaptive AI Learning Platform",
-  "start_url": "/index.html",
+  "description": "Local-first, privacy-preserving adaptive AI learning system. Bring your own AI keys and master any subject.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#050B18",
-  "theme_color": "#050B18",
+  "theme_color": "#0EA5E9",
+  "categories": ["education", "productivity"],
+  "lang": "en",
   "icons": [
     {
       "src": "/img/synaptiq_logo_removebg.png",
-      "sizes": "192x192 512x512",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/synaptiq_logo_removebg.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/synaptiq_logo_removebg.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/synaptiq_logo_removebg.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/synaptiq_logo_removebg.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/synaptiq_logo_removebg.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/img/synaptiq_logo_removebg.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/synaptiq_logo_removebg.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Go to your learning dashboard",
+      "url": "/pages/dashboard.html",
+      "icons": [{ "src": "/img/synaptiq_logo_removebg.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Study Mode",
+      "short_name": "Study",
+      "description": "Start a focused study session",
+      "url": "/pages/session.html",
+      "icons": [{ "src": "/img/synaptiq_logo_removebg.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "New Plan",
+      "short_name": "New Plan",
+      "description": "Create a new AI study plan",
+      "url": "/pages/plan-new.html",
+      "icons": [{ "src": "/img/synaptiq_logo_removebg.png", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false,
+  "related_applications": []
 }

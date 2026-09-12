@@ -1,8 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="application-name" content="SYNAPTIQAI">
+<meta name="theme-color" content="#0EA5E9">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SYNAPTIQAI">
 <title>Scholar Profile — SYNAPTIQAI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -13,6 +19,7 @@
 .avatar-large { width: 80px; height: 80px; border-radius: 50%; background: var(--bg-elevated); color: var(--accent-primary); font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; border: 1px solid var(--border); }
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
+<link rel="manifest" href="../manifest.json">
 </head>
 <body>
 
@@ -136,6 +143,11 @@ document.getElementById("btnSaveProfile")?.addEventListener("click", async () =>
     showToast(formatErrorMessage(err), "danger");
   }
 });
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
 </script>
 </body>
 </html>
