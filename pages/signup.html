@@ -134,7 +134,11 @@ requireAuth();
 window.strongTags = [];
 window.weakTags = [];
 
-window.toggleExam = (el) => el.classList.toggle('selected');
+window.toggleExam = (el) => {
+  el.classList.toggle('selected');
+  const cb = el.querySelector('input[type="checkbox"]');
+  if (cb) cb.checked = !cb.checked;
+};
 
 window.addTag = (e, type) => {
   if (e.key !== 'Enter') return;
@@ -153,6 +157,21 @@ window.addTag = (e, type) => {
 };
 
 window.goStep = (n) => {
+  // Validate Step 1 before moving to Step 2
+  if (n === 2) {
+    const classGrade = document.getElementById('inp-class').value;
+    const selectedExams = Array.from(document.querySelectorAll('#examGrid .exam-card.selected input')).map(cb => cb.value);
+    
+    if (!classGrade) {
+      alert("Please select a Class / Grade.");
+      return;
+    }
+    if (selectedExams.length === 0) {
+      alert("Please select at least one Exam Type under 'PREPARING FOR'.");
+      return;
+    }
+  }
+
   document.querySelectorAll('.step-panel').forEach((p, i) => p.classList.toggle('active', i === n - 1));
   ['sd1','sd2'].forEach((id, i) => {
     const el = document.getElementById(id);
@@ -179,6 +198,7 @@ window.submitSignup = async () => {
       classGrade: document.getElementById('inp-class').value,
       board: document.getElementById('inp-board').value,
       institution: document.getElementById('inp-inst').value,
+      examType: Array.from(document.querySelectorAll('#examGrid .exam-card.selected input')).map(cb => cb.value).join(", "),
       dailyHours: parseInt(document.getElementById('hoursSlider').value),
       strongSubjects: window.strongTags,
       weakSubjects: window.weakTags,

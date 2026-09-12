@@ -99,6 +99,27 @@ export async function loginWithGoogleResponse(response) {
   }
 }
 
+export async function saveFullProfile(userId, profileData) {
+  try {
+    const user = await dbGet("users", userId);
+    if (!user) return { success: false, error: "User not found." };
+
+    const updatedUser = {
+      ...user,
+      ...profileData,
+      onboardingCompleted: true,
+      updatedAt: new Date().toISOString()
+    };
+
+    await dbPut("users", updatedUser);
+    saveSessionUser(updatedUser);
+
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
 export function initializeGoogleAuth(buttonId, callback) {
   if (typeof google === "undefined" || !google.accounts) {
     console.error("Google Identity Services library not loaded.");
