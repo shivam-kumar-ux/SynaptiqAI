@@ -2,6 +2,7 @@
 
 import { globalCommandPalette } from "./command-palette.js";
 import { ROUTES, navigateTo, logoutUser, getRoute } from "./routes.js";
+import { toggleTheme, getTheme } from "./theme.js";
 
 /**
  * Format raw exceptions into clean, concise, human-readable error messages.
@@ -93,6 +94,9 @@ export function renderAppShell(activePage = "dashboard", breadcrumbTitle = "Dash
         </button>
 
         <a href="${getRoute('aiProvider')}" class="btn btn-ghost btn-sm" title="AI Provider Setup">🤖</a>
+        <button class="btn btn-ghost btn-sm" id="themeToggleBtn" aria-label="Toggle theme">
+          ${getTheme() === 'dark' ? '☀' : '☾'}
+        </button>
         <a href="${getRoute('profile')}" class="btn btn-ghost btn-sm" title="Profile">👤</a>
         <a href="${getRoute('settings')}" class="btn btn-ghost btn-sm" title="Settings">⚙️</a>
       </div>
@@ -100,6 +104,11 @@ export function renderAppShell(activePage = "dashboard", breadcrumbTitle = "Dash
 
     document.getElementById("topbarCmdKBtn")?.addEventListener("click", () => {
       globalCommandPalette.open();
+    });
+
+    document.getElementById("themeToggleBtn")?.addEventListener("click", (e) => {
+      const newTheme = toggleTheme();
+      e.currentTarget.textContent = newTheme === 'dark' ? '☀' : '☾';
     });
   }
 

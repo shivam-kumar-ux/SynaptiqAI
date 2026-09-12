@@ -1,6 +1,7 @@
 // js/timer-floating.js — Floating Smart Pomodoro & Focus Session Manager for SYNAPTIQAI
 
 import { FocusTracker, saveFocusSession, getDistractionIntelligence } from "./focus.js";
+import { getCurrentUser } from "./auth.js";
 
 const TIMER_STORAGE_KEY = "synaptiq_active_timer_session";
 

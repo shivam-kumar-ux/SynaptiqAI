@@ -44,33 +44,10 @@ body { display: flex; flex-direction: column; align-items: center; justify-conte
     <div class="step-dot active" id="sd1">1</div>
     <div class="step-line" id="sl1"></div>
     <div class="step-dot" id="sd2">2</div>
-    <div class="step-line" id="sl2"></div>
-    <div class="step-dot" id="sd3">3</div>
   </div>
 
-  <!-- STEP 1 -->
+  <!-- STEP 1: ACADEMIC PROFILE -->
   <div class="step-panel active" id="s1">
-    <h3 style="font-family: var(--font-heading); font-size: 1.1rem; color: var(--accent-primary); margin-bottom: 4px;">ACCOUNT CREATION</h3>
-    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Create your personal scholar credentials</p>
-
-    <div class="form-group"><label class="form-label">FULL NAME</label><input type="text" class="input-text" id="inp-name" placeholder="John Doe" required></div>
-    <div class="form-group"><label class="form-label">EMAIL ADDRESS</label><input type="email" class="input-text" id="inp-email" placeholder="you@example.com" required></div>
-    <div class="form-group"><label class="form-label">PHONE NUMBER</label><input type="tel" class="input-text" id="inp-phone" placeholder="+91 98765 43210"></div>
-    
-    <div class="form-group">
-      <label class="form-label">PASSWORD</label>
-      <input type="password" class="input-text" id="inp-pw" placeholder="Min 6 characters" required>
-    </div>
-    <div class="form-group">
-      <label class="form-label">CONFIRM PASSWORD</label>
-      <input type="password" class="input-text" id="inp-cpw" placeholder="Re-enter password" required>
-    </div>
-
-    <button class="btn btn-primary" onclick="goStep2()" style="width: 100%;">NEXT: ACADEMIC PROFILE →</button>
-  </div>
-
-  <!-- STEP 2 -->
-  <div class="step-panel" id="s2">
     <h3 style="font-family: var(--font-heading); font-size: 1.1rem; color: var(--accent-primary); margin-bottom: 4px;">ACADEMIC PROFILE</h3>
     <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Tell us about your studies</p>
 
@@ -102,14 +79,13 @@ body { display: flex; flex-direction: column; align-items: center; justify-conte
       <div class="exam-card" onclick="toggleExam(this)"><input type="checkbox" value="Skill Development" style="display:none">💡 <div>SKILL DEV</div></div>
     </div>
 
-    <div style="display: flex; gap: 12px; margin-top: 24px;">
-      <button class="btn btn-secondary" onclick="goStep(1)" style="flex:1;">← BACK</button>
-      <button class="btn btn-primary" onclick="goStep3()" style="flex:1;">NEXT: PREFERENCES →</button>
+    <div style="display: flex; justify-content: flex-end; margin-top: 24px;">
+      <button class="btn btn-primary" onclick="goStep(2)">NEXT: PREFERENCES →</button>
     </div>
   </div>
 
-  <!-- STEP 3 -->
-  <div class="step-panel" id="s3">
+  <!-- STEP 2: STUDY PREFERENCES -->
+  <div class="step-panel" id="s2">
     <h3 style="font-family: var(--font-heading); font-size: 1.1rem; color: var(--accent-primary); margin-bottom: 4px;">STUDY PREFERENCES</h3>
     <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Configure your baseline targets</p>
 
@@ -136,8 +112,8 @@ body { display: flex; flex-direction: column; align-items: center; justify-conte
     </div>
 
     <div style="display: flex; gap: 12px; margin-top: 24px;">
-      <button class="btn btn-secondary" onclick="goStep(2)" style="flex:1;">← BACK</button>
-      <button class="btn btn-primary" onclick="submitSignup()" style="flex:1;">CREATE SCHOLAR PROFILE 🚀</button>
+      <button class="btn btn-secondary" onclick="goStep(1)" style="flex:1;">← BACK</button>
+      <button class="btn btn-primary" onclick="submitSignup()" style="flex:1;">COMPLETE PROFILE 🚀</button>
     </div>
   </div>
 </div>
@@ -150,9 +126,10 @@ body { display: flex; flex-direction: column; align-items: center; justify-conte
 <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 
 <script type="module">
-import { signUpWithEmail, saveFullProfile } from "../js/auth.js";
+import { saveFullProfile, getCurrentUser, requireAuth } from "../js/auth.js";
 import { initTheme } from "../js/theme.js";
 initTheme();
+requireAuth();
 
 window.strongTags = [];
 window.weakTags = [];
@@ -175,58 +152,45 @@ window.addTag = (e, type) => {
   inp.value = '';
 };
 
-window.goStep2 = () => {
-  const name = document.getElementById('inp-name').value.trim();
-  const email = document.getElementById('inp-email').value.trim();
-  const pw = document.getElementById('inp-pw').value;
-  if (!name || !email || pw.length < 6) {
-    alert('Please complete all required fields (password min 6 chars).');
-    return;
-  }
-  window.goStep(2);
-};
-window.goStep3 = () => window.goStep(3);
-
 window.goStep = (n) => {
   document.querySelectorAll('.step-panel').forEach((p, i) => p.classList.toggle('active', i === n - 1));
-  ['sd1','sd2','sd3'].forEach((id, i) => {
+  ['sd1','sd2'].forEach((id, i) => {
     const el = document.getElementById(id);
-    el.classList.toggle('active', i === n - 1);
-    el.classList.toggle('done', i < n - 1);
+    if(el) {
+      el.classList.toggle('active', i === n - 1);
+      el.classList.toggle('done', i < n - 1);
+    }
   });
-  ['sl1','sl2'].forEach((id, i) => document.getElementById(id).classList.toggle('done', i < n - 1));
+  ['sl1'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if(el) el.classList.toggle('done', i < n - 1);
+  });
 };
 
 window.submitSignup = async () => {
   const overlay = document.getElementById('loadingOverlay');
   overlay.classList.add('show');
-  const name = document.getElementById('inp-name').value.trim();
-  const email = document.getElementById('inp-email').value.trim();
-  const phone = document.getElementById('inp-phone').value.trim();
-  const pw = document.getElementById('inp-pw').value;
 
   try {
-    const res = await signUpWithEmail(name, email, phone, pw);
-    if (!res.success) {
-      overlay.classList.remove('show');
-      alert(res.error || 'Signup failed.');
-      return;
-    }
+    const session = getCurrentUser();
+    if(!session) throw new Error("No active session");
+
     const profile = {
-      name, email, phone,
       classGrade: document.getElementById('inp-class').value,
       board: document.getElementById('inp-board').value,
       institution: document.getElementById('inp-inst').value,
       dailyHours: parseInt(document.getElementById('hoursSlider').value),
       strongSubjects: window.strongTags,
-      weakSubjects: window.weakTags
+      weakSubjects: window.weakTags,
+      onboardingCompleted: true
     };
-    await saveFullProfile(res.userId, profile);
+    
+    await saveFullProfile(session.id, profile);
     overlay.classList.remove('show');
     window.location.href = 'dashboard.html';
   } catch (err) {
     overlay.classList.remove('show');
-    alert(err.message || 'Error signing up.');
+    alert(err.message || 'Error saving profile.');
   }
 };
 </script>

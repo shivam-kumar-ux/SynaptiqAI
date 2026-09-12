@@ -132,16 +132,20 @@
 
 <script type="module">
 import { renderAppShell, formatErrorMessage } from "../js/ui-components.js";
+import { getCurrentUser, requireAuth } from "../js/auth.js";
 import { initTheme } from "../js/theme.js";
-import { dbGetAll, dbGet } from "../js/db.js";
+import { dbGetAll, dbGetByIndex } from "../js/db.js";
 
+requireAuth();
 initTheme();
 renderAppShell("dashboard", "Dashboard");
 
 async function loadRealDashboardData() {
   try {
-    const plans = await dbGetAll("plans");
-    const user = await dbGet("users", "local_user");
+    const user = getCurrentUser();
+    if (!user) return;
+
+    const plans = await dbGetByIndex("plans", "userId", user.id);
 
     if (user && user.name) {
       document.getElementById("userGreeting").textContent = `Welcome, ${user.name} 👋`;
@@ -158,11 +162,11 @@ async function loadRealDashboardData() {
     
     document.getElementById("nextActionTopic").textContent = `Study Subject: ${subject}`;
     document.getElementById("nextActionDesc").textContent = `Active plan created ${latestPlan.createdAt ? latestPlan.createdAt.split("T")[0] : "recently"}.`;
-    document.getElementById("nextActionMastery").textContent = "50%";
-    document.getElementById("valMastery").textContent = "50%";
-    document.getElementById("barMastery").style.width = "50%";
-    document.getElementById("overallHealthScore").textContent = "Good";
-    document.getElementById("explainabilityReason").textContent = `Recommended focus study on ${subject} to build initial knowledge graph data.`;
+    document.getElementById("nextActionMastery").textContent = "No data yet";
+    document.getElementById("valMastery").textContent = "No data yet";
+    document.getElementById("barMastery").style.width = "0%";
+    document.getElementById("overallHealthScore").textContent = "Start your first session";
+    document.getElementById("explainabilityReason").textContent = `Create a study session for ${subject} to start building your knowledge profile.`;
     document.getElementById("btnStartNextAction").href = `session.html?topic=${encodeURIComponent(subject)}`;
   } catch (e) {
     document.getElementById("firstRunBanner").style.display = "block";

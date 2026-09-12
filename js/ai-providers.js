@@ -1,6 +1,6 @@
 // js/ai-providers.js — User AI Provider Manager for SYNAPTIQAI
 
-import { dbGetAll, dbPut, dbDelete, dbGet } from "./db.js";
+import { dbGetAll, dbPut, dbDelete, dbGet, dbGetByIndex } from "./db.js";
 
 // Helper to mask key for UI display
 export function maskApiKey(key) {
@@ -328,10 +328,14 @@ const PROVIDER_CLASSES = {
 };
 
 // ── Provider Manager ─────────────────────────────────────────
+import { getCurrentUser } from "./auth.js";
+
 export class ProviderManager {
   static async getConfiguredProviders() {
     try {
-      const list = await dbGetAll("aiProviders");
+      const user = getCurrentUser();
+      if (!user) return [];
+      const list = await dbGetByIndex("aiProviders", "userId", user.id);
       return list
         .filter(p => p.enabled && p.apiKey)
         .sort((a, b) => (a.priority || 0) - (b.priority || 0));
@@ -341,8 +345,12 @@ export class ProviderManager {
   }
 
   static async saveProvider(providerData) {
+    const user = getCurrentUser();
+    if (!user) throw new Error("Must be logged in to save provider.");
     const record = {
-      id: providerData.id,
+      id: `${user.id}_${providerData.id}`,
+      userId: user.id,
+      providerId: providerData.id,
       name: providerData.name,
       apiKey: providerData.apiKey,
       model: providerData.model,
@@ -355,7 +363,9 @@ export class ProviderManager {
   }
 
   static async deleteProvider(providerId) {
-    await dbDelete("aiProviders", providerId);
+    const user = getCurrentUser();
+    if (!user) return;
+    await dbDelete("aiProviders", `${user.id}_${providerId}`);
   }
 
   static async testProvider(id, apiKey, model) {

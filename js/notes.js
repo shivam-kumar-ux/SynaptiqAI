@@ -92,8 +92,12 @@ export async function getUserNotesForTopic(userId, topicName) {
   }
 }
 
+import { getCurrentUser } from "./auth.js";
+
 export async function generateStudyNotes(topicName, level = "Intermediate") {
-  const noteObj = await generatePersonalizedNote("local_user", topicName, level);
+  const session = getCurrentUser();
+  if (!session) return null;
+  const noteObj = await generatePersonalizedNote(session.id, topicName, level);
   if (noteObj && noteObj.content) {
     return {
       summary: noteObj.content.simple_explanation || noteObj.content.key_concept,

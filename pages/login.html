@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 body { display: flex; align-items: center; justify-content: center; padding: 20px; min-height: 100vh; background: var(--bg-primary); }
 .login-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 36px; width: 100%; max-width: 420px; box-shadow: var(--shadow-md); }
@@ -37,40 +38,11 @@ body { display: flex; align-items: center; justify-content: center; padding: 20p
 
   <!-- LOGIN FORM -->
   <div class="login-section" id="loginSection">
-    <form id="loginForm">
-      <div class="form-group">
-        <label class="form-label">EMAIL ADDRESS</label>
-        <input type="email" class="input-text" id="inp-email" placeholder="you@example.com" required>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">PASSWORD</label>
-        <div style="position: relative;">
-          <input type="password" class="input-text" id="inp-pw" placeholder="••••••••" required>
-          <button class="btn btn-ghost btn-sm" id="togglePwBtn" type="button" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%);">👁</button>
-        </div>
-      </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; font-size: 0.8rem;">
-        <label style="display: flex; align-items: center; gap: 6px; color: var(--text-secondary); cursor: pointer;">
-          <input type="checkbox" id="remember"> Remember me
-        </label>
-        <a href="#" id="forgotLink" style="color: var(--accent-primary);">Forgot Password?</a>
-      </div>
-
-      <button class="btn btn-primary" id="loginBtn" type="submit" style="width: 100%;">Login to Dashboard</button>
-    </form>
-
-    <div style="display: flex; align-items: center; gap: 10px; margin: 18px 0; color: var(--text-muted); font-size: 0.75rem;">
-      <div style="flex:1; height:1px; background:var(--border);"></div>
-      <span>OR</span>
-      <div style="flex:1; height:1px; background:var(--border);"></div>
+    
+    <div style="text-align: center; margin-bottom: 24px;">
+      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px;">Use your Google Account to securely access SynaptiqAI across devices.</p>
+      <div id="googleBtnContainer" style="display: flex; justify-content: center;"></div>
     </div>
-
-    <button class="btn btn-secondary" id="googleBtn" type="button" style="width: 100%;">
-      <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-      Continue with Google
-    </button>
 
     <div style="text-align: center; margin-top: 18px; font-size: 0.85rem; color: var(--text-secondary);">
       New scholar? <a href="signup.html" style="color: var(--accent-primary); font-weight: 600;">Create Account</a>
@@ -92,7 +64,7 @@ body { display: flex; align-items: center; justify-content: center; padding: 20p
 </div>
 
 <script type="module">
-import { loginWithEmail, loginWithGoogle, sendReset } from "../js/auth.js";
+import { initializeGoogleAuth } from "../js/auth.js";
 import { initTheme } from "../js/theme.js";
 import { formatErrorMessage } from "../js/ui-components.js";
 
@@ -109,33 +81,13 @@ function showSucc(msg) {
   b.textContent = msg; b.classList.add('show');
 }
 
-document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('inp-email').value.trim();
-  const pw = document.getElementById('inp-pw').value;
-  const btn = document.getElementById('loginBtn');
-  btn.textContent = 'Authenticating...';
-  btn.disabled = true;
-  try {
-    const res = await loginWithEmail(email, pw);
-    btn.disabled = false;
-    btn.textContent = 'Login to Dashboard';
-    if (res.success) {
-      window.location.href = 'dashboard.html';
-    } else {
-      showErr(res.error || 'Login failed.');
-    }
-  } catch (err) {
-    btn.disabled = false;
-    btn.textContent = 'Login to Dashboard';
-    showErr(err);
+// Initialize Google Auth button
+initializeGoogleAuth("googleBtnContainer", (res) => {
+  if (res.success) {
+    window.location.href = res.onboardingCompleted ? 'dashboard.html' : 'signup.html';
+  } else {
+    showErr(res.error || 'Google login failed.');
   }
-});
-
-document.getElementById('googleBtn')?.addEventListener('click', async () => {
-  const res = await loginWithGoogle();
-  if (res.success) window.location.href = res.isNewUser ? 'signup.html' : 'dashboard.html';
-  else showErr(res.error);
 });
 
 document.getElementById('togglePwBtn')?.addEventListener('click', () => {

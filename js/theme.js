@@ -24,6 +24,13 @@ export function getTheme() {
   return localStorage.getItem(THEME_KEY) || "dark";
 }
 
+export function toggleTheme() {
+  const current = getTheme();
+  const nextTheme = current === 'dark' ? 'light' : 'dark';
+  setTheme(nextTheme);
+  return nextTheme;
+}
+
 export function applyTheme(mode) {
   let effectiveTheme = mode;
   if (mode === "system") {

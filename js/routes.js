@@ -57,12 +57,11 @@ export function navigateTo(routeName, params = {}) {
   window.location.href = path;
 }
 
+import { logout } from "./auth.js";
+
 /**
  * Global Logout handler
  */
 export function logoutUser() {
-  localStorage.removeItem("synaptiq_active_user");
-  localStorage.removeItem("synaptiq_active_timer_session");
-  sessionStorage.clear();
-  window.location.href = getRoute("login");
+  logout();
 }

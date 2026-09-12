@@ -99,9 +99,13 @@ renderAppShell("profile", "Scholar Profile");
 document.getElementById("btnHeaderLogout")?.addEventListener("click", logoutUser);
 document.getElementById("btnCardLogout")?.addEventListener("click", logoutUser);
 
+import { getCurrentUser } from "../js/auth.js";
+
 async function loadProfileData() {
   try {
-    const user = await dbGet("users", "local_user");
+    const session = getCurrentUser();
+    if (!session) return;
+    const user = await dbGet("users", session.id);
     if (user) {
       document.getElementById("profName").value = user.name || "Scholar";
       document.getElementById("profEmail").value = user.email || "scholar@example.com";
@@ -112,7 +116,7 @@ async function loadProfileData() {
       document.getElementById("userAvatarInitials").textContent = initials || "SK";
     }
   } catch (e) {
-    console.log("Using default profile values.");
+    console.log("Using default profile values.", e);
   }
 }
 loadProfileData();
