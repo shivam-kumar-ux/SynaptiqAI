@@ -34,8 +34,25 @@ body { display: flex; align-items: center; justify-content: center; min-height: 
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.7; transform: scale(1.02); }
 }
-.spin-icon { display: inline-block; animation: spin 1s linear infinite; margin-right: 6px; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+.spin-icon { display: inline-block; animation: spin 0.8s linear infinite; margin-right: 6px; }
+.spinner-ring {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  border-top-color: #ffffff;
+  animation: spin 0.75s linear infinite;
+  margin-right: 6px;
+  vertical-align: middle;
+}
 .pulse-badge { animation: pulseGlow 1s infinite ease-in-out; }
+.shake-element { animation: shake 0.4s ease-in-out; }
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
 <link rel="manifest" href="../manifest.json">
@@ -165,6 +182,23 @@ initTheme();
 
 let selectedProvider = "gemini";
 
+// Auto-fill API key from URL params if passed (e.g. ?key=AQ.Ab8...&provider=gemini)
+const searchParams = new URLSearchParams(window.location.search);
+if (searchParams.get("key")) {
+  const inp = document.getElementById("inpApiKey");
+  if (inp) inp.value = searchParams.get("key");
+}
+if (searchParams.get("provider")) {
+  selectedProvider = searchParams.get("provider");
+  document.querySelectorAll(".provider-option").forEach(p => {
+    if (p.dataset.provider === selectedProvider) {
+      p.classList.add("selected");
+    } else {
+      p.classList.remove("selected");
+    }
+  });
+}
+
 const GUIDES = {
   gemini: `
     <strong>How to get Google Gemini API Key:</strong><br>
@@ -271,27 +305,34 @@ async function refreshConfiguredProviders() {
 
       container.querySelectorAll(".btn-test-saved").forEach(btn => {
         btn.addEventListener("click", async (e) => {
-          const provId = e.currentTarget.dataset.id;
+          const btnEl = e.currentTarget;
+          const provId = btnEl.dataset.id;
           const user = getCurrentUser();
           if (!user) return;
 
-          const originalText = btn.innerHTML;
-          btn.innerHTML = `<span class="spin-icon">⚡</span> Testing...`;
-          btn.disabled = true;
+          const originalText = btnEl.innerHTML;
+          btnEl.innerHTML = `<span class="spinner-ring"></span> Testing...`;
+          btnEl.disabled = true;
 
+          const startTime = Date.now();
           const savedList = await dbGetByIndex("aiProviders", "userId", user.id);
           const rec = savedList.find(p => p.providerId === provId || p.id === `${user.id}_${provId}`);
 
           if (!rec || !rec.apiKey) {
             showToast("No key found for provider.", "warning");
-            btn.innerHTML = originalText;
-            btn.disabled = false;
+            btnEl.innerHTML = originalText;
+            btnEl.disabled = false;
             return;
           }
 
           const res = await testProviderConnection(rec.providerId, rec.apiKey, rec.model, rec.baseUrl);
-          btn.innerHTML = originalText;
-          btn.disabled = false;
+          
+          // Ensure min 700ms visible spinner
+          const elapsed = Date.now() - startTime;
+          if (elapsed < 700) await new Promise(r => setTimeout(r, 700 - elapsed));
+
+          btnEl.innerHTML = originalText;
+          btnEl.disabled = false;
 
           if (res.success) {
             showToast(res.message || `${rec.name} connection test passed!`, "success");
@@ -312,7 +353,8 @@ refreshConfiguredProviders();
 
 document.getElementById("btnTestConn")?.addEventListener("click", async () => {
   const btn = document.getElementById("btnTestConn");
-  let key = document.getElementById("inpApiKey").value.trim();
+  const keyInput = document.getElementById("inpApiKey");
+  let key = keyInput ? keyInput.value.trim() : "";
   const statusEl = document.getElementById("connectionStatus");
   const user = getCurrentUser();
 
@@ -331,21 +373,34 @@ document.getElementById("btnTestConn")?.addEventListener("click", async () => {
 
   if (!key) {
     statusEl.textContent = "Status: PLEASE ENTER API KEY";
-    statusEl.className = "badge badge-warning";
+    statusEl.className = "badge badge-warning shake-element";
+    if (keyInput) keyInput.classList.add("shake-element");
+    btn.classList.add("shake-element");
+    setTimeout(() => {
+      if (keyInput) keyInput.classList.remove("shake-element");
+      btn.classList.remove("shake-element");
+      statusEl.classList.remove("shake-element");
+    }, 500);
     showToast("Please enter your API key to test.", "warning");
     return;
   }
 
   const originalBtnContent = btn.innerHTML;
-  btn.innerHTML = `<span class="spin-icon">⚡</span> Testing...`;
+  btn.innerHTML = `<span class="spinner-ring"></span> Testing...`;
   btn.disabled = true;
 
-  statusEl.innerHTML = `Status: TESTING... <span class="spin-icon">⚡</span>`;
+  statusEl.innerHTML = `Status: TESTING... <span class="spinner-ring"></span>`;
   statusEl.className = "badge badge-info pulse-badge";
+
+  const startTime = Date.now();
 
   try {
     const res = await testProviderConnection(selectedProvider, key, customModel || "custom-model", customUrl);
     
+    // Ensure min 700ms visible spinner animation
+    const elapsed = Date.now() - startTime;
+    if (elapsed < 700) await new Promise(r => setTimeout(r, 700 - elapsed));
+
     btn.innerHTML = originalBtnContent;
     btn.disabled = false;
 
@@ -359,6 +414,9 @@ document.getElementById("btnTestConn")?.addEventListener("click", async () => {
       showToast(res.error || "Connection failed. Check API key.", "danger");
     }
   } catch (err) {
+    const elapsed = Date.now() - startTime;
+    if (elapsed < 700) await new Promise(r => setTimeout(r, 700 - elapsed));
+
     btn.innerHTML = originalBtnContent;
     btn.disabled = false;
     statusEl.textContent = "Status: CONNECTION ERROR ❌";
@@ -369,9 +427,16 @@ document.getElementById("btnTestConn")?.addEventListener("click", async () => {
 
 document.getElementById("btnSaveAndContinue")?.addEventListener("click", async () => {
   const btn = document.getElementById("btnSaveAndContinue");
-  const key = document.getElementById("inpApiKey").value.trim();
+  const keyInput = document.getElementById("inpApiKey");
+  const key = keyInput ? keyInput.value.trim() : "";
 
   if (!key) {
+    if (keyInput) keyInput.classList.add("shake-element");
+    btn.classList.add("shake-element");
+    setTimeout(() => {
+      if (keyInput) keyInput.classList.remove("shake-element");
+      btn.classList.remove("shake-element");
+    }, 500);
     return showToast("Please paste your API key to save.", "warning");
   }
 
@@ -384,8 +449,10 @@ document.getElementById("btnSaveAndContinue")?.addEventListener("click", async (
   }
 
   const originalText = btn.innerHTML;
-  btn.innerHTML = `<span class="spin-icon">🔒</span> Saving Key...`;
+  btn.innerHTML = `<span class="spinner-ring"></span> Saving Key...`;
   btn.disabled = true;
+
+  const startTime = Date.now();
 
   try {
     await saveUserKey(
@@ -395,6 +462,9 @@ document.getElementById("btnSaveAndContinue")?.addEventListener("click", async (
       selectedProvider === "custom" ? customName : undefined,
       selectedProvider === "custom" ? customUrl : undefined
     );
+
+    const elapsed = Date.now() - startTime;
+    if (elapsed < 700) await new Promise(r => setTimeout(r, 700 - elapsed));
 
     document.getElementById("inpApiKey").value = "";
     if (selectedProvider === "custom") {
@@ -413,6 +483,9 @@ document.getElementById("btnSaveAndContinue")?.addEventListener("click", async (
 
     await refreshConfiguredProviders();
   } catch (err) {
+    const elapsed = Date.now() - startTime;
+    if (elapsed < 700) await new Promise(r => setTimeout(r, 700 - elapsed));
+
     btn.innerHTML = originalText;
     btn.disabled = false;
     showToast(formatErrorMessage(err), "danger");
