@@ -88,7 +88,7 @@
           <strong>Required steps in Google Cloud Console:</strong><br>
           1. Create/select a project → APIs &amp; Services → Credentials<br>
           2. Create OAuth Client ID → Web application<br>
-          3. Add <code style="background:var(--bg-secondary);padding:1px 4px;border-radius:3px">https://shivam-kumar-ux.github.io</code> as an authorized JavaScript origin<br>
+          3. Add <code style="background:var(--bg-secondary);padding:1px 4px;border-radius:3px">https://synaptiq-ai-puce.vercel.app</code> and <code style="background:var(--bg-secondary);padding:1px 4px;border-radius:3px">https://shivam-kumar-ux.github.io</code> as authorized JavaScript origins<br>
           4. Also add <code style="background:var(--bg-secondary);padding:1px 4px;border-radius:3px">http://localhost:5500</code> for local dev<br>
           5. Set up OAuth Consent Screen → User Type: External → add your email as Test User
         </div>
@@ -118,42 +118,18 @@
     <!-- TAB 1: AI PROVIDERS -->
     <div class="tab-content" id="tab-providers">
       <div class="card" style="margin-bottom: 20px; background: var(--bg-surface); border-color: var(--border);">
-        <h3 style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">LOCAL-FIRST API KEYS</h3>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
-          Your API keys are encrypted and saved locally in your browser IndexedDB.
-        </p>
-      </div>
-
-      <!-- PROVIDER CARDS -->
-      <div class="provider-card">
-        <div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <strong style="font-size: 0.95rem;">Google Gemini</strong>
-            <span class="badge badge-success">Recommended</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+          <div>
+            <h3 style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">LOCAL-FIRST API KEYS</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+              Your API keys are stored locally on your device in browser IndexedDB.
+            </p>
           </div>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Model: gemini-2.0-flash</p>
+          <a href="ai-provider.html" class="btn btn-primary btn-sm">+ Add / Change Provider</a>
         </div>
-        <a href="ai-provider.html" class="btn btn-secondary btn-sm">Configure Key</a>
       </div>
 
-      <div class="provider-card">
-        <div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <strong style="font-size: 0.95rem;">Groq</strong>
-            <span class="badge badge-info">Fast</span>
-          </div>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Model: llama-3.3-70b</p>
-        </div>
-        <a href="ai-provider.html" class="btn btn-primary btn-sm">+ Add Key</a>
-      </div>
-
-      <div class="provider-card">
-        <div>
-          <strong style="font-size: 0.95rem;">OpenRouter</strong>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Multi-Model API</p>
-        </div>
-        <a href="ai-provider.html" class="btn btn-primary btn-sm">+ Add Key</a>
-      </div>
+      <div id="settingsProvidersList"></div>
     </div>
 
     <!-- TAB 2: APPEARANCE -->
@@ -225,10 +201,62 @@ import { initTheme, setTheme } from "../js/theme.js";
 import { initGoogleOAuth, requestGoogleDriveAuth, isDriveConnected, disconnectGoogleDrive, getBackupMeta, backupToDrive } from "../js/gdrive.js";
 import { getCurrentUser, requireAuth } from "../js/auth.js";
 import { getGoogleClientId, setGoogleClientId, isGoogleConfigured, clearConfig } from "../js/config.js";
+import { getSafeConfiguredProviders, deleteUserKey } from "../js/ai-providers.js";
 
 requireAuth();
 initTheme();
 renderAppShell("settings", "Settings");
+
+// ── Render Dynamic AI Providers List in Tab 1 ───────────────────
+async function loadSettingsProvidersList() {
+  const container = document.getElementById("settingsProvidersList");
+  if (!container) return;
+  try {
+    const list = await getSafeConfiguredProviders();
+    if (!list || list.length === 0) {
+      container.innerHTML = `
+        <div class="card" style="text-align:center;padding:24px">
+          <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:12px">No AI providers connected yet.</p>
+          <a href="ai-provider.html" class="btn btn-primary btn-sm">+ Connect AI Provider</a>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = list.map(p => `
+      <div class="provider-card">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <strong style="font-size: 0.95rem;">${p.name}</strong>
+            <span class="badge badge-success">Connected ✓</span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+            Model: ${p.model} · Key: <span style="font-family:var(--font-mono)">${p.maskedKey}</span>
+          </p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a href="ai-provider.html" class="btn btn-secondary btn-sm">Change</a>
+          <button class="btn btn-outline btn-sm btn-delete-provider" data-id="${p.id}" style="color:var(--danger);border-color:var(--danger)">Remove</button>
+        </div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll(".btn-delete-provider").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const id = e.currentTarget.dataset.id;
+        if (confirm(`Remove ${id} API key?`)) {
+          await deleteUserKey(id);
+          showToast("Provider removed.", "info");
+          loadSettingsProvidersList();
+        }
+      });
+    });
+  } catch (e) {
+    container.innerHTML = `<div style="color:var(--danger);font-size:0.85rem">Failed to load provider list.</div>`;
+  }
+}
+
+loadSettingsProvidersList();
 
 // ── Account Info ────────────────────────────────────────────────
 const user = getCurrentUser();

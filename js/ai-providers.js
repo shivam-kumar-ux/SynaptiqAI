@@ -362,6 +362,24 @@ export class ProviderManager {
     return record;
   }
 
+  static async getSafeProviderList() {
+    try {
+      const user = getCurrentUser();
+      if (!user) return [];
+      const list = await dbGetByIndex("aiProviders", "userId", user.id);
+      return list.map(p => ({
+        id: p.providerId || p.id.replace(`${user.id}_`, ""),
+        name: p.name || PROVIDER_CLASSES[p.providerId]?.name || p.providerId,
+        model: p.model || PROVIDER_CLASSES[p.providerId]?.defaultModel || "",
+        maskedKey: maskApiKey(p.apiKey),
+        enabled: p.enabled ?? true,
+        lastTested: p.lastTested || null
+      }));
+    } catch {
+      return [];
+    }
+  }
+
   static async deleteProvider(providerId) {
     const user = getCurrentUser();
     if (!user) return;
@@ -392,11 +410,9 @@ export class ProviderManager {
         const text = await Class.generate(prompt, options, p.apiKey, p.model);
         return { text, provider: p.name, model: p.model };
       } catch (err) {
-        errors.push(`${p.name}: ${err.message}`);
-        // Only fallback if the error is retryable (rate limit, 500, timeout)
-        if (!err.isRetryable && activeProviders.length > 1) {
-          // If non-retryable error, still attempt fallback if another provider exists
-        }
+        // Sanitize error message so API keys are never included
+        const cleanMsg = (err.message || "").replace(/key=[A-Za-z0-9_\-]+/gi, "key=••••");
+        errors.push(`${p.name}: ${cleanMsg}`);
       }
     }
 
@@ -406,7 +422,18 @@ export class ProviderManager {
 }
 
 export async function saveUserKey(providerId, apiKey, model) {
-  return await ProviderManager.saveProvider({ id: providerId, name: providerId, apiKey, model, enabled: true });
+  const Class = PROVIDER_CLASSES[providerId];
+  const name = Class ? Class.name : providerId;
+  const defaultModel = model || (Class ? Class.defaultModel : "");
+  return await ProviderManager.saveProvider({ id: providerId, name, apiKey, model: defaultModel, enabled: true });
+}
+
+export async function deleteUserKey(providerId) {
+  return await ProviderManager.deleteProvider(providerId);
+}
+
+export async function getSafeConfiguredProviders() {
+  return await ProviderManager.getSafeProviderList();
 }
 
 export async function testProviderConnection(providerId, apiKey, model) {

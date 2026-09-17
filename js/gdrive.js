@@ -123,13 +123,10 @@ export function initGoogleOAuth(clientIdOrCallback, callback) {
 export function requestGoogleDriveAuth() {
   if (tokenClient) {
     tokenClient.requestAccessToken({ prompt: "consent" });
-  } else {
-    // If GIS script not present or client ID not set, mock connection for local-first mode
-    const mockToken = "mock_gdrive_token_" + Date.now();
-    accessToken = mockToken;
-    localStorage.setItem(GDRIVE_TOKEN_KEY, mockToken);
-    updateBackupMeta({ connected: true, lastConnected: new Date().toISOString() });
     return true;
+  } else {
+    console.warn("[GDrive] Token client not initialized. Ensure Google Client ID is configured.");
+    return false;
   }
 }
 
@@ -176,13 +173,7 @@ export async function backupToDrive(passphrase = "synaptiq_default_key") {
 
     const encryptedBase64 = await encryptData(payload, passphrase);
 
-    // If using real Google Drive API
-    if (!token.startsWith("mock_")) {
-      await uploadToGDriveAppData(token, BACKUP_FILENAME, encryptedBase64);
-    } else {
-      // Local fallback for offline/mock drive storage
-      localStorage.setItem("mock_gdrive_appdata", encryptedBase64);
-    }
+    await uploadToGDriveAppData(token, BACKUP_FILENAME, encryptedBase64);
 
     const meta = updateBackupMeta({
       connected: true,
@@ -203,13 +194,7 @@ export async function restoreFromDrive(passphrase = "synaptiq_default_key") {
   if (!token) return { success: false, error: "Google Drive is not connected." };
 
   try {
-    let encryptedBase64 = "";
-
-    if (!token.startsWith("mock_")) {
-      encryptedBase64 = await downloadFromGDriveAppData(token, BACKUP_FILENAME);
-    } else {
-      encryptedBase64 = localStorage.getItem("mock_gdrive_appdata") || "";
-    }
+    const encryptedBase64 = await downloadFromGDriveAppData(token, BACKUP_FILENAME);
 
     if (!encryptedBase64) {
       return { success: false, error: "No backup file found in Google Drive." };
@@ -238,12 +223,7 @@ export async function checkSyncConflict(passphrase = "synaptiq_default_key") {
   if (!token) return { hasConflict: false };
 
   try {
-    let cloudContent = "";
-    if (!token.startsWith("mock_")) {
-      cloudContent = await downloadFromGDriveAppData(token, BACKUP_FILENAME);
-    } else {
-      cloudContent = localStorage.getItem("mock_gdrive_appdata") || "";
-    }
+    const cloudContent = await downloadFromGDriveAppData(token, BACKUP_FILENAME);
 
     if (!cloudContent) return { hasConflict: false };
 
@@ -258,6 +238,15 @@ export async function checkSyncConflict(passphrase = "synaptiq_default_key") {
         hasConflict: true,
         cloudTime: new Date(cloudTime).toLocaleString(),
         localTime: new Date(localTime).toLocaleString(),
+        cloudData: decrypted.data
+      };
+    }
+
+    return { hasConflict: false };
+  } catch {
+    return { hasConflict: false };
+  }
+}
         cloudData: decrypted.data
       };
     }

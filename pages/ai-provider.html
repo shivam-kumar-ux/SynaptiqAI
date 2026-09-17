@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
@@ -15,10 +15,11 @@
 <link rel="stylesheet" href="../css/style.css">
 <style>
 body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: var(--bg-primary); }
-.ai-setup-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; width: 100%; max-width: 580px; box-shadow: var(--shadow-md); }
+.ai-setup-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; width: 100%; max-width: 620px; box-shadow: var(--shadow-md); }
 .provider-option { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-primary); transition: all 0.15s ease; }
 .provider-option:hover { border-color: var(--border-hover); background: var(--bg-secondary); }
 .provider-option.selected { border-color: var(--accent-primary); background: var(--accent-glow); }
+.configured-card { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 12px; background: var(--bg-primary); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
 <link rel="manifest" href="../manifest.json">
@@ -29,16 +30,25 @@ body { display: flex; align-items: center; justify-content: center; min-height: 
   <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
     <img src="../img/synaptiq_logo_removebg.png" alt="SYNAPTIQ Logo" style="width: 36px; height: 36px;">
     <div>
-      <h1 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--text-primary);">Connect AI Provider</h1>
-      <p style="font-size: 0.85rem; color: var(--text-muted);">Add your personal API key to unlock adaptive learning features</p>
+      <h1 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--text-primary);">AI Provider Configuration</h1>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Manage your personal API credentials for local-first AI features</p>
     </div>
   </div>
 
   <div class="card" style="background: var(--bg-primary); border-color: var(--border); margin-bottom: 20px; padding: 14px;">
     <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
-      🔒 <strong>Privacy First:</strong> API keys are stored locally on your device in IndexedDB and used directly from your browser.
+      🔒 <strong>Privacy & Security:</strong> Your API keys are encrypted and saved locally in your browser (IndexedDB). Keys are sent directly from your browser to AI provider endpoints. Full keys are never exposed or logged.
     </p>
   </div>
+
+  <!-- CONFIGURED PROVIDERS LIST -->
+  <div id="configuredSection" style="margin-bottom: 24px; display: none;">
+    <label class="form-label" style="margin-bottom: 8px;">CONNECTED PROVIDERS</label>
+    <div id="configuredProvidersList"></div>
+  </div>
+
+  <!-- ADD / UPDATE PROVIDER FORM -->
+  <h2 style="font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;" id="formHeading">Add / Update Provider Key</h2>
 
   <div class="form-group">
     <label class="form-label">SELECT PROVIDER</label>
@@ -77,26 +87,28 @@ body { display: flex; align-items: center; justify-content: center; min-height: 
 
   <div class="form-group">
     <label class="form-label">API KEY</label>
-    <input type="password" class="input-text" id="inpApiKey" placeholder="Paste your API key here..." required>
+    <input type="password" class="input-text" id="inpApiKey" placeholder="Paste your API key here..." required autocomplete="off">
   </div>
 
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <div id="connectionStatus" class="badge badge-info">Status: NOT CONNECTED</div>
+    <div id="connectionStatus" class="badge badge-info">Status: NOT TESTED</div>
     <button class="btn btn-secondary btn-sm" id="btnTestConn">Test Connection</button>
   </div>
 
   <div style="display: flex; gap: 10px;">
-    <button class="btn btn-ghost" id="btnSkipForNow">Skip for now</button>
-    <button class="btn btn-primary" id="btnSaveAndContinue" style="flex:1;">Save Key & Continue →</button>
+    <button class="btn btn-ghost" id="btnSkipForNow">Dashboard →</button>
+    <button class="btn btn-primary" id="btnSaveAndContinue" style="flex:1;">Save Provider Key</button>
   </div>
 </div>
 
 <script type="module">
 import { initTheme } from "../js/theme.js";
-import { saveUserKey, testProviderConnection } from "../js/ai-providers.js";
-import { ROUTES, navigateTo } from "../js/routes.js";
+import { saveUserKey, testProviderConnection, getSafeConfiguredProviders, deleteUserKey } from "../js/ai-providers.js";
+import { navigateTo } from "../js/routes.js";
 import { showToast, formatErrorMessage } from "../js/ui-components.js";
+import { requireAuth } from "../js/auth.js";
 
+requireAuth();
 initTheme();
 
 let selectedProvider = "gemini";
@@ -108,6 +120,51 @@ document.querySelectorAll(".provider-option").forEach(el => {
     selectedProvider = el.dataset.provider;
   });
 });
+
+async function refreshConfiguredProviders() {
+  try {
+    const list = await getSafeConfiguredProviders();
+    const container = document.getElementById("configuredProvidersList");
+    const section = document.getElementById("configuredSection");
+
+    if (list && list.length > 0) {
+      section.style.display = "block";
+      container.innerHTML = list.map(p => `
+        <div class="configured-card">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <strong style="font-size:0.9rem">${p.name}</strong>
+              <span class="badge badge-success">Connected ✓</span>
+            </div>
+            <div style="font-family:var(--font-mono);font-size:0.8rem;color:var(--text-muted);margin-top:2px">
+              Key: ${p.maskedKey} (${p.model})
+            </div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-outline btn-sm btn-remove-key" data-id="${p.id}" style="color:var(--danger);border-color:var(--danger)">Remove</button>
+          </div>
+        </div>
+      `).join('');
+
+      container.querySelectorAll(".btn-remove-key").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          const provId = e.currentTarget.dataset.id;
+          if (confirm(`Disconnect and remove ${provId} API key?`)) {
+            await deleteUserKey(provId);
+            showToast("Provider connection removed.", "info");
+            refreshConfiguredProviders();
+          }
+        });
+      });
+    } else {
+      section.style.display = "none";
+    }
+  } catch (e) {
+    console.warn("Failed to fetch configured providers", e);
+  }
+}
+
+refreshConfiguredProviders();
 
 document.getElementById("btnTestConn")?.addEventListener("click", async () => {
   const key = document.getElementById("inpApiKey").value.trim();
@@ -125,7 +182,7 @@ document.getElementById("btnTestConn")?.addEventListener("click", async () => {
   try {
     const res = await testProviderConnection(selectedProvider, key);
     if (res.success) {
-      statusEl.textContent = "Status: CONNECTED";
+      statusEl.textContent = "Status: CONNECTED ✓";
       statusEl.className = "badge badge-success";
       showToast("AI provider connected successfully!", "success");
     } else {
@@ -142,11 +199,13 @@ document.getElementById("btnTestConn")?.addEventListener("click", async () => {
 
 document.getElementById("btnSaveAndContinue")?.addEventListener("click", async () => {
   const key = document.getElementById("inpApiKey").value.trim();
-  if (key) {
-    await saveUserKey(selectedProvider, key);
-    showToast("API Key saved!", "success");
+  if (!key) {
+    return showToast("Please paste your API key to save.", "warning");
   }
-  navigateTo("dashboard");
+  await saveUserKey(selectedProvider, key);
+  document.getElementById("inpApiKey").value = "";
+  showToast("API Key saved securely!", "success");
+  await refreshConfiguredProviders();
 });
 
 document.getElementById("btnSkipForNow")?.addEventListener("click", () => {

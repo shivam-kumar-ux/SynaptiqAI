@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
@@ -76,22 +76,30 @@
 <script type="module">
 import { renderAppShell } from "../js/ui-components.js";
 import { initTheme } from "../js/theme.js";
-import { dbGetAll } from "../js/db.js";
+import { dbGetByIndex } from "../js/db.js";
+import { getCurrentUser, requireAuth } from "../js/auth.js";
 
+requireAuth();
 initTheme();
 renderAppShell("progress", "Progress & Map");
 
 async function loadRealProgressData() {
   try {
-    const focusSessions = await dbGetAll("focusSessions");
-    const mistakes = await dbGetAll("mistakes");
+    const user = getCurrentUser();
+    if (!user) return;
+
+    const focusSessions = await dbGetByIndex("focusSessions", "userId", user.id);
+    const mistakes = await dbGetByIndex("mistakes", "userId", user.id);
 
     if (focusSessions && focusSessions.length > 0) {
-      const totalMins = focusSessions.reduce((acc, s) => acc + (s.observedFocusMinutes || 0), 0);
+      const totalMins = focusSessions.reduce((acc, s) => acc + (s.observedFocusMinutes || s.durationMinutes || 0), 0);
       document.getElementById("statTotalHours").textContent = `${(totalMins / 60).toFixed(1)} Hours`;
       
       const avgScore = Math.round(focusSessions.reduce((acc, s) => acc + (s.focusScore || 0), 0) / focusSessions.length);
-      document.getElementById("statFocusScore").textContent = `${avgScore}%`;
+      document.getElementById("statFocusScore").textContent = avgScore > 0 ? `${avgScore}%` : "No Data Yet";
+    } else {
+      document.getElementById("statTotalHours").textContent = "0 Hours";
+      document.getElementById("statFocusScore").textContent = "No Data Yet";
     }
 
     if (mistakes && mistakes.length > 0) {
@@ -108,6 +116,8 @@ async function loadRealProgressData() {
         </div>
       `).join("");
       document.getElementById("mistakesContainer").innerHTML = mistakesHtml;
+    } else {
+      document.getElementById("statResolvedMistakes").textContent = "0 Logged";
     }
   } catch (e) {
     console.log("No stored analytics found.");

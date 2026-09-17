@@ -33,22 +33,23 @@ export async function updateTopicInKnowledgeGraph(userId, topicData) {
   let existingNode = kg.nodes.find(n => n.topic.toLowerCase() === topicName.toLowerCase());
 
   if (!existingNode) {
+    const initialMastery = typeof topicData.scorePercent === "number" ? topicData.scorePercent : 0;
     existingNode = {
       id: "node_" + Math.random().toString(36).substring(2, 7),
       topic: topicName,
-      mastery: 50,
-      confidence: 50,
-      retention: 50,
+      mastery: initialMastery,
+      confidence: initialMastery,
+      retention: initialMastery,
       examPriority: topicData.priority || "medium",
       difficulty: topicData.difficulty || "medium",
-      quizAccuracy: 0,
+      quizAccuracy: typeof topicData.scorePercent === "number" ? topicData.scorePercent : 0,
       assessmentAccuracy: 0,
-      studyTimeMinutes: 0,
-      lastStudied: new Date().toISOString(),
-      lastTested: null,
-      forgettingRisk: 20,
+      studyTimeMinutes: topicData.studyMinutes || 0,
+      lastStudied: topicData.studyMinutes ? new Date().toISOString() : null,
+      lastTested: typeof topicData.scorePercent === "number" ? new Date().toISOString() : null,
+      forgettingRisk: 50,
       revisionDate: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0],
-      mistakeCount: 0
+      mistakeCount: topicData.mistakeAdded ? 1 : 0
     };
     kg.nodes.push(existingNode);
   }

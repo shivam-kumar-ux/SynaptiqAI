@@ -9,7 +9,10 @@ import { toggleTheme, getTheme } from "./theme.js";
  */
 export function formatErrorMessage(err) {
   if (!err) return "An unexpected error occurred. Please try again.";
-  const msg = typeof err === "string" ? err : (err.message || String(err));
+  let msg = typeof err === "string" ? err : (err.message || String(err));
+
+  // Sanitize any key values if present
+  msg = msg.replace(/(key|token|bearer|password)=\s*[^\s&]+/gi, "$1=••••");
 
   if (err.isConfigRequired || msg.toLowerCase().includes("connect your own ai")) {
     return "No AI provider connected. Please add your API key in AI Providers.";
@@ -21,7 +24,10 @@ export function formatErrorMessage(err) {
     return "AI rate limit reached. Please wait a moment or switch provider.";
   }
   if (msg.toLowerCase().includes("failed to fetch") || msg.toLowerCase().includes("networkerror")) {
-    return "Network error. Unable to reach AI service.";
+    return "Network connection issue. Please check your internet connection.";
+  }
+  if (msg.includes("TypeError") || msg.includes("Cannot read properti") || msg.includes("undefined is not")) {
+    return "Something went wrong while processing your request. Please try again.";
   }
   
   // Clean up any "AI Request Failed. Provider: Message" dumps
@@ -30,7 +36,7 @@ export function formatErrorMessage(err) {
     return parts.length > 1 ? parts.slice(1).join(":").trim() : msg;
   }
 
-  return msg || "An unexpected error occurred.";
+  return msg || "Something went wrong. Please try again.";
 }
 
 export function renderAppShell(activePage = "dashboard", breadcrumbTitle = "Dashboard") {
