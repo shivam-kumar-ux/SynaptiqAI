@@ -15,8 +15,9 @@
 <link rel="stylesheet" href="../css/style.css">
 <style>
 .settings-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border); margin-bottom: 20px; overflow-x: auto; }
-.tab-btn { padding: 8px 16px; font-family: var(--font-body); font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
-.tab-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); font-weight: 600; }
+.tab-btn { padding: 10px 18px; font-family: var(--font-body); font-size: 0.88rem; font-weight: 500; color: var(--text-secondary); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s ease; user-select: none; }
+.tab-btn:hover { color: var(--text-primary); background: var(--bg-secondary); border-radius: 6px 6px 0 0; }
+.tab-btn.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); font-weight: 600; background: transparent; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 .provider-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
@@ -99,7 +100,7 @@
         </div>
       </div>
 
-      <!-- Google Drive Sync -->
+      <!-- Google Drive Sync (Account Card) -->
       <div class="card">
         <h3 style="font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px">GOOGLE DRIVE BACKUP</h3>
         <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:14px">
@@ -107,11 +108,11 @@
           Your data is AES-256-GCM encrypted before upload.
         </p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
-          <button class="btn btn-primary" id="btnConnectDrive">Connect Google Drive</button>
-          <button class="btn btn-secondary" id="btnSyncDrive" style="display:none">Sync Now</button>
-          <button class="btn btn-outline" id="btnDisconnectDrive" style="display:none;color:var(--danger);border-color:var(--danger)">Disconnect</button>
+          <button type="button" class="btn btn-primary btn-connect-drive">Connect Google Drive</button>
+          <button type="button" class="btn btn-secondary btn-sync-drive" style="display:none">Sync Now</button>
+          <button type="button" class="btn btn-outline btn-disconnect-drive" style="display:none;color:var(--danger);border-color:var(--danger)">Disconnect</button>
         </div>
-        <div id="driveSyncStatus" style="font-size:0.8rem;color:var(--text-muted)">Status: Disconnected</div>
+        <div class="drive-sync-status" style="font-size:0.8rem;color:var(--text-muted)">Status: Disconnected</div>
       </div>
     </div>
 
@@ -158,6 +159,7 @@
             <option value="45">45 Minutes (Deep Work)</option>
           </select>
         </div>
+        <button class="btn btn-primary btn-sm" id="btnSaveTimerPref">Save Timer Settings</button>
       </div>
     </div>
 
@@ -182,12 +184,12 @@
         </p>
 
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;">
-          <button class="btn btn-primary" id="btnConnectDrive">Connect Google Drive</button>
-          <button class="btn btn-secondary" id="btnSyncDrive" style="display: none;">Sync Now</button>
-          <button class="btn btn-outline" id="btnDisconnectDrive" style="display: none; color: var(--danger); border-color: var(--danger);">Disconnect</button>
+          <button type="button" class="btn btn-primary btn-connect-drive">Connect Google Drive</button>
+          <button type="button" class="btn btn-secondary btn-sync-drive" style="display: none;">Sync Now</button>
+          <button type="button" class="btn btn-outline btn-disconnect-drive" style="display: none; color: var(--danger); border-color: var(--danger);">Disconnect</button>
         </div>
         
-        <div id="driveSyncStatus" style="font-size: 0.8rem; color: var(--text-muted);">Status: Disconnected</div>
+        <div class="drive-sync-status" style="font-size: 0.8rem; color: var(--text-muted);">Status: Disconnected</div>
       </div>
     </div>
   </main>
@@ -206,6 +208,34 @@ import { getSafeConfiguredProviders, deleteUserKey } from "../js/ai-providers.js
 requireAuth();
 initTheme();
 renderAppShell("settings", "Settings");
+
+// ── Tab Switcher Logic ──────────────────────────────────────────
+function switchTab(tabId) {
+  const targetBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  const targetContent = document.getElementById(tabId);
+
+  if (targetBtn && targetContent) {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+
+    targetBtn.classList.add("active");
+    targetContent.classList.add("active");
+  }
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    switchTab(btn.dataset.tab);
+  });
+});
+
+// Check query parameter ?tab=providers etc.
+const urlParams = new URLSearchParams(window.location.search);
+const requestedTab = urlParams.get("tab");
+if (requestedTab) {
+  const fullTabId = requestedTab.startsWith("tab-") ? requestedTab : `tab-${requestedTab}`;
+  switchTab(fullTabId);
+}
 
 // ── Render Dynamic AI Providers List in Tab 1 ───────────────────
 async function loadSettingsProvidersList() {
@@ -298,9 +328,10 @@ document.getElementById("btnSaveClientId")?.addEventListener("click", () => {
   }
   const saved = setGoogleClientId(val);
   if (saved) {
-    showToast("Google Client ID saved! Refresh to apply Google Sign-In.", "success");
+    showToast("Google Client ID saved! Refreshing to initialize Google Auth...", "success");
     document.getElementById("inp-client-id").value = "";
     updateClientIdUI();
+    setTimeout(() => window.location.reload(), 1000);
   } else {
     showToast("Failed to save. Please check the value.", "danger");
   }
@@ -314,22 +345,25 @@ document.getElementById("btnClearClientId")?.addEventListener("click", () => {
   }
 });
 
-// ── Tab Switcher ────────────────────────────────────────────────
-document.querySelectorAll(".tab-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById(btn.dataset.tab).classList.add("active");
-  });
-});
-
-// ── Theme switcher ──────────────────────────────────────────────
+// ── Theme Switcher ──────────────────────────────────────────────
 document.getElementById("btnThemeDark")?.addEventListener("click", () => {
-  setTheme("dark"); showToast("Applied Dark Mode", "success");
+  setTheme("dark");
+  showToast("Applied Dark Mode", "success");
 });
 document.getElementById("btnThemeLight")?.addEventListener("click", () => {
-  setTheme("light"); showToast("Applied Light Mode", "success");
+  setTheme("light");
+  showToast("Applied Light Mode", "success");
+});
+
+// ── Timer Preferences ──────────────────────────────────────────
+const savedMins = localStorage.getItem("synaptiq_pomodoro_mins");
+if (savedMins && document.getElementById("timerDefaultMins")) {
+  document.getElementById("timerDefaultMins").value = savedMins;
+}
+document.getElementById("btnSaveTimerPref")?.addEventListener("click", () => {
+  const mins = document.getElementById("timerDefaultMins").value;
+  localStorage.setItem("synaptiq_pomodoro_mins", mins);
+  showToast(`Default Pomodoro set to ${mins} minutes!`, "success");
 });
 
 // ── Data & Privacy ──────────────────────────────────────────────
@@ -359,24 +393,24 @@ document.getElementById("btnClearData")?.addEventListener("click", () => {
   }
 });
 
-// ── Google Drive Sync ──────────────────────────────────────────
+// ── Google Drive Sync (Binds across ALL cards) ──────────────────
 let isGisLoaded = false;
 
 function updateDriveUI() {
   const connected = isDriveConnected();
-  // Update buttons in Account tab
-  ["btnConnectDrive"].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = connected ? "none" : "block";
+  const meta = getBackupMeta();
+
+  document.querySelectorAll(".btn-connect-drive").forEach(btn => {
+    btn.style.display = connected ? "none" : "inline-flex";
   });
-  ["btnSyncDrive", "btnDisconnectDrive"].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = connected ? "block" : "none";
+  document.querySelectorAll(".btn-sync-drive").forEach(btn => {
+    btn.style.display = connected ? "inline-flex" : "none";
+  });
+  document.querySelectorAll(".btn-disconnect-drive").forEach(btn => {
+    btn.style.display = connected ? "inline-flex" : "none";
   });
 
-  const meta = getBackupMeta();
-  const statusEl = document.getElementById("driveSyncStatus");
-  if (statusEl) {
+  document.querySelectorAll(".drive-sync-status").forEach(statusEl => {
     if (connected) {
       let txt = "✅ Status: Connected";
       if (meta.lastBackup) txt += ` · Last Backup: ${new Date(meta.lastBackup).toLocaleString()}`;
@@ -386,6 +420,21 @@ function updateDriveUI() {
       statusEl.textContent = "Status: Disconnected";
       statusEl.style.color = "var(--text-muted)";
     }
+  });
+}
+
+function initGisClient() {
+  const clientId = getGoogleClientId();
+  if (clientId && typeof google !== "undefined" && google.accounts?.oauth2) {
+    isGisLoaded = true;
+    initGoogleOAuth(clientId, (res) => {
+      if (res.success) {
+        showToast("Google Drive Connected!", "success");
+        updateDriveUI();
+      } else {
+        showToast("Drive connection failed: " + (res.error || "Access denied"), "danger");
+      }
+    });
   }
 }
 
@@ -393,53 +442,57 @@ const checkGisInterval = setInterval(() => {
   if (typeof google !== "undefined" && google.accounts && google.accounts.oauth2) {
     clearInterval(checkGisInterval);
     isGisLoaded = true;
-    const clientId = getGoogleClientId();
-    if (clientId) {
-      initGoogleOAuth(clientId, (res) => {
-        if (res.success) {
-          showToast("Google Drive Connected!", "success");
-          updateDriveUI();
-        } else {
-          showToast("Drive connection failed: " + res.error, "danger");
-        }
-      });
-    }
+    initGisClient();
   }
-}, 500);
+}, 300);
 
 updateDriveUI();
 
-document.getElementById("btnConnectDrive")?.addEventListener("click", () => {
-  if (!isGoogleConfigured()) {
-    showToast("Please configure your Google Client ID first (Account tab).", "warning");
-    return;
-  }
-  if (!isGisLoaded) {
-    showToast("Google libraries still loading — please wait a moment.", "warning");
-    return;
-  }
-  requestGoogleDriveAuth();
+document.querySelectorAll(".btn-connect-drive").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (!isGoogleConfigured()) {
+      showToast("Please configure your Google Client ID first (Account tab).", "warning");
+      return;
+    }
+    const success = requestGoogleDriveAuth();
+    if (!success) {
+      showToast("Initializing Google authorization popup...", "info");
+      initGisClient();
+      setTimeout(() => requestGoogleDriveAuth(), 500);
+    }
+  });
 });
 
-document.getElementById("btnDisconnectDrive")?.addEventListener("click", () => {
-  disconnectGoogleDrive();
-  updateDriveUI();
-  showToast("Google Drive disconnected.", "info");
+document.querySelectorAll(".btn-disconnect-drive").forEach(btn => {
+  btn.addEventListener("click", () => {
+    disconnectGoogleDrive();
+    updateDriveUI();
+    showToast("Google Drive disconnected.", "info");
+  });
 });
 
-document.getElementById("btnSyncDrive")?.addEventListener("click", async () => {
-  const btn = document.getElementById("btnSyncDrive");
-  btn.textContent = "Syncing…";
-  btn.disabled = true;
-  const res = await backupToDrive();
-  if (res.success) {
-    showToast("Successfully backed up to Google Drive", "success");
-  } else {
-    showToast("Backup failed: " + res.error, "danger");
-  }
-  updateDriveUI();
-  btn.textContent = "Sync Now";
-  btn.disabled = false;
+document.querySelectorAll(".btn-sync-drive").forEach(btn => {
+  btn.addEventListener("click", async (e) => {
+    const btnEl = e.currentTarget;
+    const originalText = btnEl.textContent;
+    btnEl.textContent = "Syncing…";
+    btnEl.disabled = true;
+
+    try {
+      const res = await backupToDrive();
+      if (res.success) {
+        showToast("Successfully backed up to Google Drive", "success");
+      } else {
+        showToast("Backup failed: " + res.error, "danger");
+      }
+    } catch (err) {
+      showToast("Backup error: " + err.message, "danger");
+    } finally {
+      updateDriveUI();
+      btnEl.textContent = originalText;
+      btnEl.disabled = false;
+    }
+  });
 });
 </script>
 <script>

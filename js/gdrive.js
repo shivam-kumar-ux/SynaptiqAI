@@ -121,6 +121,12 @@ export function initGoogleOAuth(clientIdOrCallback, callback) {
 }
 
 export function requestGoogleDriveAuth() {
+  if (!tokenClient) {
+    const clientId = getGoogleClientId();
+    if (clientId && typeof google !== "undefined" && google.accounts?.oauth2) {
+      initGoogleOAuth(clientId);
+    }
+  }
   if (tokenClient) {
     tokenClient.requestAccessToken({ prompt: "consent" });
     return true;
