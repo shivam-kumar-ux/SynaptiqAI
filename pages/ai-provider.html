@@ -19,9 +19,23 @@ body { display: flex; align-items: center; justify-content: center; min-height: 
 .provider-option { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-primary); transition: all 0.15s ease; }
 .provider-option:hover { border-color: var(--border-hover); background: var(--bg-secondary); }
 .provider-option.selected { border-color: var(--accent-primary); background: var(--accent-glow); }
-.configured-card { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 12px; background: var(--bg-primary); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.configured-card { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 12px; background: var(--bg-primary); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; transition: all 0.3s ease; }
 .custom-fields { display: none; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px; }
 .custom-fields.show { display: block; }
+.guide-box { background: var(--bg-secondary); border: 1px dashed var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 18px; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
+.guide-box a { color: var(--accent-primary); font-weight: 600; text-decoration: underline; }
+
+/* ── ANIMATIONS ────────────────────────────────────────────────────────── */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.02); }
+}
+.spin-icon { display: inline-block; animation: spin 1s linear infinite; margin-right: 6px; }
+.pulse-badge { animation: pulseGlow 1s infinite ease-in-out; }
 </style>
 <link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
 <link rel="manifest" href="../manifest.json">
@@ -102,6 +116,9 @@ body { display: flex; align-items: center; justify-content: center; min-height: 
     </div>
   </div>
 
+  <!-- STEP-BY-STEP GET KEY INSTRUCTIONS -->
+  <div class="guide-box" id="providerGuide"></div>
+
   <!-- CUSTOM PROVIDER EXTRA FIELDS -->
   <div class="custom-fields" id="customFieldsGroup">
     <div style="font-size: 0.85rem; font-weight: 600; color: var(--accent-primary); margin-bottom: 12px;">CUSTOM ENDPOINT DETAILS</div>
@@ -121,17 +138,17 @@ body { display: flex; align-items: center; justify-content: center; min-height: 
 
   <div class="form-group">
     <label class="form-label">API KEY <span style="color:var(--text-muted);font-weight:400">(enter 'none' for local APIs)</span></label>
-    <input type="password" class="input-text" id="inpApiKey" placeholder="Paste your API key here..." required autocomplete="off">
+    <input type="password" class="input-text" id="inpApiKey" placeholder="Paste your API key here..." autocomplete="off">
   </div>
 
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <div id="connectionStatus" class="badge badge-info">Status: NOT TESTED</div>
-    <button class="btn btn-secondary btn-sm" id="btnTestConn">Test Connection</button>
+    <button type="button" class="btn btn-secondary btn-sm" id="btnTestConn">Test Connection</button>
   </div>
 
   <div style="display: flex; gap: 10px;">
-    <button class="btn btn-ghost" id="btnSkipForNow">Dashboard →</button>
-    <button class="btn btn-primary" id="btnSaveAndContinue" style="flex:1;">Save Provider Key</button>
+    <button type="button" class="btn btn-ghost" id="btnSkipForNow">Dashboard →</button>
+    <button type="button" class="btn btn-primary" id="btnSaveAndContinue" style="flex:1;">Save Provider Key</button>
   </div>
 </div>
 
@@ -148,11 +165,63 @@ initTheme();
 
 let selectedProvider = "gemini";
 
+const GUIDES = {
+  gemini: `
+    <strong>How to get Google Gemini API Key:</strong><br>
+    1. Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio (aistudio.google.com)</a>.<br>
+    2. Sign in with your Google Account.<br>
+    3. Click <strong>"Create API Key"</strong>.<br>
+    4. Copy your key (starts with <code style="font-family:var(--font-mono)">AIza...</code>) and paste it below.
+  `,
+  groq: `
+    <strong>How to get Groq API Key:</strong><br>
+    1. Go to <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq Console (console.groq.com)</a>.<br>
+    2. Sign in or create a free account.<br>
+    3. Click <strong>"Create API Key"</strong>.<br>
+    4. Copy your key (starts with <code style="font-family:var(--font-mono)">gsk_...</code>) and paste it below.
+  `,
+  openrouter: `
+    <strong>How to get OpenRouter API Key:</strong><br>
+    1. Go to <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">OpenRouter Keys (openrouter.ai)</a>.<br>
+    2. Create a key and set optional credit limits.<br>
+    3. Copy your key (starts with <code style="font-family:var(--font-mono)">sk-or-v1-...</code>) and paste it below.
+  `,
+  openai: `
+    <strong>How to get OpenAI API Key:</strong><br>
+    1. Go to <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI Platform (platform.openai.com)</a>.<br>
+    2. Click <strong>"Create new secret key"</strong>.<br>
+    3. Copy your key (starts with <code style="font-family:var(--font-mono)">sk-proj-...</code>) and paste it below.
+  `,
+  anthropic: `
+    <strong>How to get Anthropic API Key:</strong><br>
+    1. Go to <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Anthropic Console (console.anthropic.com)</a>.<br>
+    2. Create a key.<br>
+    3. Copy your key (starts with <code style="font-family:var(--font-mono)">sk-ant-...</code>) and paste it below.
+  `,
+  custom: `
+    <strong>How to set up Custom Provider (DeepSeek, Local Ollama, Together AI, etc.):</strong><br>
+    1. Enter your provider name, base URL, and model name.<br>
+    2. For DeepSeek: Base URL = <code style="font-family:var(--font-mono)">https://api.deepseek.com/v1</code>, Model = <code style="font-family:var(--font-mono)">deepseek-chat</code>.<br>
+    3. For Local Ollama: Base URL = <code style="font-family:var(--font-mono)">http://localhost:11434/v1</code>, Key = <code style="font-family:var(--font-mono)">none</code>.
+  `
+};
+
+function updateGuide() {
+  const guideEl = document.getElementById("providerGuide");
+  if (guideEl && GUIDES[selectedProvider]) {
+    guideEl.innerHTML = GUIDES[selectedProvider];
+  }
+}
+
+updateGuide();
+
 document.querySelectorAll(".provider-option").forEach(el => {
   el.addEventListener("click", () => {
     document.querySelectorAll(".provider-option").forEach(p => p.classList.remove("selected"));
     el.classList.add("selected");
     selectedProvider = el.dataset.provider;
+
+    updateGuide();
 
     const customGroup = document.getElementById("customFieldsGroup");
     if (selectedProvider === "custom") {
@@ -183,8 +252,8 @@ async function refreshConfiguredProviders() {
             </div>
           </div>
           <div style="display:flex;gap:6px">
-            <button class="btn btn-secondary btn-sm btn-test-saved" data-id="${p.id}">Test</button>
-            <button class="btn btn-outline btn-sm btn-remove-key" data-id="${p.id}" style="color:var(--danger);border-color:var(--danger)">Remove</button>
+            <button type="button" class="btn btn-secondary btn-sm btn-test-saved" data-id="${p.id}">Test</button>
+            <button type="button" class="btn btn-outline btn-sm btn-remove-key" data-id="${p.id}" style="color:var(--danger);border-color:var(--danger)">Remove</button>
           </div>
         </div>
       `).join('');
@@ -205,7 +274,9 @@ async function refreshConfiguredProviders() {
           const provId = e.currentTarget.dataset.id;
           const user = getCurrentUser();
           if (!user) return;
-          btn.textContent = "Testing...";
+
+          const originalText = btn.innerHTML;
+          btn.innerHTML = `<span class="spin-icon">⚡</span> Testing...`;
           btn.disabled = true;
 
           const savedList = await dbGetByIndex("aiProviders", "userId", user.id);
@@ -213,13 +284,13 @@ async function refreshConfiguredProviders() {
 
           if (!rec || !rec.apiKey) {
             showToast("No key found for provider.", "warning");
-            btn.textContent = "Test";
+            btn.innerHTML = originalText;
             btn.disabled = false;
             return;
           }
 
           const res = await testProviderConnection(rec.providerId, rec.apiKey, rec.model, rec.baseUrl);
-          btn.textContent = "Test";
+          btn.innerHTML = originalText;
           btn.disabled = false;
 
           if (res.success) {
@@ -240,6 +311,7 @@ async function refreshConfiguredProviders() {
 refreshConfiguredProviders();
 
 document.getElementById("btnTestConn")?.addEventListener("click", async () => {
+  const btn = document.getElementById("btnTestConn");
   let key = document.getElementById("inpApiKey").value.trim();
   const statusEl = document.getElementById("connectionStatus");
   const user = getCurrentUser();
@@ -264,29 +336,41 @@ document.getElementById("btnTestConn")?.addEventListener("click", async () => {
     return;
   }
 
-  statusEl.textContent = "Status: TESTING...";
-  statusEl.className = "badge badge-info";
+  const originalBtnContent = btn.innerHTML;
+  btn.innerHTML = `<span class="spin-icon">⚡</span> Testing...`;
+  btn.disabled = true;
+
+  statusEl.innerHTML = `Status: TESTING... <span class="spin-icon">⚡</span>`;
+  statusEl.className = "badge badge-info pulse-badge";
 
   try {
     const res = await testProviderConnection(selectedProvider, key, customModel || "custom-model", customUrl);
+    
+    btn.innerHTML = originalBtnContent;
+    btn.disabled = false;
+
     if (res.success) {
       statusEl.textContent = "Status: CONNECTED ✓";
       statusEl.className = "badge badge-success";
       showToast(res.message || "AI provider connected successfully!", "success");
     } else {
-      statusEl.textContent = `Status: FAILED (${res.error || "Invalid Key"})`;
+      statusEl.textContent = `Status: FAILED ❌`;
       statusEl.className = "badge badge-danger";
       showToast(res.error || "Connection failed. Check API key.", "danger");
     }
   } catch (err) {
-    statusEl.textContent = "Status: CONNECTION ERROR";
+    btn.innerHTML = originalBtnContent;
+    btn.disabled = false;
+    statusEl.textContent = "Status: CONNECTION ERROR ❌";
     statusEl.className = "badge badge-danger";
     showToast(formatErrorMessage(err), "danger");
   }
 });
 
 document.getElementById("btnSaveAndContinue")?.addEventListener("click", async () => {
+  const btn = document.getElementById("btnSaveAndContinue");
   const key = document.getElementById("inpApiKey").value.trim();
+
   if (!key) {
     return showToast("Please paste your API key to save.", "warning");
   }
@@ -299,17 +383,40 @@ document.getElementById("btnSaveAndContinue")?.addEventListener("click", async (
     return showToast("Please enter a Provider Name for your custom API.", "warning");
   }
 
-  await saveUserKey(
-    selectedProvider,
-    key,
-    selectedProvider === "custom" ? customModel : undefined,
-    selectedProvider === "custom" ? customName : undefined,
-    selectedProvider === "custom" ? customUrl : undefined
-  );
+  const originalText = btn.innerHTML;
+  btn.innerHTML = `<span class="spin-icon">🔒</span> Saving Key...`;
+  btn.disabled = true;
 
-  document.getElementById("inpApiKey").value = "";
-  showToast("API Key saved securely!", "success");
-  await refreshConfiguredProviders();
+  try {
+    await saveUserKey(
+      selectedProvider,
+      key,
+      selectedProvider === "custom" ? customModel : undefined,
+      selectedProvider === "custom" ? customName : undefined,
+      selectedProvider === "custom" ? customUrl : undefined
+    );
+
+    document.getElementById("inpApiKey").value = "";
+    if (selectedProvider === "custom") {
+      document.getElementById("inpCustomName").value = "";
+      document.getElementById("inpCustomUrl").value = "";
+      document.getElementById("inpCustomModel").value = "";
+    }
+
+    showToast("API Key saved and encrypted locally!", "success");
+    btn.innerHTML = `✓ Key Saved!`;
+    
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }, 1200);
+
+    await refreshConfiguredProviders();
+  } catch (err) {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+    showToast(formatErrorMessage(err), "danger");
+  }
 });
 
 document.getElementById("btnSkipForNow")?.addEventListener("click", () => {
