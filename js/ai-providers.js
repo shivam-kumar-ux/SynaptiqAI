@@ -20,29 +20,49 @@ export class GeminiProvider {
 
   static async testConnection(apiKey, model = GeminiProvider.defaultModel) {
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      if (!apiKey) throw new Error("API Key is required.");
+      let activeModel = model || GeminiProvider.defaultModel;
+      
+      let res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: "Respond with exactly: OK" }] }]
+            contents: [{ parts: [{ text: "Reply OK" }] }]
           })
         }
       );
+
+      // Fallback model check if 404 (model not found on specific API key tier)
+      if (!res.ok && res.status === 404) {
+        activeModel = "gemini-1.5-flash";
+        res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: "Reply OK" }] }]
+            })
+          }
+        );
+      }
+
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error?.message || `Gemini connection failed (${res.status})`);
+        throw new Error(err.error?.message || `Gemini connection failed (HTTP ${res.status})`);
       }
-      return { success: true, message: "Gemini connected successfully!" };
+      return { success: true, message: `Gemini (${activeModel}) connected successfully!` };
     } catch (e) {
-      return { success: false, error: e.message };
+      return { success: false, error: e.message || "Gemini connection failed." };
     }
   }
 
   static async generate(prompt, options, apiKey, model = GeminiProvider.defaultModel) {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    let activeModel = model || GeminiProvider.defaultModel;
+    let res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,6 +75,24 @@ export class GeminiProvider {
         })
       }
     );
+
+    if (!res.ok && res.status === 404) {
+      activeModel = "gemini-1.5-flash";
+      res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            generationConfig: {
+              temperature: options.temperature ?? 0.35,
+              maxOutputTokens: options.maxOutputTokens ?? 1000
+            },
+            contents: [{ parts: [{ text: prompt }] }]
+          })
+        }
+      );
+    }
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -87,7 +125,7 @@ export class GroqProvider {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model,
+          model: model || GroqProvider.defaultModel,
           messages: [{ role: "user", content: "Reply OK" }],
           max_tokens: 10
         })
@@ -110,7 +148,7 @@ export class GroqProvider {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model,
+        model: model || GroqProvider.defaultModel,
         temperature: options.temperature ?? 0.35,
         max_tokens: options.maxOutputTokens ?? 1000,
         messages: [{ role: "user", content: prompt }]
@@ -136,11 +174,6 @@ export class OpenRouterProvider {
   static id = "openrouter";
   static name = "OpenRouter";
   static defaultModel = "meta-llama/llama-3.1-8b-instruct:free";
-  static availableModels = [
-    "meta-llama/llama-3.1-8b-instruct:free",
-    "google/gemini-2.0-flash-lite-001",
-    "anthropic/claude-3.5-haiku"
-  ];
 
   static async testConnection(apiKey, model = OpenRouterProvider.defaultModel) {
     try {
@@ -151,7 +184,7 @@ export class OpenRouterProvider {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model,
+          model: model || OpenRouterProvider.defaultModel,
           messages: [{ role: "user", content: "Reply OK" }],
           max_tokens: 10
         })
@@ -174,7 +207,7 @@ export class OpenRouterProvider {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model,
+        model: model || OpenRouterProvider.defaultModel,
         temperature: options.temperature ?? 0.35,
         max_tokens: options.maxOutputTokens ?? 1000,
         messages: [{ role: "user", content: prompt }]
@@ -200,7 +233,6 @@ export class OpenAIProvider {
   static id = "openai";
   static name = "OpenAI";
   static defaultModel = "gpt-4o-mini";
-  static availableModels = ["gpt-4o-mini", "gpt-4o"];
 
   static async testConnection(apiKey, model = OpenAIProvider.defaultModel) {
     try {
@@ -211,7 +243,7 @@ export class OpenAIProvider {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model,
+          model: model || OpenAIProvider.defaultModel,
           messages: [{ role: "user", content: "Reply OK" }],
           max_tokens: 10
         })
@@ -234,7 +266,7 @@ export class OpenAIProvider {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model,
+        model: model || OpenAIProvider.defaultModel,
         temperature: options.temperature ?? 0.35,
         max_tokens: options.maxOutputTokens ?? 1000,
         messages: [{ role: "user", content: prompt }]
@@ -260,7 +292,6 @@ export class AnthropicProvider {
   static id = "anthropic";
   static name = "Anthropic";
   static defaultModel = "claude-3-5-haiku-20241022";
-  static availableModels = ["claude-3-5-haiku-20241022", "claude-3-5-sonnet-20241022"];
 
   static async testConnection(apiKey, model = AnthropicProvider.defaultModel) {
     try {
@@ -273,7 +304,7 @@ export class AnthropicProvider {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model,
+          model: model || AnthropicProvider.defaultModel,
           messages: [{ role: "user", content: "Reply OK" }],
           max_tokens: 10
         })
@@ -298,7 +329,7 @@ export class AnthropicProvider {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model,
+        model: model || AnthropicProvider.defaultModel,
         temperature: options.temperature ?? 0.35,
         max_tokens: options.maxOutputTokens ?? 1000,
         messages: [{ role: "user", content: prompt }]
@@ -319,13 +350,84 @@ export class AnthropicProvider {
   }
 }
 
+// ── Provider 6: Custom / OpenAI Compatible Provider ──────────
+export class CustomOpenAICompatibleProvider {
+  static id = "custom";
+  static name = "Custom AI Provider";
+  static defaultModel = "custom-model";
+
+  static async testConnection(apiKey, model = "custom-model", baseUrl = "https://api.openai.com/v1") {
+    try {
+      const cleanBaseUrl = String(baseUrl || "https://api.openai.com/v1").trim().replace(/\/+$/, "");
+      const endpoint = cleanBaseUrl.endsWith("/chat/completions") ? cleanBaseUrl : `${cleanBaseUrl}/chat/completions`;
+      
+      const headers = { "Content-Type": "application/json" };
+      if (apiKey && apiKey !== "none") {
+        headers["Authorization"] = `Bearer ${apiKey}`;
+      }
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          model: model || "custom-model",
+          messages: [{ role: "user", content: "Reply OK" }],
+          max_tokens: 10
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error?.message || `Custom connection failed (${res.status})`);
+      }
+      return { success: true, message: "Custom provider connected successfully!" };
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
+  }
+
+  static async generate(prompt, options, apiKey, model = "custom-model", baseUrl = "https://api.openai.com/v1") {
+    const cleanBaseUrl = String(baseUrl || "https://api.openai.com/v1").trim().replace(/\/+$/, "");
+    const endpoint = cleanBaseUrl.endsWith("/chat/completions") ? cleanBaseUrl : `${cleanBaseUrl}/chat/completions`;
+    
+    const headers = { "Content-Type": "application/json" };
+    if (apiKey && apiKey !== "none") {
+      headers["Authorization"] = `Bearer ${apiKey}`;
+    }
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        model: model || "custom-model",
+        temperature: options.temperature ?? 0.35,
+        max_tokens: options.maxOutputTokens ?? 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(data.error?.message || `Custom AI provider failed (${res.status})`);
+      err.isRetryable = res.status === 429 || res.status >= 500;
+      err.status = res.status;
+      throw err;
+    }
+
+    const text = data?.choices?.[0]?.message?.content?.trim();
+    if (!text) throw new Error("Custom AI provider returned empty text response.");
+    return text;
+  }
+}
+
 // Registered Provider Class Mapping
 const PROVIDER_CLASSES = {
   gemini: GeminiProvider,
   groq: GroqProvider,
   openrouter: OpenRouterProvider,
   openai: OpenAIProvider,
-  anthropic: AnthropicProvider
+  anthropic: AnthropicProvider,
+  custom: CustomOpenAICompatibleProvider
 };
 
 // ── Provider Manager ─────────────────────────────────────────
@@ -347,13 +449,15 @@ export class ProviderManager {
   static async saveProvider(providerData) {
     const user = getCurrentUser();
     if (!user) throw new Error("Must be logged in to save provider.");
+    const pId = providerData.id || "custom";
     const record = {
-      id: `${user.id}_${providerData.id}`,
+      id: `${user.id}_${pId}`,
       userId: user.id,
-      providerId: providerData.id,
-      name: providerData.name,
+      providerId: pId,
+      name: providerData.name || pId,
       apiKey: providerData.apiKey,
-      model: providerData.model,
+      baseUrl: providerData.baseUrl || "",
+      model: providerData.model || "",
       enabled: providerData.enabled ?? true,
       priority: providerData.priority ?? 1,
       lastTested: new Date().toISOString()
@@ -371,6 +475,7 @@ export class ProviderManager {
         id: p.providerId || p.id.replace(`${user.id}_`, ""),
         name: p.name || PROVIDER_CLASSES[p.providerId]?.name || p.providerId,
         model: p.model || PROVIDER_CLASSES[p.providerId]?.defaultModel || "",
+        baseUrl: p.baseUrl || "",
         maskedKey: maskApiKey(p.apiKey),
         enabled: p.enabled ?? true,
         lastTested: p.lastTested || null
@@ -386,7 +491,10 @@ export class ProviderManager {
     await dbDelete("aiProviders", `${user.id}_${providerId}`);
   }
 
-  static async testProvider(id, apiKey, model) {
+  static async testProvider(id, apiKey, model, baseUrl) {
+    if (id === "custom") {
+      return await CustomOpenAICompatibleProvider.testConnection(apiKey, model, baseUrl);
+    }
     const Class = PROVIDER_CLASSES[id];
     if (!Class) return { success: false, error: "Unknown provider ID." };
     return await Class.testConnection(apiKey, model);
@@ -403,15 +511,18 @@ export class ProviderManager {
 
     const errors = [];
     for (const p of activeProviders) {
-      const Class = PROVIDER_CLASSES[p.id];
-      if (!Class) continue;
+      const Class = PROVIDER_CLASSES[p.providerId || p.id] || CustomOpenAICompatibleProvider;
 
       try {
-        const text = await Class.generate(prompt, options, p.apiKey, p.model);
+        let text = "";
+        if (p.providerId === "custom" || p.id === "custom") {
+          text = await CustomOpenAICompatibleProvider.generate(prompt, options, p.apiKey, p.model, p.baseUrl);
+        } else {
+          text = await Class.generate(prompt, options, p.apiKey, p.model);
+        }
         return { text, provider: p.name, model: p.model };
       } catch (err) {
-        // Sanitize error message so API keys are never included
-        const cleanMsg = (err.message || "").replace(/key=[A-Za-z0-9_\-]+/gi, "key=••••");
+        const cleanMsg = (err.message || "").replace(/(key|bearer|token)=\s*[^\s&]+/gi, "$1=••••");
         errors.push(`${p.name}: ${cleanMsg}`);
       }
     }
@@ -421,11 +532,11 @@ export class ProviderManager {
   }
 }
 
-export async function saveUserKey(providerId, apiKey, model) {
+export async function saveUserKey(providerId, apiKey, model, name, baseUrl) {
   const Class = PROVIDER_CLASSES[providerId];
-  const name = Class ? Class.name : providerId;
-  const defaultModel = model || (Class ? Class.defaultModel : "");
-  return await ProviderManager.saveProvider({ id: providerId, name, apiKey, model: defaultModel, enabled: true });
+  const provName = name || (Class ? Class.name : providerId);
+  const defaultModel = model || (Class ? Class.defaultModel : "custom-model");
+  return await ProviderManager.saveProvider({ id: providerId, name: provName, apiKey, model: defaultModel, baseUrl, enabled: true });
 }
 
 export async function deleteUserKey(providerId) {
@@ -436,7 +547,6 @@ export async function getSafeConfiguredProviders() {
   return await ProviderManager.getSafeProviderList();
 }
 
-export async function testProviderConnection(providerId, apiKey, model) {
-  return await ProviderManager.testProvider(providerId, apiKey, model);
+export async function testProviderConnection(providerId, apiKey, model, baseUrl) {
+  return await ProviderManager.testProvider(providerId, apiKey, model, baseUrl);
 }
-
