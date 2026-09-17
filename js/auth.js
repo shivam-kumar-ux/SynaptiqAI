@@ -1,4 +1,4 @@
-﻿// js/auth.js — Authentication System for SYNAPTIQAI
+// js/auth.js — Authentication System for SYNAPTIQAI
 
 import { dbGet, dbPut, dbGetByIndex } from './db.js';
 import { getGoogleClientId } from './config.js';
@@ -192,33 +192,53 @@ export async function saveFullProfile(userId, profileData) {
 }
 
 // ── Google Identity Services Button ───────────────────────────
-export function initializeGoogleAuth(buttonId, callback) {
+export function initializeGoogleAuth(buttonId, callback, options = {}) {
   const clientId = getGoogleClientId();
+  const container = document.getElementById(buttonId);
+  if (!container) return;
+
   if (!clientId) {
-    const container = document.getElementById(buttonId);
-    if (container) {
-      container.innerHTML = `<div style="padding:12px; border:1px solid var(--danger,#ef4444); border-radius:8px; color:var(--danger,#ef4444); font-size:0.85rem; text-align:center">Google Sign-In not configured yet.<br><a href="settings.html" style="color:var(--accent-primary)">Configure in Settings →</a></div>`;
-    }
+    container.innerHTML = `<div style="padding:10px; border:1px solid var(--border); border-radius:8px; color:var(--text-muted); font-size:0.8rem; text-align:center">Google Sign-In requires a Client ID.<br><a href="settings.html" style="color:var(--accent-primary)">Configure in Settings →</a></div>`;
     return;
   }
 
-  if (typeof google === 'undefined' || !google.accounts) {
-    console.error('Google Identity Services library not loaded.');
-    return;
-  }
+  const render = () => {
+    if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) return false;
 
-  google.accounts.id.initialize({
-    client_id: clientId,
-    callback: async (response) => {
-      const res = await loginWithGoogleResponse(response);
-      if (callback) callback(res);
+    try {
+      google.accounts.id.initialize({
+        client_id: clientId,
+        callback: async (response) => {
+          const res = await loginWithGoogleResponse(response);
+          if (callback) callback(res);
+        }
+      });
+
+      google.accounts.id.renderButton(
+        container,
+        {
+          theme: options.theme || 'outline',
+          size: options.size || 'large',
+          type: options.type || 'standard',
+          text: options.text || 'continue_with'
+        }
+      );
+      return true;
+    } catch (e) {
+      console.warn('[GoogleAuth] Failed to initialize button:', e);
+      return false;
     }
-  });
+  };
 
-  google.accounts.id.renderButton(
-    document.getElementById(buttonId),
-    { theme: 'outline', size: 'large', type: 'standard', text: 'continue_with' }
-  );
+  if (!render()) {
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      if (render() || attempts > 20) {
+        clearInterval(interval);
+      }
+    }, 250);
+  }
 }
 
 export async function logout() {

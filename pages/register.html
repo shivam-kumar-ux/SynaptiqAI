@@ -13,11 +13,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/style.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 body { display:flex; align-items:center; justify-content:center; padding:24px; min-height:100vh; background:var(--bg-primary); }
 .reg-card { background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:36px; width:100%; max-width:440px; box-shadow:var(--shadow-md); }
 .err-box { background:rgba(239,68,68,.1); border:1px solid var(--danger,#ef4444); border-radius:8px; padding:10px 14px; font-size:0.85rem; color:var(--danger,#ef4444); margin-bottom:14px; display:none; }
 .err-box.show { display:block; }
+.divider { display:flex; align-items:center; gap:12px; margin:18px 0; color:var(--text-muted); font-size:0.8rem; }
+.divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border); }
 .pw-wrap { position:relative; }
 .pw-wrap input { padding-right:44px; width:100%; box-sizing:border-box; }
 .pw-toggle { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:1rem; padding:2px 6px; }
@@ -37,6 +40,13 @@ body { display:flex; align-items:center; justify-content:center; padding:24px; m
   </div>
 
   <div class="err-box" id="errBox"></div>
+
+  <!-- GOOGLE SIGN-UP BUTTON -->
+  <div style="text-align:center;margin-bottom:16px">
+    <div id="googleBtnContainer" style="display:flex;justify-content:center;min-height:44px"></div>
+  </div>
+
+  <div class="divider">or register with email</div>
 
   <div class="form-group">
     <label class="form-label">FULL NAME</label>
@@ -74,7 +84,7 @@ body { display:flex; align-items:center; justify-content:center; padding:24px; m
 </div>
 
 <script type="module">
-import { signupWithEmail, isAuthenticated } from '../js/auth.js';
+import { initializeGoogleAuth, signupWithEmail, isAuthenticated } from '../js/auth.js';
 import { initTheme } from '../js/theme.js';
 
 initTheme();
@@ -85,6 +95,15 @@ function showErr(msg) {
   b.textContent = msg; b.classList.add('show');
   setTimeout(() => b.classList.remove('show'), 6000);
 }
+
+// Initialize Google Signup Auth
+initializeGoogleAuth('googleBtnContainer', (res) => {
+  if (res.success) {
+    window.location.href = res.onboardingCompleted ? 'dashboard.html' : 'signup.html';
+  } else {
+    showErr(res.error || 'Google registration failed. Check your OAuth Client ID in Settings.');
+  }
+}, { text: 'signup_with' });
 
 // Password visibility toggles
 ['togglePw', 'togglePw2'].forEach((id, i) => {
@@ -110,14 +129,13 @@ document.getElementById('inp-pw')?.addEventListener('input', (e) => {
   if (/[^A-Za-z0-9]/.test(v)) score++; else tips.push('special character');
   
   const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#22c55e'];
-  const labels = ['Very weak', 'Weak', 'Fair', 'Good', 'Strong'];
   bar.style.width = (score * 20) + '%';
   bar.style.background = colors[score - 1] || '#ef4444';
   req.textContent = score < 5 && tips.length ? `Tip: add ${tips[0]}` : (score >= 4 ? '✓ Strong password' : '');
   req.style.color = score >= 4 ? '#22c55e' : 'var(--text-muted)';
 });
 
-// Create account
+// Create account via email
 async function doRegister() {
   const name = document.getElementById('inp-name').value.trim();
   const email = document.getElementById('inp-email').value.trim();
@@ -139,7 +157,6 @@ async function doRegister() {
   btn.disabled = false;
 
   if (res.success) {
-    // Redirect to onboarding
     window.location.href = 'signup.html';
   } else {
     showErr(res.error);

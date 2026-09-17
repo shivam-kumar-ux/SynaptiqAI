@@ -128,7 +128,7 @@ initializeGoogleAuth('googleBtnContainer', (res) => {
   } else {
     showErr(res.error || 'Google login failed. Check your OAuth Client ID in Settings.');
   }
-});
+}, { text: 'signin_with' });
 
 // Password toggle
 document.getElementById('togglePw')?.addEventListener('click', () => {
