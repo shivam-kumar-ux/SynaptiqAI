@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
@@ -38,14 +38,85 @@
 
     <!-- SETTINGS TAB NAVIGATION -->
     <div class="settings-tabs">
-      <div class="tab-btn active" data-tab="tab-providers">🤖 AI Providers</div>
+      <div class="tab-btn active" data-tab="tab-account">👤 Account</div>
+      <div class="tab-btn" data-tab="tab-providers">🤖 AI Providers</div>
       <div class="tab-btn" data-tab="tab-appearance">🎨 Appearance</div>
       <div class="tab-btn" data-tab="tab-timer">⏱️ Pomodoro Timer</div>
       <div class="tab-btn" data-tab="tab-privacy">🔒 Data & Privacy</div>
     </div>
 
+    <!-- TAB 0: ACCOUNT & GOOGLE CONFIGURATION -->
+    <div class="tab-content active" id="tab-account">
+
+      <!-- Account Info -->
+      <div class="card" style="margin-bottom:20px">
+        <h3 style="font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:14px">ACCOUNT INFORMATION</h3>
+        <div style="display:grid;gap:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg-secondary);border-radius:8px">
+            <span style="font-size:0.85rem;color:var(--text-secondary)">Email</span>
+            <span style="font-size:0.85rem;font-weight:600;font-family:var(--font-mono)" id="acctEmail">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg-secondary);border-radius:8px">
+            <span style="font-size:0.85rem;color:var(--text-secondary)">Name</span>
+            <span style="font-size:0.85rem;font-weight:600" id="acctName">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg-secondary);border-radius:8px">
+            <span style="font-size:0.85rem;color:var(--text-secondary)">Login Method</span>
+            <span class="badge" id="acctMethod">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Google OAuth Client ID Configuration -->
+      <div class="card" style="margin-bottom:20px">
+        <h3 style="font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px">GOOGLE OAUTH CONFIGURATION</h3>
+        <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.5">
+          Enter your Google Cloud OAuth Client ID to enable "Continue with Google" sign-in and Google Drive backup.
+          <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener" style="color:var(--accent-primary)">Get Client ID →</a>
+        </p>
+
+        <div id="gConfigStatus" style="margin-bottom:12px;font-size:0.82rem"></div>
+
+        <div class="form-group">
+          <label class="form-label">GOOGLE CLIENT ID</label>
+          <input type="text" class="input-text" id="inp-client-id"
+            placeholder="123456789-abc.apps.googleusercontent.com"
+            style="font-family:var(--font-mono);font-size:0.8rem">
+        </div>
+
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px;line-height:1.5">
+          <strong>Required steps in Google Cloud Console:</strong><br>
+          1. Create/select a project → APIs &amp; Services → Credentials<br>
+          2. Create OAuth Client ID → Web application<br>
+          3. Add <code style="background:var(--bg-secondary);padding:1px 4px;border-radius:3px">https://shivam-kumar-ux.github.io</code> as an authorized JavaScript origin<br>
+          4. Also add <code style="background:var(--bg-secondary);padding:1px 4px;border-radius:3px">http://localhost:5500</code> for local dev<br>
+          5. Set up OAuth Consent Screen → User Type: External → add your email as Test User
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" id="btnSaveClientId">Save Client ID</button>
+          <button class="btn btn-outline" id="btnClearClientId" style="color:var(--danger);border-color:var(--danger)">Clear</button>
+        </div>
+      </div>
+
+      <!-- Google Drive Sync -->
+      <div class="card">
+        <h3 style="font-size:0.9rem;font-weight:600;color:var(--text-primary);margin-bottom:4px">GOOGLE DRIVE BACKUP</h3>
+        <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:14px">
+          Encrypted backup of your study data to your personal Google Drive (AppData folder).
+          Your data is AES-256-GCM encrypted before upload.
+        </p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <button class="btn btn-primary" id="btnConnectDrive">Connect Google Drive</button>
+          <button class="btn btn-secondary" id="btnSyncDrive" style="display:none">Sync Now</button>
+          <button class="btn btn-outline" id="btnDisconnectDrive" style="display:none;color:var(--danger);border-color:var(--danger)">Disconnect</button>
+        </div>
+        <div id="driveSyncStatus" style="font-size:0.8rem;color:var(--text-muted)">Status: Disconnected</div>
+      </div>
+    </div>
+
     <!-- TAB 1: AI PROVIDERS -->
-    <div class="tab-content active" id="tab-providers">
+    <div class="tab-content" id="tab-providers">
       <div class="card" style="margin-bottom: 20px; background: var(--bg-surface); border-color: var(--border);">
         <h3 style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">LOCAL-FIRST API KEYS</h3>
         <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
@@ -152,11 +223,70 @@
 import { renderAppShell, showToast } from "../js/ui-components.js";
 import { initTheme, setTheme } from "../js/theme.js";
 import { initGoogleOAuth, requestGoogleDriveAuth, isDriveConnected, disconnectGoogleDrive, getBackupMeta, backupToDrive } from "../js/gdrive.js";
+import { getCurrentUser, requireAuth } from "../js/auth.js";
+import { getGoogleClientId, setGoogleClientId, isGoogleConfigured, clearConfig } from "../js/config.js";
 
+requireAuth();
 initTheme();
 renderAppShell("settings", "Settings");
 
-// Tab Switcher logic
+// ── Account Info ────────────────────────────────────────────────
+const user = getCurrentUser();
+if (user) {
+  document.getElementById("acctEmail").textContent = user.email || "—";
+  document.getElementById("acctName").textContent = user.name || "—";
+  const methodEl = document.getElementById("acctMethod");
+  if (user.loginMethod === "google") {
+    methodEl.textContent = "Google";
+    methodEl.className = "badge badge-success";
+  } else {
+    methodEl.textContent = "Email / Password";
+    methodEl.className = "badge badge-info";
+  }
+}
+
+// ── Google Client ID Config ─────────────────────────────────────
+function updateClientIdUI() {
+  const configured = isGoogleConfigured();
+  const statusEl = document.getElementById("gConfigStatus");
+  const inp = document.getElementById("inp-client-id");
+
+  if (configured) {
+    const id = getGoogleClientId();
+    statusEl.innerHTML = `<span style="color:#22c55e">✅ Configured</span> — <span style="font-family:var(--font-mono);font-size:0.78rem;color:var(--text-muted)">${id.slice(0, 20)}…${id.slice(-20)}</span>`;
+    inp.placeholder = "Update to change Client ID";
+  } else {
+    statusEl.innerHTML = `<span style="color:var(--danger)">⚠️ Not configured</span> — Google Sign-In and Drive backup are disabled.`;
+  }
+}
+
+updateClientIdUI();
+
+document.getElementById("btnSaveClientId")?.addEventListener("click", () => {
+  const val = document.getElementById("inp-client-id").value.trim();
+  if (!val) return showToast("Please enter a Client ID.", "warning");
+  if (!val.includes(".apps.googleusercontent.com")) {
+    return showToast("Invalid Client ID format. It must end with .apps.googleusercontent.com", "danger");
+  }
+  const saved = setGoogleClientId(val);
+  if (saved) {
+    showToast("Google Client ID saved! Refresh to apply Google Sign-In.", "success");
+    document.getElementById("inp-client-id").value = "";
+    updateClientIdUI();
+  } else {
+    showToast("Failed to save. Please check the value.", "danger");
+  }
+});
+
+document.getElementById("btnClearClientId")?.addEventListener("click", () => {
+  if (confirm("Reset to the built-in default Client ID? Your custom override will be removed.")) {
+    clearConfig();
+    updateClientIdUI();
+    showToast("Reset to built-in default Client ID.", "info");
+  }
+});
+
+// ── Tab Switcher ────────────────────────────────────────────────
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -166,72 +296,98 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
   });
 });
 
-// Theme switcher event bindings
+// ── Theme switcher ──────────────────────────────────────────────
 document.getElementById("btnThemeDark")?.addEventListener("click", () => {
-  setTheme("dark");
-  showToast("Applied Dark Mode", "success");
+  setTheme("dark"); showToast("Applied Dark Mode", "success");
 });
 document.getElementById("btnThemeLight")?.addEventListener("click", () => {
-  setTheme("light");
-  showToast("Applied Light Mode", "success");
+  setTheme("light"); showToast("Applied Light Mode", "success");
 });
 
-document.getElementById("btnExportData")?.addEventListener("click", () => {
-  showToast("Exported local data backup", "info");
-});
-
-document.getElementById("btnClearData")?.addEventListener("click", () => {
-  if (confirm("Clear all local study data?")) {
-    indexedDB.deleteDatabase("SynaptiqDB");
-    localStorage.clear();
-    showToast("Local data reset", "warning");
-    setTimeout(() => location.reload(), 1000);
+// ── Data & Privacy ──────────────────────────────────────────────
+document.getElementById("btnExportData")?.addEventListener("click", async () => {
+  try {
+    const { dbExportAll } = await import("../js/db.js");
+    const data = await dbExportAll();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `synaptiq_backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast("Data exported successfully", "success");
+  } catch (e) {
+    showToast("Export failed: " + e.message, "danger");
   }
 });
 
-// Google Drive Sync Logic
-const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE"; // User must replace this
+document.getElementById("btnClearData")?.addEventListener("click", () => {
+  if (confirm("This will delete ALL your local study data including plans, notes, progress, and quizzes. This cannot be undone.\n\nAre you sure?")) {
+    indexedDB.deleteDatabase("SynaptiqDB");
+    localStorage.clear();
+    showToast("Local data cleared.", "warning");
+    setTimeout(() => window.location.href = "login.html", 1500);
+  }
+});
+
+// ── Google Drive Sync ──────────────────────────────────────────
 let isGisLoaded = false;
 
 function updateDriveUI() {
   const connected = isDriveConnected();
-  document.getElementById("btnConnectDrive").style.display = connected ? "none" : "block";
-  document.getElementById("btnSyncDrive").style.display = connected ? "block" : "none";
-  document.getElementById("btnDisconnectDrive").style.display = connected ? "block" : "none";
-  
+  // Update buttons in Account tab
+  ["btnConnectDrive"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = connected ? "none" : "block";
+  });
+  ["btnSyncDrive", "btnDisconnectDrive"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = connected ? "block" : "none";
+  });
+
   const meta = getBackupMeta();
-  if (connected) {
-    let statusText = "Status: Connected";
-    if (meta.lastBackup) {
-      statusText += ` (Last Backup: ${new Date(meta.lastBackup).toLocaleString()})`;
+  const statusEl = document.getElementById("driveSyncStatus");
+  if (statusEl) {
+    if (connected) {
+      let txt = "✅ Status: Connected";
+      if (meta.lastBackup) txt += ` · Last Backup: ${new Date(meta.lastBackup).toLocaleString()}`;
+      statusEl.textContent = txt;
+      statusEl.style.color = "#22c55e";
+    } else {
+      statusEl.textContent = "Status: Disconnected";
+      statusEl.style.color = "var(--text-muted)";
     }
-    document.getElementById("driveSyncStatus").textContent = statusText;
-  } else {
-    document.getElementById("driveSyncStatus").textContent = "Status: Disconnected";
   }
 }
 
-// Ensure GIS is loaded before initializing
 const checkGisInterval = setInterval(() => {
   if (typeof google !== "undefined" && google.accounts && google.accounts.oauth2) {
     clearInterval(checkGisInterval);
     isGisLoaded = true;
-    initGoogleOAuth(GOOGLE_CLIENT_ID, (res) => {
-      if (res.success) {
-        showToast("Google Drive Connected!", "success");
-        updateDriveUI();
-      } else {
-        showToast("Drive connection failed: " + res.error, "danger");
-      }
-    });
+    const clientId = getGoogleClientId();
+    if (clientId) {
+      initGoogleOAuth(clientId, (res) => {
+        if (res.success) {
+          showToast("Google Drive Connected!", "success");
+          updateDriveUI();
+        } else {
+          showToast("Drive connection failed: " + res.error, "danger");
+        }
+      });
+    }
   }
 }, 500);
 
 updateDriveUI();
 
 document.getElementById("btnConnectDrive")?.addEventListener("click", () => {
+  if (!isGoogleConfigured()) {
+    showToast("Please configure your Google Client ID first (Account tab).", "warning");
+    return;
+  }
   if (!isGisLoaded) {
-    showToast("Google libraries are still loading. Please try again in a moment.", "warning");
+    showToast("Google libraries still loading — please wait a moment.", "warning");
     return;
   }
   requestGoogleDriveAuth();
@@ -245,16 +401,14 @@ document.getElementById("btnDisconnectDrive")?.addEventListener("click", () => {
 
 document.getElementById("btnSyncDrive")?.addEventListener("click", async () => {
   const btn = document.getElementById("btnSyncDrive");
-  btn.textContent = "Syncing...";
+  btn.textContent = "Syncing…";
   btn.disabled = true;
-  
   const res = await backupToDrive();
   if (res.success) {
     showToast("Successfully backed up to Google Drive", "success");
   } else {
     showToast("Backup failed: " + res.error, "danger");
   }
-  
   updateDriveUI();
   btn.textContent = "Sync Now";
   btn.disabled = false;

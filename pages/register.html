@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="application-name" content="SYNAPTIQAI">
+<meta name="theme-color" content="#0EA5E9">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SYNAPTIQAI">
+<title>Create Account — SYNAPTIQAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+body { display:flex; align-items:center; justify-content:center; padding:24px; min-height:100vh; background:var(--bg-primary); }
+.reg-card { background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:36px; width:100%; max-width:440px; box-shadow:var(--shadow-md); }
+.err-box { background:rgba(239,68,68,.1); border:1px solid var(--danger,#ef4444); border-radius:8px; padding:10px 14px; font-size:0.85rem; color:var(--danger,#ef4444); margin-bottom:14px; display:none; }
+.err-box.show { display:block; }
+.pw-wrap { position:relative; }
+.pw-wrap input { padding-right:44px; width:100%; box-sizing:border-box; }
+.pw-toggle { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:1rem; padding:2px 6px; }
+.strength-bar { height:4px; border-radius:4px; margin-top:6px; background:var(--border); transition:all 0.3s; width:0; }
+.requirements { font-size:0.75rem; color:var(--text-muted); margin-top:4px; }
+</style>
+<link rel="icon" type="image/png" href="../img/synaptiq_logo_removebg.png">
+<link rel="manifest" href="../manifest.json">
+</head>
+<body>
+
+<div class="reg-card">
+  <div style="text-align:center;margin-bottom:24px">
+    <img src="../img/synaptiq_logo_removebg.png" style="width:44px;height:44px;margin-bottom:8px">
+    <div style="font-family:var(--font-heading);font-weight:700;font-size:1.1rem;color:var(--text-primary);letter-spacing:1px">SYNAPTIQAI</div>
+    <div style="color:var(--text-secondary);font-size:0.85rem;margin-top:2px">Create your scholar account</div>
+  </div>
+
+  <div class="err-box" id="errBox"></div>
+
+  <div class="form-group">
+    <label class="form-label">FULL NAME</label>
+    <input type="text" class="input-text" id="inp-name" placeholder="Your name" autocomplete="name">
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">EMAIL ADDRESS</label>
+    <input type="email" class="input-text" id="inp-email" placeholder="you@example.com" autocomplete="email">
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">PASSWORD <span style="color:var(--text-muted);font-weight:400">(min 8 characters)</span></label>
+    <div class="pw-wrap">
+      <input type="password" class="input-text" id="inp-pw" placeholder="Create a strong password" autocomplete="new-password">
+      <button type="button" class="pw-toggle" id="togglePw" title="Show/hide">👁</button>
+    </div>
+    <div class="strength-bar" id="strengthBar"></div>
+    <div class="requirements" id="pwReq"></div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">CONFIRM PASSWORD</label>
+    <div class="pw-wrap">
+      <input type="password" class="input-text" id="inp-pw2" placeholder="Repeat your password" autocomplete="new-password">
+      <button type="button" class="pw-toggle" id="togglePw2" title="Show/hide">👁</button>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="registerBtn" style="width:100%;margin-bottom:14px">Create Account</button>
+
+  <div style="text-align:center;font-size:0.85rem;color:var(--text-secondary)">
+    Already have an account? <a href="login.html" style="color:var(--accent-primary);font-weight:600">Sign In</a>
+  </div>
+</div>
+
+<script type="module">
+import { signupWithEmail, isAuthenticated } from '../js/auth.js';
+import { initTheme } from '../js/theme.js';
+
+initTheme();
+if (isAuthenticated()) { window.location.href = 'dashboard.html'; }
+
+function showErr(msg) {
+  const b = document.getElementById('errBox');
+  b.textContent = msg; b.classList.add('show');
+  setTimeout(() => b.classList.remove('show'), 6000);
+}
+
+// Password visibility toggles
+['togglePw', 'togglePw2'].forEach((id, i) => {
+  document.getElementById(id)?.addEventListener('click', () => {
+    const el = document.getElementById(i === 0 ? 'inp-pw' : 'inp-pw2');
+    el.type = el.type === 'password' ? 'text' : 'password';
+  });
+});
+
+// Strength indicator
+document.getElementById('inp-pw')?.addEventListener('input', (e) => {
+  const v = e.target.value;
+  const bar = document.getElementById('strengthBar');
+  const req = document.getElementById('pwReq');
+  if (!v) { bar.style.width = '0'; req.textContent = ''; return; }
+  
+  let score = 0;
+  const tips = [];
+  if (v.length >= 8) score++; else tips.push('at least 8 chars');
+  if (v.length >= 12) score++;
+  if (/[A-Z]/.test(v)) score++; else tips.push('uppercase letter');
+  if (/[0-9]/.test(v)) score++; else tips.push('number');
+  if (/[^A-Za-z0-9]/.test(v)) score++; else tips.push('special character');
+  
+  const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#22c55e'];
+  const labels = ['Very weak', 'Weak', 'Fair', 'Good', 'Strong'];
+  bar.style.width = (score * 20) + '%';
+  bar.style.background = colors[score - 1] || '#ef4444';
+  req.textContent = score < 5 && tips.length ? `Tip: add ${tips[0]}` : (score >= 4 ? '✓ Strong password' : '');
+  req.style.color = score >= 4 ? '#22c55e' : 'var(--text-muted)';
+});
+
+// Create account
+async function doRegister() {
+  const name = document.getElementById('inp-name').value.trim();
+  const email = document.getElementById('inp-email').value.trim();
+  const pw = document.getElementById('inp-pw').value;
+  const pw2 = document.getElementById('inp-pw2').value;
+
+  if (!name) return showErr('Please enter your full name.');
+  if (!email) return showErr('Please enter your email address.');
+  if (pw.length < 8) return showErr('Password must be at least 8 characters.');
+  if (pw !== pw2) return showErr('Passwords do not match. Please re-enter.');
+
+  const btn = document.getElementById('registerBtn');
+  btn.textContent = 'Creating account…';
+  btn.disabled = true;
+
+  const res = await signupWithEmail(email, pw, name);
+
+  btn.textContent = 'Create Account';
+  btn.disabled = false;
+
+  if (res.success) {
+    // Redirect to onboarding
+    window.location.href = 'signup.html';
+  } else {
+    showErr(res.error);
+  }
+}
+
+document.getElementById('registerBtn')?.addEventListener('click', doRegister);
+document.getElementById('inp-pw2')?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') doRegister();
+});
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

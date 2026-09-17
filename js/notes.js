@@ -2,6 +2,7 @@
 
 import { callAI, safeParseJSON } from "./ai.js";
 import { dbPut, dbGetByIndex } from "./db.js";
+import { getCurrentUser } from "./auth.js";
 
 export const EXPLANATION_LEVELS = [
   "Beginner",
@@ -91,8 +92,6 @@ export async function getUserNotesForTopic(userId, topicName) {
     return [];
   }
 }
-
-import { getCurrentUser } from "./auth.js";
 
 export async function generateStudyNotes(topicName, level = "Intermediate") {
   const session = getCurrentUser();

@@ -1,6 +1,7 @@
 // js/ai-providers.js — User AI Provider Manager for SYNAPTIQAI
 
 import { dbGetAll, dbPut, dbDelete, dbGet, dbGetByIndex } from "./db.js";
+import { getCurrentUser } from "./auth.js";
 
 // Helper to mask key for UI display
 export function maskApiKey(key) {
@@ -328,7 +329,6 @@ const PROVIDER_CLASSES = {
 };
 
 // ── Provider Manager ─────────────────────────────────────────
-import { getCurrentUser } from "./auth.js";
 
 export class ProviderManager {
   static async getConfiguredProviders() {

@@ -2,7 +2,7 @@
 // Strategy: Cache-First for static assets, Network-First for pages, 
 //            Stale-While-Revalidate for fonts/images, Background Sync for offline actions.
 
-const APP_VERSION = "v2.0.0";
+const APP_VERSION = "v2.1.0";
 const CACHE_STATIC = `synaptiq-static-${APP_VERSION}`;
 const CACHE_PAGES  = `synaptiq-pages-${APP_VERSION}`;
 const CACHE_FONTS  = `synaptiq-fonts-${APP_VERSION}`;
@@ -50,6 +50,7 @@ const JS_ASSETS = [
 
 const PAGE_ASSETS = [
   "/pages/login.html",
+  "/pages/register.html",
   "/pages/signup.html",
   "/pages/dashboard.html",
   "/pages/plan-new.html",

@@ -1,6 +1,7 @@
 {
   "cleanUrls": true,
   "rewrites": [
+    { "source": "/register", "destination": "/pages/register.html" },
     { "source": "/dashboard", "destination": "/pages/dashboard.html" },
     { "source": "/plan-new", "destination": "/pages/plan-new.html" },
     { "source": "/plan-view", "destination": "/pages/plan-view.html" },

@@ -1,6 +1,7 @@
 // js/gdrive.js — Optional Encrypted Google Drive Sync & Backup
 
 import { dbExportAll, dbImportAll } from "./db.js";
+import { getGoogleClientId } from "./config.js";
 
 const SCOPES = "https://www.googleapis.com/auth/drive.appdata";
 const BACKUP_FILENAME = "synaptiq_backup.json.enc";
@@ -79,7 +80,24 @@ export async function decryptData(base64Str, passphrase = "synaptiq_default_key"
 }
 
 // ── Google OAuth Initialization ──────────────────────────────
-export function initGoogleOAuth(clientId, callback) {
+export function initGoogleOAuth(clientIdOrCallback, callback) {
+  // Support both (clientId, callback) and (callback) signatures for backwards compat
+  let clientId;
+  let cb;
+  if (typeof clientIdOrCallback === "function") {
+    cb = clientIdOrCallback;
+    clientId = getGoogleClientId();
+  } else {
+    clientId = clientIdOrCallback || getGoogleClientId();
+    cb = callback;
+  }
+
+  if (!clientId) {
+    console.warn("[GDrive] No Google Client ID configured. Configure it in Settings > Account.");
+    if (cb) cb({ success: false, error: "Google Client ID not configured. Go to Settings > Account." });
+    return false;
+  }
+
   if (typeof google === "undefined" || !google.accounts?.oauth2) {
     console.warn("Google Identity Services SDK not loaded.");
     return false;
@@ -92,9 +110,9 @@ export function initGoogleOAuth(clientId, callback) {
       if (response.access_token) {
         accessToken = response.access_token;
         localStorage.setItem(GDRIVE_TOKEN_KEY, accessToken);
-        if (callback) callback({ success: true, token: accessToken });
+        if (cb) cb({ success: true, token: accessToken });
       } else {
-        if (callback) callback({ success: false, error: response.error });
+        if (cb) cb({ success: false, error: response.error });
       }
     }
   });

@@ -1,8 +1,10 @@
 // js/routes.js — Dynamic Relative Navigation Engine for SYNAPTIQAI
 
+import { logout } from "./auth.js";
 const PAGE_FILES = {
   home: "index.html",
   login: "pages/login.html",
+  register: "pages/register.html",
   signup: "pages/signup.html",
   dashboard: "pages/dashboard.html",
   planNew: "pages/plan-new.html",
@@ -56,8 +58,6 @@ export function navigateTo(routeName, params = {}) {
   }
   window.location.href = path;
 }
-
-import { logout } from "./auth.js";
 
 /**
  * Global Logout handler

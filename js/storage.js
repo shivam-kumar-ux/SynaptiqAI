@@ -259,11 +259,19 @@ export function clearTimerState() {
 }
 
 export function saveCurrentUser(user) {
+  // DEPRECATED: Use saveSessionUser() from auth.js instead.
+  // Kept for backwards compatibility only — writes to legacy key.
+  console.warn("[storage.js] saveCurrentUser() is deprecated. Use auth.js saveSessionUser().");
   localStorage.setItem("currentUser", JSON.stringify(user));
 }
 
 export function getCurrentUser() {
+  // DEPRECATED: Use getCurrentUser() from auth.js instead.
+  // Falls back to reading synaptiq_session (new canonical key) first.
+  console.warn("[storage.js] getCurrentUser() is deprecated. Import from auth.js instead.");
   try {
+    const session = JSON.parse(localStorage.getItem("synaptiq_session"));
+    if (session) return session;
     return JSON.parse(localStorage.getItem("currentUser"));
   } catch {
     return null;
